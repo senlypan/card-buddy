@@ -1,0 +1,9 @@
+<!--pages/doudizhu/doudizhu.wxml-->
+<view class="container" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+  <view class="coming-soon">
+    <text class="emoji">🚧</text>
+    <text class="title">斗地主开发中</text>
+    <text class="desc">敬请期待！</text>
+    <view class="back-btn" bindtap="goBack">返回首页</view>
+  </view>
+</view>

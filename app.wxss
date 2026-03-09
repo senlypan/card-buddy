@@ -1,0 +1,84 @@
+/* 全局样式 - 适合儿童的活泼风格 */
+page {
+  background: linear-gradient(180deg, #FFE5E5 0%, #FFF5F5 100%);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.container {
+  padding: 20rpx;
+}
+
+/* 大按钮样式 - 方便孩子点击 */
+.big-btn {
+  width: 90%;
+  height: 120rpx;
+  margin: 20rpx auto;
+  border-radius: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: bold;
+  box-shadow: 0 8rpx 16rpx rgba(255, 107, 107, 0.3);
+  transition: transform 0.2s;
+}
+
+.big-btn:active {
+  transform: scale(0.95);
+}
+
+/* 卡片样式 */
+.card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 积分显示 */
+.points-badge {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: white;
+  padding: 10rpx 30rpx;
+  border-radius: 30rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  display: inline-block;
+  box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.4);
+}
+
+/* 游戏标题 */
+.game-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin: 40rpx 0;
+}
+
+/* 牌友对话框 */
+.buddy-bubble {
+  background: white;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin: 20rpx;
+  position: relative;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.buddy-bubble::before {
+  content: '🃏';
+  font-size: 80rpx;
+  position: absolute;
+  top: -40rpx;
+  left: 30rpx;
+}
+
+.buddy-text {
+  font-size: 32rpx;
+  color: #333;
+  margin-left: 80rpx;
+  line-height: 1.6;
+}

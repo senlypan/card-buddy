@@ -1,0 +1,78 @@
+<!--pages/zhajinhua/zhajinhua.wxml-->
+<view class="container">
+  <!-- 游戏信息栏 -->
+  <view class="game-info">
+    <view class="info-item">
+      <text class="label">第 {{round}} 局</text>
+    </view>
+    <view class="info-item">
+      <text class="label">我的积分</text>
+      <text class="points">{{myPoints}}</text>
+    </view>
+  </view>
+
+  <!-- 牌友（对手）区域 -->
+  <view class="player-area buddy-area">
+    <view class="avatar">🃏</view>
+    <view class="player-info">
+      <text class="name">牌牌</text>
+      <view class="cards" wx:if="{{!showBuddyCards}}">
+        <view class="card back" wx:for="{{3}}" wx:key="*this"></view>
+      </view>
+      <view class="cards" wx:else>
+        <view class="card" wx:for="{{buddyCards}}" wx:key="*this">
+          <text class="card-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 游戏提示 -->
+  <view class="message-box">
+    <text class="message">{{message}}</text>
+  </view>
+
+  <!-- 我的手牌区域 -->
+  <view class="player-area my-area">
+    <view class="player-info">
+      <text class="name">我</text>
+      <view class="cards">
+        <view class="card large" wx:for="{{myCards}}" wx:key="*this">
+          <text class="card-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="avatar">👦</view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-area" wx:if="{{gamePhase === 'betting'}}">
+    <view class="big-btn" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);" bindtap="call">
+      跟注
+    </view>
+    <view class="big-btn" style="background: linear-gradient(135deg, #4ECDC4 0%, #7EDDD6 100%);" bindtap="raise">
+      加注
+    </view>
+    <view class="big-btn" style="background: linear-gradient(135deg, #95A5A6 0%, #BDC3C7 100%);" bindtap="fold">
+      弃牌
+    </view>
+    <view class="big-btn" style="background: linear-gradient(135deg, #F39C12 0%, #F5B041 100%);" bindtap="showdown">
+      开牌
+    </view>
+  </view>
+
+  <view class="action-area" wx:if="{{gamePhase === 'end'}}">
+    <view class="big-btn" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);" bindtap="nextRound">
+      再来一局
+    </view>
+  </view>
+
+  <!-- 结算弹窗 -->
+  <view class="modal" wx:if="{{showResult}}">
+    <view class="modal-content">
+      <text class="result-emoji">{{resultEmoji}}</text>
+      <text class="result-title">{{resultTitle}}</text>
+      <text class="result-points">{{resultPoints}}</text>
+    </view>
+  </view>
+</view>

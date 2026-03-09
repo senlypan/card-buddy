@@ -1,0 +1,122 @@
+/* pages/profile/profile.wxss */
+.profile-card {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  padding: 60rpx 30rpx;
+  text-align: center;
+  color: white;
+}
+
+.avatar {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.nickname {
+  font-size: 40rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 30rpx;
+}
+
+.points-display {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 30rpx;
+  padding: 20rpx 40rpx;
+  display: inline-block;
+}
+
+.points-label {
+  font-size: 24rpx;
+  opacity: 0.9;
+  display: block;
+}
+
+.points-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  display: block;
+}
+
+.card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 30rpx;
+}
+
+.stats-grid {
+  display: flex;
+  justify-content: space-around;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #FF6B6B;
+  display: block;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-top: 10rpx;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.menu-arrow {
+  font-size: 40rpx;
+  color: #ccc;
+}
+
+.tips-card {
+  background: linear-gradient(135deg, #FFF9E5 0%, #FFF5E5 100%);
+}
+
+.tips-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #F39C12;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.tips-text {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+}

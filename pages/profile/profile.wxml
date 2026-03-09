@@ -1,0 +1,56 @@
+<!--pages/profile/profile.wxml-->
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="profile-card">
+    <view class="avatar">👦</view>
+    <text class="nickname">{{userInfo.nickname}}</text>
+    <view class="points-display">
+      <text class="points-label">总积分</text>
+      <text class="points-value">{{userInfo.totalPoints}}</text>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-card card">
+    <text class="card-title">📊 游戏统计</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{userInfo.playCount}}</text>
+        <text class="stat-label">已玩局数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{userInfo.winCount}}</text>
+        <text class="stat-label">获胜局数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{winRate}}%</text>
+        <text class="stat-label">胜率</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 菜单选项 -->
+  <view class="menu-card card">
+    <view class="menu-item" bindtap="changeNickname">
+      <text class="menu-icon">✏️</text>
+      <text class="menu-text">修改昵称</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="resetData">
+      <text class="menu-icon">🔄</text>
+      <text class="menu-text">重置数据</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="about">
+      <text class="menu-icon">ℹ️</text>
+      <text class="menu-text">关于牌友</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 温馨提示 -->
+  <view class="tips-card card">
+    <text class="tips-title">💡 温馨提示</text>
+    <text class="tips-text">适度游戏，健康成长！每次游戏不要超过 30 分钟哦～</text>
+  </view>
+</view>

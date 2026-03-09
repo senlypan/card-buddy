@@ -1,0 +1,36 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 牌友打招呼 -->
+  <view class="buddy-bubble">
+    <text class="buddy-text">嗨！我是牌牌 🃏<br/>今天想玩什么游戏呀？</text>
+  </view>
+
+  <!-- 积分显示 -->
+  <view class="card" style="text-align: center;">
+    <text style="font-size: 28rpx; color: #666;">我的积分</text>
+    <view class="points-badge" style="margin-top: 10rpx;">{{points}} 分</view>
+  </view>
+
+  <!-- 游戏选择 -->
+  <view class="game-title">选择游戏</view>
+
+  <view class="big-btn" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);" bindtap="playZhajinhua">
+    🎴 炸金花
+  </view>
+
+  <view class="big-btn" style="background: linear-gradient(135deg, #4ECDC4 0%, #7EDDD6 100%);" bindtap="playDoudizhu">
+    🃏 斗地主
+  </view>
+
+  <view class="big-btn" style="background: linear-gradient(135deg, #A8E6CF 0%, #D4F0E0 100%);" bindtap="comingSoon">
+    🎲 更多游戏（开发中）
+  </view>
+
+  <!-- 游戏规则提示 -->
+  <view class="card" style="margin-top: 40rpx;">
+    <text style="font-size: 28rpx; color: #666; font-weight: bold;">💡 小提示</text>
+    <text style="font-size: 24rpx; color: #999; display: block; margin-top: 10rpx;">
+      适度游戏，每次不要超过 30 分钟哦～
+    </text>
+  </view>
+</view>
