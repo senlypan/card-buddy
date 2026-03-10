@@ -1,4 +1,4 @@
-/* pages/doudizhu/doudizhu.wxss - 优化版 */
+/* pages/doudizhu/doudizhu.wxss - 角色选择版 */
 
 .container {
   min-height: 100vh;
@@ -6,6 +6,81 @@
   padding-bottom: 20rpx;
   max-width: 1024px;
   margin: 0 auto;
+}
+
+/* 角色选择界面 */
+.select-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 40rpx;
+}
+
+.select-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20rpx;
+}
+
+.select-subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 80rpx;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.role-buttons {
+  display: flex;
+  gap: 40rpx;
+  justify-content: center;
+}
+
+.role-btn {
+  width: 280rpx;
+  height: 360rpx;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10rpx);
+  border-radius: 32rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15rpx;
+  transition: all 0.3s ease;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+}
+
+.role-btn:active {
+  transform: scale(0.95);
+}
+
+.landlord-btn {
+  background: linear-gradient(135deg, rgba(230, 126, 34, 0.3) 0%, rgba(211, 84, 0, 0.2) 100%);
+  border-color: rgba(230, 126, 34, 0.5);
+}
+
+.farmer-btn {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.3) 0%, rgba(39, 174, 96, 0.2) 100%);
+  border-color: rgba(46, 204, 113, 0.5);
+}
+
+.role-emoji {
+  font-size: 100rpx;
+}
+
+.role-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: white;
+}
+
+.role-desc {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .game-info {
