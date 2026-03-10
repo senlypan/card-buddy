@@ -125,7 +125,57 @@ Page({
     })
   },
 
-  // 加注
+  // 显示加注输入框
+  showRaiseInput() {
+    const maxAmount = this.data.myPoints
+    this.setData({
+      showRaiseInput: true,
+      customRaiseAmount: Math.min(20, maxAmount)
+    })
+  },
+  
+  // 关闭加注输入框
+  closeRaiseInput() {
+    this.setData({
+      showRaiseInput: false
+    })
+  },
+  
+  // 自定义加注金额
+  customRaise() {
+    const amount = this.data.customRaiseAmount
+    const maxAmount = this.data.myPoints
+    
+    if (amount < 1) {
+      wx.showToast({
+        title: '最少 1 分',
+        icon: 'none'
+      })
+      return
+    }
+    
+    if (amount > maxAmount) {
+      wx.showToast({
+        title: '不能超过剩余积分',
+        icon: 'none'
+      })
+      return
+    }
+    
+    this.setData({
+      betAmount: this.data.betAmount + amount,
+      isRaised: true,
+      showRaiseInput: false,
+      message: `你加注了${amount}分！牌牌要思考一下...`
+    })
+    
+    // 牌牌 AI 响应
+    setTimeout(() => {
+      this.buddyResponse()
+    }, 1500)
+  },
+  
+  // 加注（简化版，固定加 20）
   raise() {
     if (this.data.isRaised) {
       return
@@ -333,5 +383,29 @@ Page({
   // 阻止点击内容区域关闭
   stopClose() {
     // 空函数，阻止事件冒泡
+  },
+  
+  // 滑块变化
+  onSliderChange(e) {
+    this.setData({
+      customRaiseAmount: e.detail.value
+    })
+  },
+  
+  // 输入金额
+  onInputAmount(e) {
+    const value = parseInt(e.detail.value) || 0
+    this.setData({
+      customRaiseAmount: value
+    })
+  },
+  
+  // 快速设置金额
+  setQuickAmount(e) {
+    const amount = e.currentTarget.dataset.amount
+    const maxAmount = this.data.myPoints
+    this.setData({
+      customRaiseAmount: Math.min(amount, maxAmount)
+    })
   }
 })
