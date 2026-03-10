@@ -189,8 +189,13 @@ Page({
   endRound() {
     const { myHandType, landlordHandType, myPoints, isLandlord } = this.data
     
-    // 比较牌力
-    const compare = CardUtils.compareHands(myHandType, landlordHandType)
+    // 比较牌力（直接比较 value 值）
+    let compare = 0
+    if (myHandType.value > landlordHandType.value) {
+      compare = 1
+    } else if (myHandType.value < landlordHandType.value) {
+      compare = -1
+    }
     
     let win = false
     let pointsChange = 0
