@@ -202,14 +202,86 @@ Page({
       }
     }
     
-    // 先手出牌策略
+    // 先手出牌策略（优先级从高到低）
     const valueCount = {}
     availableCards.forEach(c => {
       const text = c.text
       valueCount[text] = (valueCount[text] || 0) + 1
     })
     
-    // 1. 检查有没有连对（3 个以上对子）
+    const counts = Object.values(valueCount)
+    const values = Object.keys(valueCount).map(text => 
+      CardUtils.getCardValue(availableCards.find(c => c.text === text))
+    ).sort((a, b) => b - a)
+    
+    // 1. 检查有没有炸弹
+    if (counts.includes(4)) {
+      const bombText = Object.keys(valueCount).find(text => valueCount[text] === 4)
+      return {
+        text: `建议出炸弹：${bombText} ${bombText} ${bombText} ${bombText}`,
+        type: 'bomb'
+      }
+    }
+    
+    // 2. 检查有没有飞机
+    const triplesForPlane = []
+    for (const [text, count] of Object.entries(valueCount)) {
+      if (count === 3) {
+        const value = CardUtils.getCardValue(availableCards.find(c => c.text === text))
+        triplesForPlane.push({ text, value })
+      }
+    }
+    if (triplesForPlane.length >= 2) {
+      triplesForPlane.sort((a, b) => b.value - a.value)
+      for (let i = 0; i <= triplesForPlane.length - 2; i++) {
+        if (triplesForPlane[i].value - triplesForPlane[i + 1].value === 1) {
+          const texts = [triplesForPlane[i].text, triplesForPlane[i + 1].text].join(' ')
+          return {
+            text: `建议出飞机：${texts}`,
+            type: 'plane'
+          }
+        }
+      }
+    }
+    
+    // 3. 检查有没有三带一/三带二
+    if (counts.includes(3)) {
+      const tripleText = Object.keys(valueCount).find(text => valueCount[text] === 3)
+      const otherCards = availableCards.filter(c => c.text !== tripleText)
+      if (otherCards.length >= 1) {
+        return {
+          text: `建议出三带一：${tripleText} ${tripleText} ${tripleText} + ${otherCards[0].text}`,
+          type: 'triple_with_one'
+        }
+      }
+    }
+    
+    // 4. 检查有没有顺子
+    if (values.length >= 5) {
+      for (let i = 0; i <= values.length - 5; i++) {
+        let isContinuous = true
+        for (let j = 0; j < 4; j++) {
+          if (values[i + j] - values[i + j + 1] !== 1) {
+            isContinuous = false
+            break
+          }
+        }
+        if (isContinuous && values[i + 4] >= 5) {
+          const straightValues = values.slice(i, i + 5)
+          const valueToText = {}
+          availableCards.forEach(c => {
+            valueToText[CardUtils.getCardValue(c)] = c.text
+          })
+          const texts = straightValues.map(v => valueToText[v]).join(' ')
+          return {
+            text: `建议出顺子：${texts}`,
+            type: 'straight'
+          }
+        }
+      }
+    }
+    
+    // 5. 检查有没有连对
     const pairs = []
     for (const [text, count] of Object.entries(valueCount)) {
       if (count >= 2) {
@@ -220,7 +292,6 @@ Page({
     
     if (pairs.length >= 3) {
       pairs.sort((a, b) => b.value - a.value)
-      // 找连续的对子
       for (let i = 0; i <= pairs.length - 3; i++) {
         let isContinuous = true
         for (let j = 0; j < 2; j++) {
@@ -239,7 +310,7 @@ Page({
       }
     }
     
-    // 2. 检查有没有对子
+    // 6. 检查有没有对子
     for (const [text, count] of Object.entries(valueCount)) {
       if (count >= 2) {
         return {
@@ -249,7 +320,7 @@ Page({
       }
     }
     
-    // 3. 出最小单张
+    // 7. 出最小单张
     const minCard = availableCards.reduce((min, c) => {
       const val = CardUtils.getCardValue(c)
       const minVal = CardUtils.getCardValue(min)
@@ -529,8 +600,14 @@ Page({
   },
 
   findBeatingCard(cards, lastHand) {
-    // 如果是单张或对子
-    if (lastHand.type === '单张' || lastHand.type === '对子') {
+    const valueCount = {}
+    cards.forEach(c => {
+      const text = c.text
+      valueCount[text] = (valueCount[text] || 0) + 1
+    })
+    
+    // 单张
+    if (lastHand.type === '单张') {
       for (let i = 0; i < cards.length; i++) {
         const cardValue = CardUtils.getCardValue(cards[i])
         if (cardValue > lastHand.value) {
@@ -539,24 +616,65 @@ Page({
       }
     }
     
-    // 如果是连对，找更大的连对
+    // 对子
+    if (lastHand.type === '对子') {
+      for (const [text, count] of Object.entries(valueCount)) {
+        if (count >= 2) {
+          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          if (value > lastHand.value) {
+            const indices = cards.reduce((acc, c, i) => {
+              if (c.text === text) acc.push(i)
+              return acc
+            }, [])
+            return { index: indices[0], cards: [cards[indices[0]], cards[indices[1]]] }
+          }
+        }
+      }
+    }
+    
+    // 三条
+    if (lastHand.type === '三条') {
+      for (const [text, count] of Object.entries(valueCount)) {
+        if (count === 3) {
+          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          if (value > lastHand.value) {
+            const indices = cards.reduce((acc, c, i) => {
+              if (c.text === text) acc.push(i)
+              return acc
+            }, [])
+            return { index: indices[0], cards: indices.map(i => cards[i]) }
+          }
+        }
+      }
+    }
+    
+    // 炸弹
+    if (lastHand.type === '炸弹') {
+      for (const [text, count] of Object.entries(valueCount)) {
+        if (count === 4) {
+          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          if (value > lastHand.value - 1000) {
+            const indices = cards.reduce((acc, c, i) => {
+              if (c.text === text) acc.push(i)
+              return acc
+            }, [])
+            return { index: indices[0], cards: indices.map(i => cards[i]) }
+          }
+        }
+      }
+    }
+    
+    // 连对
     if (lastHand.type.includes('连对')) {
       const pairCount = parseInt(lastHand.type.split('×')[1])
-      const valueCount = {}
-      cards.forEach(c => {
-        const text = c.text
-        valueCount[text] = (valueCount[text] || 0) + 1
-      })
-      
       const pairs = []
       for (const [text, count] of Object.entries(valueCount)) {
-        if (count === 2) {
+        if (count >= 2) {
           const value = CardUtils.getCardValue(cards.find(c => c.text === text))
-          pairs.push({ text, value, index: cards.findIndex(c => c.text === text) })
+          pairs.push({ text, value })
         }
       }
       
-      // 找连续的對子
       pairs.sort((a, b) => b.value - a.value)
       for (let i = 0; i <= pairs.length - pairCount; i++) {
         let isContinuous = true
@@ -567,12 +685,44 @@ Page({
           }
         }
         
-        if (isContinuous && pairs[i].value > lastHand.value - pairCount) {
-          const beatCards = pairs.slice(i, i + pairCount)
-          return { 
-            index: beatCards[0].index, 
-            cards: beatCards.map(p => cards.find(c => c.text === p.text))
+        if (isContinuous && pairs[i].value > lastHand.value - pairCount / 100) {
+          const beatPairs = pairs.slice(i, i + pairCount)
+          const beatCards = []
+          beatPairs.forEach(p => {
+            const indices = cards.reduce((acc, c, i) => {
+              if (c.text === p.text && !acc.includes(i)) acc.push(i)
+              return acc
+            }, [])
+            beatCards.push(cards[indices[0]], cards[indices[1]])
+          })
+          return { index: cards.findIndex(c => c.text === beatPairs[0].text), cards: beatCards }
+        }
+      }
+    }
+    
+    // 顺子
+    if (lastHand.type.includes('顺子')) {
+      const straightLength = parseInt(lastHand.type.split('×')[1])
+      const values = Object.keys(valueCount).map(text => 
+        CardUtils.getCardValue(cards.find(c => c.text === text))
+      ).sort((a, b) => b - a)
+      
+      for (let i = 0; i <= values.length - straightLength; i++) {
+        let isContinuous = true
+        for (let j = 0; j < straightLength - 1; j++) {
+          if (values[i + j] - values[i + j + 1] !== 1) {
+            isContinuous = false
+            break
           }
+        }
+        if (isContinuous && values[i] > lastHand.value - straightLength / 100) {
+          const valueToText = {}
+          cards.forEach(c => {
+            valueToText[CardUtils.getCardValue(c)] = c.text
+          })
+          const straightValues = values.slice(i, i + straightLength)
+          const beatCards = straightValues.map(v => cards.find(c => CardUtils.getCardValue(c) === v))
+          return { index: cards.findIndex(c => CardUtils.getCardValue(c) === straightValues[0]), cards: beatCards }
         }
       }
     }
@@ -583,56 +733,126 @@ Page({
   evaluateHand(cards) {
     if (cards.length === 0) return { type: 'invalid', value: 0 }
     
+    const valueCount = {}
+    cards.forEach(c => {
+      const text = c.text
+      valueCount[text] = (valueCount[text] || 0) + 1
+    })
+    
+    const values = Object.keys(valueCount).map(text => 
+      CardUtils.getCardValue(cards.find(c => c.text === text))
+    ).sort((a, b) => b - a)
+    
     // 单张
     if (cards.length === 1) {
-      const value = CardUtils.getCardValue(cards[0])
-      return { type: '单张', value: value }
+      return { type: '单张', value: values[0] }
     }
     
     // 对子
-    if (cards.length === 2) {
-      const v1 = CardUtils.getCardValue(cards[0])
-      const v2 = CardUtils.getCardValue(cards[1])
-      if (v1 === v2) {
-        return { type: '对子', value: v1 }
+    if (cards.length === 2 && values.length === 1) {
+      return { type: '对子', value: values[0] }
+    }
+    
+    // 三条
+    if (cards.length === 3 && values.length === 1) {
+      return { type: '三条', value: values[0] }
+    }
+    
+    // 炸弹（4 张相同）
+    if (cards.length === 4 && values.length === 1) {
+      return { type: '炸弹', value: 1000 + values[0] }
+    }
+    
+    // 三带一
+    if (cards.length === 4 && values.length === 2) {
+      const tripleValue = values.find(v => {
+        const count = Object.values(valueCount).find((c, i) => 
+          Object.keys(valueCount)[i] === Object.keys(valueCount).find(k => 
+            CardUtils.getCardValue(cards.find(c => c.text === k)) === v
+          )
+        )
+        return count === 3
+      })
+      if (tripleValue) {
+        return { type: '三带一', value: tripleValue }
       }
     }
     
-    // 多个对子（连对）- 支持 2-6 个对子
-    if (cards.length >= 4 && cards.length % 2 === 0) {
-      const valueCount = {}
-      cards.forEach(c => {
-        const text = c.text
-        valueCount[text] = (valueCount[text] || 0) + 1
-      })
-      
-      // 检查是否都是对子
+    // 三带二（三带一对）
+    if (cards.length === 5 && values.length === 2) {
+      const counts = Object.values(valueCount)
+      if (counts.includes(3) && counts.includes(2)) {
+        const tripleValue = values.find((v, i) => counts[i] === 3)
+        return { type: '三带二', value: tripleValue }
+      }
+    }
+    
+    // 顺子（5 张或以上连续单张）
+    if (cards.length >= 5 && values.length === cards.length) {
+      let isContinuous = true
+      for (let i = 0; i < values.length - 1; i++) {
+        if (values[i] - values[i + 1] !== 1) {
+          isContinuous = false
+          break
+        }
+      }
+      if (isContinuous && values[values.length - 1] >= 5) { // 最小从 3 开始，5 张最小是 3-4-5-6-7
+        return { type: `顺子×${values.length}`, value: values[0] + values.length / 100 }
+      }
+    }
+    
+    // 连对（3 个或以上连续对子）
+    if (cards.length >= 6 && cards.length % 2 === 0) {
       const pairs = []
       for (const [text, count] of Object.entries(valueCount)) {
         if (count === 2) {
           const value = CardUtils.getCardValue(cards.find(c => c.text === text))
-          pairs.push({ text, value })
+          pairs.push(value)
         } else {
           return { type: 'invalid', value: 0 }
         }
       }
       
-      // 检查对子是否连续
-      if (pairs.length >= 2) {
-        pairs.sort((a, b) => b.value - a.value)
+      if (pairs.length >= 3) {
+        pairs.sort((a, b) => b - a)
         let isContinuous = true
         for (let i = 0; i < pairs.length - 1; i++) {
-          if (pairs[i].value - pairs[i + 1].value !== 1) {
+          if (pairs[i] - pairs[i + 1] !== 1) {
             isContinuous = false
             break
           }
         }
         
         if (isContinuous) {
-          return { 
-            type: `连对×${pairs.length}`, 
-            value: pairs[0].value + pairs.length // 最大的牌值 + 对子数量
+          return { type: `连对×${pairs.length}`, value: pairs[0] + pairs.length / 100 }
+        }
+      }
+    }
+    
+    // 飞机（2 个或以上连续三条）
+    if (cards.length >= 6 && cards.length % 3 === 0) {
+      const triples = []
+      for (const [text, count] of Object.entries(valueCount)) {
+        if (count === 3) {
+          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          triples.push(value)
+        } else if (count !== 0) {
+          // 允许带牌
+        }
+      }
+      
+      if (triples.length >= 2) {
+        triples.sort((a, b) => b - a)
+        let isContinuous = true
+        for (let i = 0; i < triples.length - 1; i++) {
+          if (triples[i] - triples[i + 1] !== 1) {
+            isContinuous = false
+            break
           }
+        }
+        
+        if (isContinuous) {
+          return { type: `飞机×${triples.length}`, value: triples[0] + triples.length / 100 }
         }
       }
     }
