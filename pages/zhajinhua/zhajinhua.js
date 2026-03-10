@@ -17,7 +17,9 @@ Page({
     resultEmoji: '',
     resultTitle: '',
     resultPoints: '',
-    showConfetti: false
+    showConfetti: false,
+    countdown: 3,
+    countdownTimer: null
   },
 
   onLoad() {
@@ -140,11 +142,15 @@ Page({
       resultEmoji: resultEmoji,
       resultTitle: resultTitle,
       resultPoints: pointsChange > 0 ? `+${pointsChange} 分` : `${pointsChange} 分`,
-      showConfetti: win
+      showConfetti: win,
+      countdown: 3
     })
     
     // 保存用户信息
     this.saveUserInfo(newPoints, win)
+    
+    // 启动自动关闭倒计时
+    this.startCountdown()
   },
 
   nextRound() {
@@ -173,5 +179,52 @@ Page({
   // 返回首页
   goHome() {
     wx.navigateBack()
+  },
+
+  // 启动倒计时
+  startCountdown() {
+    // 清除之前的定时器
+    if (this.data.countdownTimer) {
+      clearInterval(this.data.countdownTimer)
+    }
+    
+    const timer = setInterval(() => {
+      const newCountdown = this.data.countdown - 1
+      
+      if (newCountdown <= 0) {
+        clearInterval(timer)
+        this.closeResult()
+      } else {
+        this.setData({
+          countdown: newCountdown
+        })
+      }
+    }, 1000)
+    
+    this.setData({
+      countdownTimer: timer
+    })
+  },
+
+  // 关闭结果弹窗
+  closeResult() {
+    // 清除定时器
+    if (this.data.countdownTimer) {
+      clearInterval(this.data.countdownTimer)
+      this.setData({
+        countdownTimer: null
+      })
+    }
+    
+    this.setData({
+      showResult: false,
+      showConfetti: false,
+      countdown: 0
+    })
+  },
+
+  // 阻止点击内容区域关闭
+  stopClose() {
+    // 空函数，阻止事件冒泡
   }
 })
