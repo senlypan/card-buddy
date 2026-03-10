@@ -29,11 +29,8 @@ Page({
   },
 
   playDoudizhu() {
-    wx.showModal({
-      title: '即将开放',
-      content: '斗地主游戏正在开发中，先玩炸金花吧！',
-      showCancel: false,
-      confirmColor: '#FF6B6B'
+    wx.navigateTo({
+      url: '/pages/doudizhu/doudizhu'
     })
   },
 
