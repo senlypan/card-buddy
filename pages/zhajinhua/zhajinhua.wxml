@@ -1,4 +1,4 @@
-<!--pages/zhajinhua/zhajinhua.wxml-->
+<!--pages/zhajinhua/zhajinhua.wxml - 儿童简化版炸金花-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -8,6 +8,9 @@
     <view class="info-item">
       <text class="label">我的积分</text>
       <text class="points">{{myPoints}}</text>
+    </view>
+    <view class="info-item" bindtap="goHome">
+      <text class="label">🏠 返回</text>
     </view>
   </view>
 
@@ -23,6 +26,10 @@
         <view class="card" wx:for="{{buddyCards}}" wx:key="*this">
           <text class="card-text">{{item}}</text>
         </view>
+      </view>
+      <!-- 牌型提示 -->
+      <view class="hand-type" wx:if="{{showBuddyCards && buddyHandType}}">
+        <text class="hand-type-text">{{buddyHandType.type}}</text>
       </view>
     </view>
   </view>
@@ -41,29 +48,24 @@
           <text class="card-text">{{item}}</text>
         </view>
       </view>
+      <!-- 牌型提示 -->
+      <view class="hand-type my-hand-type" wx:if="{{myHandType}}">
+        <text class="hand-type-text">✨ {{myHandType.type}}</text>
+      </view>
     </view>
     <view class="avatar">👦</view>
   </view>
 
   <!-- 操作按钮 -->
-  <view class="action-area" wx:if="{{gamePhase === 'betting'}}">
-    <view class="big-btn" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);" bindtap="call">
-      跟注
-    </view>
-    <view class="big-btn" style="background: linear-gradient(135deg, #4ECDC4 0%, #7EDDD6 100%);" bindtap="raise">
-      加注
-    </view>
-    <view class="big-btn" style="background: linear-gradient(135deg, #95A5A6 0%, #BDC3C7 100%);" bindtap="fold">
-      弃牌
-    </view>
-    <view class="big-btn" style="background: linear-gradient(135deg, #F39C12 0%, #F5B041 100%);" bindtap="showdown">
-      开牌
+  <view class="action-area" wx:if="{{gamePhase === 'ready'}}">
+    <view class="big-btn showdown-btn" bindtap="showdown">
+      🎲 开牌比大小
     </view>
   </view>
 
-  <view class="action-area" wx:if="{{gamePhase === 'end'}}">
-    <view class="big-btn" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);" bindtap="nextRound">
-      再来一局
+  <view class="action-area" wx:if="{{gamePhase === 'result'}}">
+    <view class="big-btn next-btn" bindtap="nextRound">
+      🃏 再来一局
     </view>
   </view>
 
@@ -73,6 +75,16 @@
       <text class="result-emoji">{{resultEmoji}}</text>
       <text class="result-title">{{resultTitle}}</text>
       <text class="result-points">{{resultPoints}}</text>
+      <text class="result-subtitle" wx:if="{{!showConfetti}}">继续努力哦～</text>
     </view>
+  </view>
+
+  <!-- 庆祝特效 -->
+  <view class="confetti" wx:if="{{showConfetti}}">
+    <text class="confetti-item" style="left: 10%;">🎉</text>
+    <text class="confetti-item" style="left: 30%;">✨</text>
+    <text class="confetti-item" style="left: 50%;">🌟</text>
+    <text class="confetti-item" style="left: 70%;">🎊</text>
+    <text class="confetti-item" style="left: 90%;">💫</text>
   </view>
 </view>

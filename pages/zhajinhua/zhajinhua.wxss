@@ -1,11 +1,14 @@
-/* pages/zhajinhua/zhajinhua.wxss */
+/* pages/zhajinhua/zhajinhua.wxss - 儿童简化版炸金花 */
+
 .game-info {
   display: flex;
   justify-content: space-between;
-  padding: 20rpx;
+  align-items: center;
+  padding: 20rpx 30rpx;
   background: white;
   border-radius: 16rpx;
   margin: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
 }
 
 .info-item {
@@ -16,11 +19,12 @@
 
 .label {
   font-size: 24rpx;
-  color: #999;
+  color: #666;
+  font-weight: 500;
 }
 
 .points {
-  font-size: 36rpx;
+  font-size: 40rpx;
   font-weight: bold;
   color: #FF6B6B;
 }
@@ -33,6 +37,7 @@
   margin: 20rpx;
   background: white;
   border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
 }
 
 .buddy-area {
@@ -45,6 +50,7 @@
 
 .avatar {
   font-size: 80rpx;
+  flex-shrink: 0;
 }
 
 .player-info {
@@ -52,30 +58,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 20rpx;
 }
 
 .name {
   font-size: 28rpx;
   font-weight: bold;
   color: #333;
-  margin-bottom: 10rpx;
+  margin-bottom: 15rpx;
 }
 
 .cards {
   display: flex;
-  gap: 10rpx;
+  gap: 15rpx;
+  margin-bottom: 15rpx;
 }
 
 .card {
   width: 80rpx;
   height: 120rpx;
   background: white;
-  border-radius: 8rpx;
-  border: 2rpx solid #ddd;
+  border-radius: 12rpx;
+  border: 2rpx solid #e0e0e0;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
 }
 
 .card.back {
@@ -83,36 +92,97 @@
   border: 2rpx solid #FF6B6B;
 }
 
+.card.back::after {
+  content: '🃏';
+  font-size: 40rpx;
+}
+
 .card.large {
   width: 100rpx;
   height: 150rpx;
+  border-width: 3rpx;
 }
 
 .card-text {
   font-size: 28rpx;
   font-weight: bold;
+  color: #333;
 }
 
 .card.large .card-text {
   font-size: 36rpx;
 }
 
+/* 红桃和方片用红色 */
+.card-text[value*='♥'],
+.card-text[value*='♦'] {
+  color: #E74C3C;
+}
+
+/* 牌型提示 */
+.hand-type {
+  background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  margin-top: 10rpx;
+}
+
+.my-hand-type {
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+}
+
+.hand-type-text {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #5E35B1;
+}
+
 .message-box {
   text-align: center;
-  padding: 20rpx;
-  margin: 20rpx;
+  padding: 25rpx;
+  margin: 15rpx 20rpx;
 }
 
 .message {
-  font-size: 32rpx;
+  font-size: 34rpx;
   color: #333;
   font-weight: bold;
+  line-height: 1.5;
 }
 
 .action-area {
-  padding: 20rpx;
+  padding: 30rpx 20rpx;
 }
 
+.big-btn {
+  width: 90%;
+  height: 130rpx;
+  margin: 0 auto;
+  border-radius: 65rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38rpx;
+  font-weight: bold;
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s;
+}
+
+.big-btn:active {
+  transform: scale(0.95);
+}
+
+.showdown-btn {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  color: white;
+}
+
+.next-btn {
+  background: linear-gradient(135deg, #4ECDC4 0%, #7EDDD6 100%);
+  color: white;
+}
+
+/* 结算弹窗 */
 .modal {
   position: fixed;
   top: 0;
@@ -129,9 +199,10 @@
 .modal-content {
   background: white;
   border-radius: 32rpx;
-  padding: 60rpx;
+  padding: 60rpx 80rpx;
   text-align: center;
   animation: popIn 0.3s ease;
+  box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.3);
 }
 
 @keyframes popIn {
@@ -148,6 +219,12 @@
 .result-emoji {
   font-size: 120rpx;
   display: block;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20rpx); }
 }
 
 .result-title {
@@ -155,11 +232,56 @@
   font-weight: bold;
   color: #333;
   display: block;
-  margin: 20rpx 0;
+  margin: 20rpx 0 10rpx;
 }
 
 .result-points {
-  font-size: 40rpx;
+  font-size: 44rpx;
   color: #FF6B6B;
   font-weight: bold;
+  display: block;
+}
+
+.result-subtitle {
+  font-size: 28rpx;
+  color: #999;
+  display: block;
+  margin-top: 15rpx;
+}
+
+/* 庆祝特效 */
+.confetti {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.confetti-item {
+  position: absolute;
+  top: -50rpx;
+  font-size: 60rpx;
+  animation: fall 2s ease-in-out infinite;
+}
+
+.confetti-item:nth-child(1) { animation-delay: 0s; }
+.confetti-item:nth-child(2) { animation-delay: 0.3s; }
+.confetti-item:nth-child(3) { animation-delay: 0.6s; }
+.confetti-item:nth-child(4) { animation-delay: 0.9s; }
+.confetti-item:nth-child(5) { animation-delay: 1.2s; }
+
+@keyframes fall {
+  0% {
+    top: -50rpx;
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    top: 100vh;
+    transform: rotate(720deg);
+    opacity: 0;
+  }
 }

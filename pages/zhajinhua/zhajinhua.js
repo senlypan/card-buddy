@@ -1,4 +1,4 @@
-// pages/zhajinhua/zhajinhua.js
+// pages/zhajinhua/zhajinhua.js - 儿童简化版炸金花
 const CardUtils = require('../../utils/cards.js')
 
 Page({
@@ -8,143 +8,143 @@ Page({
     buddyPoints: 100,
     myCards: [],
     buddyCards: [],
+    myHandType: null,
+    buddyHandType: null,
     showBuddyCards: false,
-    gamePhase: 'betting', // 'betting', 'end'
+    gamePhase: 'dealing', // 'dealing', 'ready', 'result'
     message: '发牌中...',
     showResult: false,
     resultEmoji: '',
     resultTitle: '',
-    resultPoints: ''
+    resultPoints: '',
+    showConfetti: false
   },
 
   onLoad() {
+    this.loadUserInfo()
     this.startNewRound()
   },
 
-  startNewRound() {
-    // 初始化牌堆
-    const deck = CardUtils.createDeck()
-    CardUtils.shuffle(deck)
-    
-    // 发牌
-    const myCards = CardUtils.dealCards(deck, 3)
-    const buddyCards = CardUtils.dealCards(deck, 3)
-    
-    // 排序手牌
-    myCards.sort()
-    buddyCards.sort()
-    
-    this.setData({
-      myCards: myCards.map(c => CardUtils.cardToString(c)),
-      buddyCards: buddyCards.map(c => CardUtils.cardToString(c)),
-      showBuddyCards: false,
-      gamePhase: 'betting',
-      message: '轮到你操作～',
-      showResult: false
-    })
+  onShow() {
+    this.loadUserInfo()
   },
 
-  // 跟注
-  call() {
-    this.setData({
-      message: '你跟注了，牌牌思考中...'
-    })
-    
-    setTimeout(() => {
-      this.buddyAction()
-    }, 1000)
-  },
-
-  // 加注
-  raise() {
-    this.setData({
-      message: '你加注了！'
-    })
-    
-    setTimeout(() => {
-      this.buddyAction()
-    }, 1000)
-  },
-
-  // 弃牌
-  fold() {
-    this.endRound('fold')
-  },
-
-  // 开牌
-  showdown() {
-    this.endRound('showdown')
-  },
-
-  // 牌友 AI 行动
-  buddyAction() {
-    // 简单 AI：随机决定
-    const actions = ['call', 'raise', 'showdown']
-    const action = actions[Math.floor(Math.random() * actions.length)]
-    
-    if (action === 'showdown') {
-      this.endRound('showdown')
-    } else {
-      this.setData({
-        message: '牌牌跟注了，继续吧～'
-      })
+  loadUserInfo() {
+    const userInfo = wx.getStorageSync('userInfo') || {
+      nickname: '小朋友',
+      totalPoints: 100,
+      winCount: 0,
+      playCount: 0
     }
+    this.setData({
+      myPoints: userInfo.totalPoints || 100
+    })
+  },
+
+  startNewRound() {
+    this.setData({
+      gamePhase: 'dealing',
+      message: '🃏 发牌中...',
+      showResult: false,
+      showConfetti: false,
+      myHandType: null,
+      buddyHandType: null
+    })
+
+    // 发牌动画
+    setTimeout(() => {
+      // 初始化牌堆
+      const deck = CardUtils.createDeck()
+      CardUtils.shuffle(deck)
+      
+      // 发牌
+      const myCards = CardUtils.dealCards(deck, 3)
+      const buddyCards = CardUtils.dealCards(deck, 3)
+      
+      // 排序手牌
+      myCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
+      buddyCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
+      
+      // 评估牌型
+      const myType = CardUtils.evaluateHand(myCards)
+      const buddyType = CardUtils.evaluateHand(buddyCards)
+      
+      this.setData({
+        myCards: myCards.map(c => CardUtils.cardToString(c)),
+        buddyCards: buddyCards.map(c => CardUtils.cardToString(c)),
+        myHandType: myType,
+        buddyHandType: buddyType,
+        showBuddyCards: false,
+        gamePhase: 'ready',
+        message: '✨ 看看你的牌吧！'
+      })
+    }, 800)
+  },
+
+  // 开牌比大小
+  showdown() {
+    this.setData({
+      message: '🎲 开牌啦！',
+      showBuddyCards: true
+    })
+
+    setTimeout(() => {
+      this.endRound()
+    }, 1000)
   },
 
   // 结束回合
-  endRound(reason) {
-    const { myCards, buddyCards } = this.data
-    
-    // 显示牌友的牌
-    this.setData({
-      showBuddyCards: true,
-      gamePhase: 'end'
-    })
+  endRound() {
+    const { myHandType, buddyHandType, myPoints } = this.data
     
     // 比较牌型
-    const myType = CardUtils.evaluateHand(myCards)
-    const buddyType = CardUtils.evaluateHand(buddyCards)
+    const compare = CardUtils.compareHands(myHandType, buddyHandType)
     
     let win = false
     let pointsChange = 0
+    let resultEmoji = ''
+    let resultTitle = ''
+    let message = ''
     
-    if (reason === 'fold') {
+    if (compare > 0) {
+      // 赢了
+      win = true
+      pointsChange = 20
+      resultEmoji = '🎉'
+      resultTitle = '太棒啦！'
+      message = '🎉 你赢了这局！'
+    } else if (compare < 0) {
+      // 输了
       win = false
       pointsChange = -10
+      resultEmoji = '💪'
+      resultTitle = '加油哦！'
+      message = '牌牌赢了，下次一定行！'
     } else {
-      const compare = CardUtils.compareHands(myType, buddyType)
-      if (compare > 0) {
-        win = true
-        pointsChange = 20
-      } else if (compare < 0) {
-        win = false
-        pointsChange = -10
-      } else {
-        win = true // 平局算玩家赢（鼓励孩子）
-        pointsChange = 10
-      }
+      // 平局 - 算小朋友赢（鼓励）
+      win = true
+      pointsChange = 10
+      resultEmoji = '🌟'
+      resultTitle = '平局啦！'
+      message = '✨ 平局！你也很厉害～'
     }
     
-    // 更新积分
-    const newPoints = this.data.myPoints + pointsChange
+    // 更新积分（不会变成负数）
+    const newPoints = Math.max(0, myPoints + pointsChange)
+    
     this.setData({
       myPoints: newPoints,
-      message: win ? '🎉 你赢了！' : '加油，再来一局！',
+      message: message,
+      gamePhase: 'result',
       showResult: true,
-      resultEmoji: win ? '🎉' : '💪',
-      resultTitle: win ? '太棒了！' : '别灰心',
-      resultPoints: win ? `+${pointsChange} 分` : `${pointsChange} 分`
+      resultEmoji: resultEmoji,
+      resultTitle: resultTitle,
+      resultPoints: pointsChange > 0 ? `+${pointsChange} 分` : `${pointsChange} 分`,
+      showConfetti: win
     })
     
-    // 保存积分
-    this.saveUserInfo(newPoints)
-    
-    // 3 秒后隐藏结果
-    setTimeout(() => {
-      this.setData({
-        showResult: false
-      })
-    }, 3000)
+    // 保存用户信息
+    this.saveUserInfo(newPoints, win)
   },
 
   nextRound() {
@@ -154,15 +154,24 @@ Page({
     this.startNewRound()
   },
 
-  saveUserInfo(points) {
+  saveUserInfo(points, win) {
     const userInfo = wx.getStorageSync('userInfo') || {
       nickname: '小朋友',
-      totalPoints: 0,
+      totalPoints: 100,
       winCount: 0,
       playCount: 0
     }
     userInfo.totalPoints = points
     userInfo.playCount = (userInfo.playCount || 0) + 1
+    if (win) {
+      userInfo.winCount = (userInfo.winCount || 0) + 1
+    }
     wx.setStorageSync('userInfo', userInfo)
+    getApp().globalData.userInfo = userInfo
+  },
+
+  // 返回首页
+  goHome() {
+    wx.navigateBack()
   }
 })

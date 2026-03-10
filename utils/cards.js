@@ -1,4 +1,4 @@
-// utils/cards.js - 扑克牌工具函数
+// utils/cards.js - 扑克牌工具函数（儿童友好版）
 
 // 创建一副牌（去掉大小王）
 function createDeck() {
@@ -43,8 +43,8 @@ function getCardValue(card) {
   return valueMap[card.value]
 }
 
-// 评估牌型（简化版炸金花）
-// 返回：{ type: 牌型，value: 用于比较的值 }
+// 评估牌型（炸金花）
+// 返回：{ type: 牌型名称，value: 用于比较的值 }
 function evaluateHand(cards) {
   if (cards.length !== 3) return { type: 'invalid', value: 0 }
   
@@ -63,22 +63,22 @@ function evaluateHand(cards) {
   
   // 豹子（三条）- 最大
   if (isTriple) {
-    return { type: '豹子', value: 1000 + values[0] }
+    return { type: '🎉 豹子', value: 1000 + values[0] }
   }
   
   // 顺金（同花顺）
   if (isFlush && isStraight) {
-    return { type: '顺金', value: 900 + values[0] }
+    return { type: '✨ 顺金', value: 900 + values[0] }
   }
   
   // 金花（同花）
   if (isFlush) {
-    return { type: '金花', value: 700 + values[0] }
+    return { type: '🌟 金花', value: 700 + values[0] }
   }
   
   // 顺子
   if (isStraight) {
-    return { type: '顺子', value: 600 + values[0] }
+    return { type: '📶 顺子', value: 600 + values[0] }
   }
   
   // 对子
@@ -87,11 +87,11 @@ function evaluateHand(cards) {
     if (values[0] === values[1]) pairValue = values[0]
     else if (values[1] === values[2]) pairValue = values[1]
     else pairValue = values[0]
-    return { type: '对子', value: 500 + pairValue }
+    return { type: '👫 对子', value: 500 + pairValue }
   }
   
   // 单张（比最大牌）
-  return { type: '单张', value: values[0] }
+  return { type: '🂡 单张', value: values[0] }
 }
 
 // 比较两手牌
@@ -101,6 +101,19 @@ function compareHands(hand1, hand2) {
   return 0
 }
 
+// 获取牌型说明（给小朋友看）
+function getHandTypeDescription(type) {
+  const descriptions = {
+    '🎉 豹子': '三张一样的牌！超级厉害！',
+    '✨ 顺金': '同花顺！太棒啦！',
+    '🌟 金花': '三张同花色！很好哦！',
+    '📶 顺子': '三张连续的牌！不错呢！',
+    '👫 对子': '有一对牌！继续加油！',
+    '🂡 单张': '比单张大小～别灰心！'
+  }
+  return descriptions[type] || '加油！'
+}
+
 module.exports = {
   createDeck,
   shuffle,
@@ -108,5 +121,6 @@ module.exports = {
   cardToString,
   getCardValue,
   evaluateHand,
-  compareHands
+  compareHands,
+  getHandTypeDescription
 }

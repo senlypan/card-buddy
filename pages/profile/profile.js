@@ -55,12 +55,12 @@ Page({
   resetData() {
     wx.showModal({
       title: '确认重置',
-      content: '确定要清空所有游戏数据吗？',
+      content: '确定要清空所有游戏数据吗？积分将重置为 100 分。',
       success: (res) => {
         if (res.confirm) {
           wx.setStorageSync('userInfo', {
             nickname: '小朋友',
-            totalPoints: 0,
+            totalPoints: 100,
             winCount: 0,
             playCount: 0
           })
