@@ -262,6 +262,67 @@ Page({
     }
   },
 
+  // 一键出牌
+  autoPlay() {
+    if (!this.data.isMyTurn || this.data.gamePhase !== 'playing') {
+      return
+    }
+    
+    const hint = this.generateHint(this.data.myCardsDisplay, this.data.lastHand)
+    
+    if (hint) {
+      // 根据提示自动选牌
+      if (hint.type === 'beat' || hint.type === 'single' || hint.type === 'pair') {
+        const myCardsDisplay = this.data.myCardsDisplay
+        
+        if (hint.text.includes('建议出：')) {
+          // 管牌
+          const match = hint.text.match(/建议出：(.+?)（/)
+          if (match) {
+            const texts = match[1].split(' ')
+            texts.forEach(text => {
+              const card = myCardsDisplay.find(c => c.text === text)
+              if (card) card.selected = true
+            })
+          }
+        } else if (hint.text.includes('对子')) {
+          // 对子
+          const match = hint.text.match(/对子：(.+)/)
+          if (match) {
+            const text = match[1].split(' ')[0]
+            let count = 0
+            myCardsDisplay.forEach(c => {
+              if (c.text === text && count < 2) {
+                c.selected = true
+                count++
+              }
+            })
+          }
+        } else if (hint.text.includes('单张')) {
+          // 单张
+          const match = hint.text.match(/单张：(.+)/)
+          if (match) {
+            const text = match[1]
+            const card = myCardsDisplay.find(c => c.text === text)
+            if (card) card.selected = true
+          }
+        }
+        
+        const selectedCount = myCardsDisplay.filter(c => c.selected).length
+        
+        this.setData({
+          myCardsDisplay: myCardsDisplay,
+          selectedCount: selectedCount
+        })
+        
+        // 延迟出牌
+        setTimeout(() => {
+          this.playCards()
+        }, 300)
+      }
+    }
+  },
+
   playCards() {
     if (!this.data.isMyTurn || this.data.gamePhase !== 'playing') {
       return

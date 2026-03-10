@@ -1,4 +1,4 @@
-<!--pages/doudizhu/doudizhu.wxml - 滑动选牌版-->
+<!--pages/doudizhu/doudizhu.wxml - 优化版-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -9,20 +9,25 @@
       <text class="label">积分</text>
       <text class="points">{{myPoints}}</text>
     </view>
-    <view class="info-item">
-      <text class="label">剩余</text>
-      <text class="card-count">{{myCardsDisplay.length}}</text>
-    </view>
     <view class="info-item" bindtap="goHome">
       <text class="label">🏠</text>
     </view>
   </view>
 
-  <!-- 地主信息 -->
-  <view class="player-info-bar landlord-info">
-    <text class="player-avatar">🤠</text>
-    <text class="player-name">{{isLandlord ? '我（地主）' : '地主'}}</text>
-    <text class="card-num">{{landlordCards.length}}张</text>
+  <!-- 地主信息 + 牌背显示 -->
+  <view class="opponent-area">
+    <view class="player-info-bar">
+      <text class="player-avatar">🤠</text>
+      <text class="player-name">{{isLandlord ? '我（地主）' : '地主'}}</text>
+      <text class="card-count-badge">{{landlordCards.length}}张</text>
+    </view>
+    
+    <!-- 对手牌背 -->
+    <view class="opponent-cards">
+      <view class="card-back-stack">
+        <view class="card-back" wx:for="{{landlordCards.length}}" wx:key="*this" style="left: {{index * 8}}rpx;"></view>
+      </view>
+    </view>
   </view>
 
   <!-- 出牌区域（中间） -->
@@ -60,27 +65,29 @@
     <text class="message">{{message}}</text>
   </view>
 
-  <!-- 我的手牌区域 - 横向滑动 -->
+  <!-- 我的手牌区域 - 紧凑堆叠 -->
   <view class="my-cards-container">
-    <scroll-view class="cards-scroll" scroll-x="true" scroll-into-view="{{scrollToView}}">
-      <view class="cards-wrapper">
-        <view class="card {{item.selected ? 'selected' : ''}}" 
-              wx:for="{{myCardsDisplay}}" 
-              wx:key="*this"
-              data-index="{{item.index}}"
-              bindtap="toggleCard">
-          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
-        </view>
+    <view class="cards-compact">
+      <view class="card-compact {{item.selected ? 'selected' : ''}}" 
+            wx:for="{{myCardsDisplay}}" 
+            wx:key="*this"
+            data-index="{{item.index}}"
+            bindtap="toggleCard"
+            style="margin-left: {{index > 0 ? '-40' : '0'}}rpx;">
+        <!-- 左上角 -->
+        <text class="corner-top {{item.isRed ? 'red' : 'black'}}">{{item.text}}</text>
+        <!-- 右下角 -->
+        <text class="corner-bottom {{item.isRed ? 'red' : 'black'}}">{{item.text}}</text>
       </view>
-    </scroll-view>
-    <view class="card-tip">💡 点击牌选中，滑动查看</view>
+    </view>
+    <view class="card-tip" wx:if="{{selectedCount > 0}}">已选 {{selectedCount}} 张</view>
   </view>
 
   <!-- 操作按钮 -->
   <view class="action-area" wx:if="{{gamePhase === 'playing' && isMyTurn}}">
     <view class="button-group">
-      <view class="medium-btn hint-btn" bindtap="showHint">
-        💡 提示
+      <view class="medium-btn auto-btn" bindtap="autoPlay">
+        🤖 一键出牌
       </view>
       <view class="medium-btn play-btn" bindtap="playCards">
         🎴 出牌 ({{selectedCount}})

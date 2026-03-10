@@ -1,4 +1,4 @@
-/* pages/doudizhu/doudizhu.wxss - 滑动选牌版 */
+/* pages/doudizhu/doudizhu.wxss - 优化版 */
 
 .container {
   min-height: 100vh;
@@ -41,13 +41,12 @@
   background-clip: text;
 }
 
-.card-count {
-  font-size: 28rpx;
-  font-weight: bold;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* 对手区域 */
+.opponent-area {
+  margin: 10rpx;
+  padding: 15rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16rpx;
 }
 
 .player-info-bar {
@@ -55,14 +54,7 @@
   justify-content: center;
   align-items: center;
   gap: 15rpx;
-  padding: 10rpx;
-  margin: 8rpx;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12rpx;
-}
-
-.landlord-info {
-  background: linear-gradient(135deg, rgba(230, 126, 34, 0.2) 0%, rgba(211, 84, 0, 0.1) 100%);
+  margin-bottom: 15rpx;
 }
 
 .player-avatar {
@@ -75,9 +67,46 @@
   color: white;
 }
 
-.card-num {
+.card-count-badge {
   font-size: 22rpx;
   color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+}
+
+/* 对手牌背 */
+.opponent-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 120rpx;
+  position: relative;
+}
+
+.card-back-stack {
+  position: relative;
+  width: 400rpx;
+  height: 100rpx;
+}
+
+.card-back {
+  position: absolute;
+  width: 50rpx;
+  height: 72rpx;
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  border-radius: 8rpx;
+  border: 2rpx solid #c0392b;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.4);
+}
+
+.card-back::after {
+  content: '🃏';
+  font-size: 24rpx;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .play-area {
@@ -178,61 +207,71 @@
   50% { opacity: 0.7; }
 }
 
-/* 手牌区域 - 横向滑动 */
+/* 我的手牌 - 紧凑堆叠 */
 .my-cards-container {
   padding: 15rpx 10rpx;
   margin: 8rpx;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16rpx;
+  overflow-x: auto;
 }
 
-.cards-scroll {
-  width: 100%;
-  white-space: nowrap;
+.cards-compact {
+  display: flex;
+  justify-content: center;
   padding: 10rpx 0;
+  min-height: 90rpx;
 }
 
-.cards-wrapper {
-  display: inline-flex;
-  gap: 8rpx;
-  padding: 0 20rpx;
-}
-
-.card {
-  width: 50rpx;
-  height: 72rpx;
+.card-compact {
+  width: 56rpx;
+  height: 80rpx;
   background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
   border-radius: 8rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.3);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
-  flex-shrink: 0;
 }
 
-.card:active {
+.card-compact:active {
   transform: scale(0.95);
 }
 
-.card.selected {
+.card-compact.selected {
   transform: translateY(-15rpx);
   box-shadow: 0 8rpx 16rpx rgba(255, 215, 0, 0.5);
   border-color: #FFD700;
   background: linear-gradient(135deg, #FFF9E6 0%, #FFF3CC 100%);
 }
 
-.card-text {
-  font-size: 22rpx;
+.corner-top {
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  font-size: 18rpx;
   font-weight: bold;
+  line-height: 1;
 }
 
-.card-red {
+.corner-bottom {
+  position: absolute;
+  bottom: 4rpx;
+  right: 4rpx;
+  font-size: 18rpx;
+  font-weight: bold;
+  line-height: 1;
+  transform: rotate(180deg);
+}
+
+.corner-top.red,
+.corner-bottom.red {
   color: #e74c3c;
 }
 
-.card-black {
+.corner-top.black,
+.corner-bottom.black {
   color: #2c3e50;
 }
 
@@ -245,13 +284,6 @@
 
 .action-area {
   padding: 15rpx 10rpx;
-}
-
-.button-group {
-  display: flex;
-  gap: 15rpx;
-  justify-content: center;
-  margin-bottom: 10rpx;
 }
 
 .button-group {
@@ -269,7 +301,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: bold;
   box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
@@ -277,6 +309,11 @@
 
 .medium-btn:active {
   transform: scale(0.95);
+}
+
+.auto-btn {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  color: white;
 }
 
 .hint-btn {
