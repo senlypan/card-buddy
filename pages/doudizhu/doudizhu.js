@@ -28,7 +28,8 @@ Page({
     landlordHandType: null,
     passCount: 0,
     selectedCount: 0,
-    scrollToView: ''
+    scrollToView: '',
+    hint: null // 智能提示
   },
 
   onLoad() {
@@ -68,7 +69,8 @@ Page({
       landlordHandType: null,
       passCount: 0,
       selectedCount: 0,
-      scrollToView: ''
+      scrollToView: '',
+      hint: null
     })
 
     setTimeout(() => {
@@ -106,7 +108,8 @@ Page({
         isLandlord: isLandlord,
         gamePhase: 'playing',
         message: isLandlord ? '✨ 你是地主！你先出牌！' : '✨ 你是农民！准备出牌！',
-        isMyTurn: isLandlord
+        isMyTurn: isLandlord,
+        hint: this.generateHint(myCardsDisplay, null)
       })
     }, 800)
   },
@@ -145,6 +148,80 @@ Page({
         myCardsDisplay: myCardsDisplay,
         selectedCount: selectedCount
       })
+    }
+  },
+
+  // 智能提示
+  showHint() {
+    if (!this.data.isMyTurn || this.data.gamePhase !== 'playing') {
+      return
+    }
+    
+    const hint = this.generateHint(this.data.myCardsDisplay, this.data.lastHand)
+    
+    if (hint) {
+      wx.showModal({
+        title: '💡 智能提示',
+        content: hint.text,
+        showCancel: false,
+        confirmText: '知道了',
+        confirmColor: '#2ecc71'
+      })
+    }
+  },
+
+  // 生成智能提示
+  generateHint(cards, lastHand) {
+    const availableCards = cards.filter(c => !c.selected)
+    
+    if (availableCards.length === 0) {
+      return { text: '没有可出的牌了', type: 'info' }
+    }
+    
+    // 如果需要管牌
+    if (lastHand) {
+      const beatCard = this.findBeatingCard(availableCards, lastHand)
+      if (beatCard) {
+        return {
+          text: `建议出：${beatCard.card.text}（比${lastHand.type}大）`,
+          type: 'beat'
+        }
+      } else {
+        return {
+          text: '要不起，建议"不要"',
+          type: 'pass'
+        }
+      }
+    }
+    
+    // 先手出牌策略
+    // 1. 先出最小的单张
+    const minCard = availableCards.reduce((min, c) => {
+      const val = CardUtils.getCardValue(c)
+      const minVal = CardUtils.getCardValue(min)
+      return val < minVal ? c : min
+    })
+    
+    // 2. 检查有没有对子
+    const valueCount = {}
+    availableCards.forEach(c => {
+      const text = c.text
+      valueCount[text] = (valueCount[text] || 0) + 1
+    })
+    
+    for (const [text, count] of Object.entries(valueCount)) {
+      if (count >= 2) {
+        return {
+          text: `建议出对子：${text} ${text}`,
+          type: 'pair'
+        }
+      }
+    }
+    
+    // 3. 出最小单张
+    return {
+      text: `建议出最小单张：${minCard.text}`,
+      type: 'single'
     }
   },
 

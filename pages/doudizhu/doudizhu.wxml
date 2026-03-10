@@ -79,6 +79,9 @@
   <!-- 操作按钮 -->
   <view class="action-area" wx:if="{{gamePhase === 'playing' && isMyTurn}}">
     <view class="button-group">
+      <view class="medium-btn hint-btn" bindtap="showHint">
+        💡 提示
+      </view>
       <view class="medium-btn play-btn" bindtap="playCards">
         🎴 出牌 ({{selectedCount}})
       </view>

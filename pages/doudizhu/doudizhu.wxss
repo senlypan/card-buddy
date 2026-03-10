@@ -254,14 +254,22 @@
   margin-bottom: 10rpx;
 }
 
+.button-group {
+  display: flex;
+  gap: 12rpx;
+  justify-content: center;
+  margin-bottom: 10rpx;
+  flex-wrap: wrap;
+}
+
 .medium-btn {
-  width: 40%;
+  min-width: 28%;
   height: 80rpx;
   border-radius: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: bold;
   box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
@@ -269,6 +277,11 @@
 
 .medium-btn:active {
   transform: scale(0.95);
+}
+
+.hint-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
 }
 
 .play-btn {
