@@ -1,4 +1,4 @@
-<!--pages/doudizhu/doudizhu.wxml - 优化版-->
+<!--pages/doudizhu/doudizhu.wxml - 修复布局版-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -14,7 +14,7 @@
     </view>
   </view>
 
-  <!-- 地主信息 + 牌背显示 -->
+  <!-- 对手区域（上方） -->
   <view class="opponent-area">
     <view class="player-info-bar">
       <text class="player-avatar">🤠</text>
@@ -24,7 +24,7 @@
     
     <!-- 对手牌背 -->
     <view class="opponent-cards">
-      <view class="card-back-stack" wx:if="{{gamePhase === 'playing' && !showLandlordCards}}">
+      <view class="card-back-stack" wx:if="{{gamePhase === 'playing'}}">
         <view class="card-back" wx:for="{{Math.min(landlordCards.length, 20)}}" wx:key="*this" style="left: {{index * 8}}rpx;"></view>
         <text class="card-count-overlay">{{landlordCards.length}}张</text>
       </view>
@@ -33,9 +33,9 @@
 
   <!-- 出牌区域（中间） -->
   <view class="play-area">
-    <!-- 地主出的牌 -->
+    <!-- 对手出的牌 -->
     <view class="played-cards {{lastHandPlayer === 'landlord' ? 'active' : ''}}">
-      <view class="played-label" wx:if="{{lastHandPlayer === 'landlord'}}">地主出：</view>
+      <view class="played-label" wx:if="{{lastHandPlayer === 'landlord'}}">对手出：</view>
       <view class="played-cards-inner">
         <view class="mini-card" wx:for="{{lastHandPlayer === 'landlord' ? lastHandCards : []}}" wx:key="*this">
           <text class="mini-card-text {{item.isRed ? 'red' : 'black'}}">{{item.text}}</text>
@@ -66,8 +66,13 @@
     <text class="message">{{message}}</text>
   </view>
 
-  <!-- 我的手牌区域 - 紧凑堆叠 -->
+  <!-- 我的手牌区域（下方） -->
   <view class="my-cards-container">
+    <view class="player-info-bar">
+      <text class="player-avatar">👦</text>
+      <text class="player-name">{{isLandlord ? '地主（我）' : '我（农民）'}}</text>
+      <text class="card-count-badge" wx:if="{{selectedCount > 0}}">已选 {{selectedCount}}张</text>
+    </view>
     <view class="cards-compact">
       <view class="card-compact {{item.selected ? 'selected' : ''}} {{item.autoHighlight ? 'auto-highlight' : ''}}" 
             wx:for="{{myCardsDisplay}}" 
@@ -81,7 +86,6 @@
         <text class="corner-bottom {{item.isRed ? 'red' : 'black'}}">{{item.text}}</text>
       </view>
     </view>
-    <view class="card-tip" wx:if="{{selectedCount > 0}}">已选 {{selectedCount}} 张</view>
   </view>
 
   <!-- 操作按钮 -->
@@ -100,7 +104,7 @@
   </view>
 
   <view class="action-area" wx:if="{{gamePhase === 'playing' && !isMyTurn}}">
-    <view class="waiting-text">⏳ 等待牌牌出牌...</view>
+    <view class="waiting-text">⏳ {{isLandlord ? '农民' : '地主'}}思考中...</view>
   </view>
 
   <!-- 再来一局 -->

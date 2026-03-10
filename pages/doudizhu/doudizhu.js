@@ -527,8 +527,24 @@ Page({
   },
 
   landlordAI() {
-    const { landlordCards, lastHand, lastHandPlayer } = this.data
+    const { landlordCards, lastHand, lastHandPlayer, passCount } = this.data
     
+    // 防止无限递归，加个延迟
+    setTimeout(() => {
+      if (!this.data.isMyTurn && this.data.gamePhase === 'playing') {
+        this._executeLandlordAI()
+      }
+    }, 500)
+  },
+  
+  _executeLandlordAI() {
+    const { landlordCards, lastHand, lastHandPlayer, passCount } = this.data
+    
+    if (!landlordCards || landlordCards.length === 0) {
+      return
+    }
+    
+    // 如果是先手（没有牌需要管）
     if (!lastHand || lastHandPlayer === 'landlord') {
       const randomIndex = Math.floor(Math.random() * landlordCards.length)
       const card = landlordCards[randomIndex]
@@ -546,7 +562,7 @@ Page({
         lastHandCards: [{...card, text: CardUtils.cardToString(card), isRed: card.suit === '♥' || card.suit === '♦'}],
         passCount: 0,
         isMyTurn: true,
-        message: '牌牌出了牌，轮到你！'
+        message: '对手出了牌，轮到你！'
       })
       
       if (newCards.length === 0) {
@@ -555,39 +571,45 @@ Page({
       return
     }
     
+    // 尝试管牌
     const canBeat = this.findBeatingCard(landlordCards, lastHand)
     
     if (canBeat) {
       const cardIndex = canBeat.index
-      const card = landlordCards[cardIndex]
+      const cardsToPlay = canBeat.cards || [landlordCards[cardIndex]]
       
-      const newCards = landlordCards.filter((_, i) => i !== cardIndex)
-      const newCardsDisplay = this.data.landlordCardsDisplay.filter((_, i) => i !== cardIndex)
+      const cardTexts = cardsToPlay.map(c => c.text || CardUtils.cardToString(c))
+      const newCards = landlordCards.filter(c => !cardTexts.includes(c.text || CardUtils.cardToString(c)))
+      const newCardsDisplay = this.data.landlordCardsDisplay.filter(c => !cardTexts.includes(c.text || CardUtils.cardToString(c)))
       
-      const handType = this.evaluateHand([card])
+      const handType = this.evaluateHand(cardsToPlay)
       
       this.setData({
         landlordCards: newCards,
         landlordCardsDisplay: newCardsDisplay,
         lastHand: handType,
         lastHandPlayer: 'landlord',
-        lastHandCards: [card],
+        lastHandCards: cardsToPlay.map(c => ({...c, text: c.text || CardUtils.cardToString(c), isRed: c.suit === '♥' || c.suit === '♦'})),
         passCount: 0,
         isMyTurn: true,
-        message: '牌牌管上了，轮到你！'
+        message: '对手管上了，轮到你！'
       })
       
       if (newCards.length === 0) {
         this.endRound('landlord')
       }
     } else {
+      // 要不起
+      const newPassCount = passCount + 1
+      
       this.setData({
-        passCount: this.data.passCount + 1,
+        passCount: newPassCount,
         isMyTurn: true,
-        message: '牌牌要不起，轮到你！'
+        message: '对手要不起，轮到你！'
       })
       
-      if (this.data.passCount >= 1) {
+      // 如果对方也要不起，重新出牌
+      if (newPassCount >= 2) {
         this.setData({
           lastHand: null,
           lastHandPlayer: null,
