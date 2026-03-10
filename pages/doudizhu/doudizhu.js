@@ -323,39 +323,51 @@ Page({
       }
     }
     
-    const selectedTexts = selectedCards.map(c => c.text)
-    const myCards = this.data.myCards.filter(c => 
-      !selectedTexts.includes(CardUtils.cardToString(c))
-    )
-    const myCardsDisplay = this.data.myCardsDisplay.filter(c => !c.selected)
-    
-    myCardsDisplay.forEach((c, i) => {
-      c.index = i
-      c.id = 'card-' + i
-      c.autoHighlight = false
-    })
-    
+    // 出牌动画 - 先显示飞牌效果
     this.setData({
-      myCards: myCards,
-      myCardsDisplay: myCardsDisplay,
-      lastHand: handType,
-      lastHandPlayer: 'me',
-      lastHandCards: selectedCards,
-      passCount: 0,
-      isMyTurn: false,
-      message: '你出了牌，等待对手...',
-      selectedCount: 0
+      playingAnimation: true,
+      flyingCards: selectedCards.map(c => ({...c, flying: true}))
     })
     
-    if (myCards.length === 0) {
-      this.endRound('me')
-      return
-    }
+    // 播放出牌音效（后续添加）
     
-    // 调用 AI
     setTimeout(() => {
-      this.landlordAI()
-    }, 1000)
+      const selectedTexts = selectedCards.map(c => c.text)
+      const myCards = this.data.myCards.filter(c => 
+        !selectedTexts.includes(CardUtils.cardToString(c))
+      )
+      const myCardsDisplay = this.data.myCardsDisplay.filter(c => !c.selected)
+      
+      myCardsDisplay.forEach((c, i) => {
+        c.index = i
+        c.id = 'card-' + i
+        c.autoHighlight = false
+      })
+      
+      this.setData({
+        myCards: myCards,
+        myCardsDisplay: myCardsDisplay,
+        lastHand: handType,
+        lastHandPlayer: 'me',
+        lastHandCards: selectedCards,
+        passCount: 0,
+        isMyTurn: false,
+        message: '你出了牌，等待对手...',
+        selectedCount: 0,
+        playingAnimation: false,
+        flyingCards: []
+      })
+      
+      if (myCards.length === 0) {
+        this.endRound('me')
+        return
+      }
+      
+      // 调用 AI
+      setTimeout(() => {
+        this.landlordAI()
+      }, 1000)
+    }, 400)
   },
 
   pass() {

@@ -188,6 +188,58 @@
   text-shadow: 0 0 8rpx rgba(44, 62, 80, 0.3);
 }
 
+/* 发牌动画 */
+.card.dealing {
+  animation: dealCard 0.3s ease-out forwards;
+  opacity: 0;
+  transform: translateY(-100rpx) scale(0.8);
+}
+
+@keyframes dealCard {
+  0% {
+    opacity: 0;
+    transform: translateY(-100rpx) scale(0.8) rotate(10deg);
+  }
+  70% {
+    transform: translateY(10rpx) scale(1.05) rotate(-5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+
+/* 牌面翻转动画 */
+.card.flip {
+  animation: flipCard 0.4s ease-in-out forwards;
+}
+
+@keyframes flipCard {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(90deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+/* 加注按钮脉冲动画 */
+.raise-btn.pulsing {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 8rpx 24rpx rgba(231, 76, 60, 0.4);
+  }
+  50% {
+    box-shadow: 0 8rpx 32rpx rgba(231, 76, 60, 0.6);
+  }
+}
+
 /* 牌型提示 - 霓虹效果 */
 .hand-type {
   background: linear-gradient(135deg, rgba(155, 89, 182, 0.3) 0%, rgba(142, 68, 173, 0.2) 100%);

@@ -60,51 +60,67 @@ Page({
       showMyCards: false,
       betAmount: 10,
       isRaised: false,
-      buddyRaised: false
+      buddyRaised: false,
+      dealingCards: [] // 发牌动画用
     })
 
-    // 发牌动画
-    setTimeout(() => {
-      // 初始化牌堆
-      const deck = CardUtils.createDeck()
-      CardUtils.shuffle(deck)
-      
-      // 发牌
-      const myCards = CardUtils.dealCards(deck, 3)
-      const buddyCards = CardUtils.dealCards(deck, 3)
-      
-      // 排序手牌
-      myCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
-      buddyCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
-      
-      // 评估牌型
-      const myType = CardUtils.evaluateHand(myCards)
-      const buddyType = CardUtils.evaluateHand(buddyCards)
-      
-      // 准备显示数据（包含颜色信息）
-      const myCardsDisplay = myCards.map(c => ({
-        text: CardUtils.cardToString(c),
-        isRed: c.suit === '♥' || c.suit === '♦'
-      }))
-      
-      const buddyCardsDisplay = buddyCards.map(c => ({
-        text: CardUtils.cardToString(c),
-        isRed: c.suit === '♥' || c.suit === '♦'
-      }))
-      
-      this.setData({
-        myCards: myCards,
-        buddyCards: buddyCards,
-        myCardsDisplay: myCardsDisplay,
-        buddyCardsDisplay: buddyCardsDisplay,
-        myHandType: myType,
-        buddyHandType: buddyType,
-        showBuddyCards: false,
-        gamePhase: 'choose',
-        message: '✨ 要看牌吗？',
-        showMyCards: false
-      })
-    }, 800)
+    // 发牌动画 - 逐张发牌
+    const deck = CardUtils.createDeck()
+    CardUtils.shuffle(deck)
+    
+    const myCards = CardUtils.dealCards(deck, 3)
+    const buddyCards = CardUtils.dealCards(deck, 3)
+    
+    // 排序手牌
+    myCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
+    buddyCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
+    
+    // 评估牌型
+    const myType = CardUtils.evaluateHand(myCards)
+    const buddyType = CardUtils.evaluateHand(buddyCards)
+    
+    // 准备显示数据
+    const myCardsDisplay = myCards.map(c => ({
+      text: CardUtils.cardToString(c),
+      isRed: c.suit === '♥' || c.suit === '♦'
+    }))
+    
+    const buddyCardsDisplay = buddyCards.map(c => ({
+      text: CardUtils.cardToString(c),
+      isRed: c.suit === '♥' || c.suit === '♦'
+    }))
+    
+    // 逐张发牌动画
+    let dealIndex = 0
+    const dealAnimation = () => {
+      if (dealIndex < 3) {
+        const newDealingCards = [...this.data.dealingCards, dealIndex]
+        this.setData({
+          dealingCards: newDealingCards
+        })
+        
+        // 播放发牌音效（后续添加）
+        dealIndex++
+        setTimeout(dealAnimation, 200)
+      } else {
+        // 发牌完成
+        this.setData({
+          myCards: myCards,
+          buddyCards: buddyCards,
+          myCardsDisplay: myCardsDisplay,
+          buddyCardsDisplay: buddyCardsDisplay,
+          myHandType: myType,
+          buddyHandType: buddyType,
+          showBuddyCards: false,
+          gamePhase: 'choose',
+          message: '✨ 要看牌吗？',
+          showMyCards: false,
+          dealingCards: []
+        })
+      }
+    }
+    
+    setTimeout(dealAnimation, 300)
   },
 
   // 看牌
