@@ -1,10 +1,12 @@
-/* pages/zhajinhua/zhajinhua.wxss - 带看牌/加注功能 */
+/* pages/zhajinhua/zhajinhua.wxss - iPad 适配优化版 */
 
 /* 容器 - 高级渐变背景 */
 .container {
   min-height: 100vh;
   background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  padding-bottom: 40rpx;
+  padding-bottom: 30rpx;
+  max-width: 1024px;
+  margin: 0 auto;
 }
 
 /* 游戏信息栏 - 玻璃态效果 */
@@ -12,13 +14,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20rpx 30rpx;
+  padding: 15rpx 20rpx;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10rpx);
-  border-radius: 20rpx;
-  margin: 20rpx;
+  border-radius: 16rpx;
+  margin: 15rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.3);
 }
 
 .info-item {
@@ -28,23 +30,23 @@
 }
 
 .label {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
 .points {
-  font-size: 40rpx;
+  font-size: 34rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 20rpx rgba(255, 215, 0, 0.5);
+  text-shadow: 0 0 16rpx rgba(255, 215, 0, 0.5);
 }
 
 .bet-amount {
-  font-size: 36rpx;
+  font-size: 30rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
   -webkit-background-clip: text;
@@ -57,13 +59,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30rpx 25rpx;
-  margin: 20rpx;
+  padding: 25rpx 20rpx;
+  margin: 15rpx;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10rpx);
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10rpx 32rpx rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
 }
@@ -74,7 +76,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4rpx;
+  height: 3rpx;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
 }
 
@@ -87,7 +89,7 @@
 }
 
 .avatar {
-  font-size: 80rpx;
+  font-size: 70rpx;
   flex-shrink: 0;
   filter: drop-shadow(0 4rpx 12rpx rgba(0, 0, 0, 0.5));
   animation: bounce 2s ease-in-out infinite;
@@ -95,7 +97,7 @@
 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10rpx); }
+  50% { transform: translateY(-8rpx); }
 }
 
 .player-info {
@@ -103,34 +105,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 20rpx;
+  margin: 0 15rpx;
 }
 
 .name {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: bold;
   color: white;
-  margin-bottom: 15rpx;
+  margin-bottom: 12rpx;
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.5);
-  letter-spacing: 2rpx;
+  letter-spacing: 1rpx;
 }
 
 .cards {
   display: flex;
-  gap: 15rpx;
-  margin-bottom: 15rpx;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
 }
 
 .card {
-  width: 75rpx;
-  height: 110rpx;
+  width: 60rpx;
+  height: 88rpx;
   background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  border-radius: 12rpx;
+  border-radius: 10rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.4), inset 0 2rpx 8rpx rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.4), inset 0 2rpx 6rpx rgba(255, 255, 255, 0.5);
   transition: transform 0.3s ease;
   position: relative;
 }
@@ -138,11 +140,11 @@
 .card::before {
   content: '';
   position: absolute;
-  top: 4rpx;
-  left: 4rpx;
-  right: 4rpx;
-  bottom: 4rpx;
-  border-radius: 8rpx;
+  top: 3rpx;
+  left: 3rpx;
+  right: 3rpx;
+  bottom: 3rpx;
+  border-radius: 7rpx;
   border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
@@ -153,88 +155,88 @@
 
 .card.back::after {
   content: '🃏';
-  font-size: 40rpx;
+  font-size: 32rpx;
   filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.3));
 }
 
 .card.large {
-  width: 95rpx;
-  height: 140rpx;
-  border-width: 3rpx;
-  transform: translateY(-5rpx);
-  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.5), inset 0 2rpx 8rpx rgba(255, 255, 255, 0.6);
+  width: 76rpx;
+  height: 112rpx;
+  border-width: 2rpx;
+  transform: translateY(-4rpx);
+  box-shadow: 0 10rpx 26rpx rgba(0, 0, 0, 0.5), inset 0 2rpx 6rpx rgba(255, 255, 255, 0.6);
 }
 
 .card-text {
-  font-size: 30rpx;
+  font-size: 26rpx;
   font-weight: bold;
   z-index: 1;
 }
 
 .card.large .card-text {
-  font-size: 38rpx;
+  font-size: 32rpx;
 }
 
 /* 扑克牌花色颜色 */
 .card-red {
   color: #e74c3c;
-  text-shadow: 0 0 10rpx rgba(231, 76, 60, 0.4);
+  text-shadow: 0 0 8rpx rgba(231, 76, 60, 0.4);
 }
 
 .card-black {
   color: #2c3e50;
-  text-shadow: 0 0 10rpx rgba(44, 62, 80, 0.3);
+  text-shadow: 0 0 8rpx rgba(44, 62, 80, 0.3);
 }
 
 /* 牌型提示 - 霓虹效果 */
 .hand-type {
   background: linear-gradient(135deg, rgba(155, 89, 182, 0.3) 0%, rgba(142, 68, 173, 0.2) 100%);
-  padding: 8rpx 20rpx;
-  border-radius: 20rpx;
-  margin-top: 10rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  margin-top: 8rpx;
   border: 1rpx solid rgba(155, 89, 182, 0.4);
-  box-shadow: 0 4rpx 16rpx rgba(155, 89, 182, 0.3);
+  box-shadow: 0 3rpx 12rpx rgba(155, 89, 182, 0.3);
 }
 
 .my-hand-type {
   background: linear-gradient(135deg, rgba(26, 188, 156, 0.3) 0%, rgba(22, 160, 133, 0.2) 100%);
   border: 1rpx solid rgba(26, 188, 156, 0.4);
-  box-shadow: 0 4rpx 16rpx rgba(26, 188, 156, 0.3);
+  box-shadow: 0 3rpx 12rpx rgba(26, 188, 156, 0.3);
 }
 
 .hand-type-text {
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: bold;
   color: white;
-  text-shadow: 0 0 10rpx rgba(255, 255, 255, 0.5);
+  text-shadow: 0 0 8rpx rgba(255, 255, 255, 0.5);
 }
 
 /* 加注标识 */
 .raise-badge {
-  margin-top: 10rpx;
-  padding: 6rpx 16rpx;
+  margin-top: 8rpx;
+  padding: 5rpx 14rpx;
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  border-radius: 16rpx;
+  border-radius: 14rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.3);
 }
 
 .raise-badge text {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: white;
   font-weight: bold;
 }
 
 /* 盲打标识 */
 .blind-badge {
-  margin-top: 10rpx;
-  padding: 6rpx 16rpx;
+  margin-top: 8rpx;
+  padding: 5rpx 14rpx;
   background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-  border-radius: 16rpx;
+  border-radius: 14rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.3);
 }
 
 .blind-badge text {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: white;
   font-weight: bold;
 }
@@ -242,16 +244,16 @@
 /* 消息框 - 呼吸灯效果 */
 .message-box {
   text-align: center;
-  padding: 25rpx;
-  margin: 15rpx 20rpx;
+  padding: 20rpx;
+  margin: 12rpx 15rpx;
 }
 
 .message {
-  font-size: 34rpx;
+  font-size: 30rpx;
   color: white;
   font-weight: bold;
   line-height: 1.5;
-  text-shadow: 0 0 20rpx rgba(255, 255, 255, 0.5);
+  text-shadow: 0 0 16rpx rgba(255, 255, 255, 0.5);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -262,20 +264,20 @@
 
 /* 操作按钮区域 */
 .action-area {
-  padding: 25rpx 20rpx;
+  padding: 20rpx 15rpx;
 }
 
 .big-btn {
-  width: 90%;
-  height: 120rpx;
-  margin: 15rpx auto;
-  border-radius: 60rpx;
+  width: 85%;
+  height: 100rpx;
+  margin: 12rpx auto;
+  border-radius: 50rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 38rpx;
+  font-size: 34rpx;
   font-weight: bold;
-  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10rpx 32rpx rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
@@ -327,20 +329,20 @@
 /* 中等按钮（加注/不加注） */
 .bet-buttons {
   display: flex;
-  gap: 20rpx;
+  gap: 15rpx;
   justify-content: center;
 }
 
 .medium-btn {
-  width: 45%;
-  height: 110rpx;
-  border-radius: 55rpx;
+  width: 42%;
+  height: 92rpx;
+  border-radius: 46rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: bold;
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
 }
 
@@ -383,11 +385,11 @@
 
 .modal-content {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
-  border-radius: 40rpx;
-  padding: 70rpx 90rpx;
+  border-radius: 32rpx;
+  padding: 50rpx 70rpx;
   text-align: center;
   animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 20rpx 80rpx rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16rpx 64rpx rgba(0, 0, 0, 0.5);
   border: 2rpx solid rgba(255, 255, 255, 0.3);
 }
 
@@ -403,25 +405,25 @@
 }
 
 .result-emoji {
-  font-size: 140rpx;
+  font-size: 110rpx;
   display: block;
   animation: bounce 0.8s ease;
   filter: drop-shadow(0 4rpx 12rpx rgba(0, 0, 0, 0.3));
 }
 
 .result-title {
-  font-size: 52rpx;
+  font-size: 44rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   display: block;
-  margin: 25rpx 0 15rpx;
+  margin: 20rpx 0 12rpx;
 }
 
 .result-points {
-  font-size: 48rpx;
+  font-size: 40rpx;
   background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -431,20 +433,20 @@
 }
 
 .result-subtitle {
-  font-size: 30rpx;
+  font-size: 26rpx;
   color: #95a5a6;
   display: block;
-  margin-top: 20rpx;
+  margin-top: 16rpx;
 }
 
 /* 关闭按钮 */
 .close-btn {
-  margin-top: 35rpx;
-  padding: 18rpx 50rpx;
+  margin-top: 28rpx;
+  padding: 14rpx 40rpx;
   background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  border-radius: 35rpx;
+  border-radius: 28rpx;
   display: inline-block;
-  box-shadow: 0 6rpx 20rpx rgba(149, 165, 166, 0.4);
+  box-shadow: 0 5rpx 16rpx rgba(149, 165, 166, 0.4);
   transition: all 0.2s ease;
 }
 
@@ -454,22 +456,22 @@
 }
 
 .close-btn text {
-  font-size: 30rpx;
+  font-size: 26rpx;
   color: white;
   font-weight: bold;
 }
 
 /* 倒计时显示 */
 .countdown {
-  margin-top: 20rpx;
-  padding: 12rpx 30rpx;
+  margin-top: 16rpx;
+  padding: 10rpx 24rpx;
   background: linear-gradient(135deg, rgba(52, 152, 219, 0.2) 0%, rgba(41, 128, 185, 0.1) 100%);
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   border: 1rpx solid rgba(52, 152, 219, 0.3);
 }
 
 .countdown text {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: #3498db;
   font-weight: 500;
 }
@@ -487,8 +489,8 @@
 
 .confetti-item {
   position: absolute;
-  top: -60rpx;
-  font-size: 70rpx;
+  top: -50rpx;
+  font-size: 56rpx;
   animation: fall 2.5s ease-in-out infinite;
   filter: drop-shadow(0 2rpx 8rpx rgba(0, 0, 0, 0.3));
 }
@@ -501,7 +503,7 @@
 
 @keyframes fall {
   0% {
-    top: -60rpx;
+    top: -50rpx;
     transform: rotate(0deg) scale(0.8);
     opacity: 1;
   }
@@ -509,5 +511,35 @@
     top: 100vh;
     transform: rotate(720deg) scale(1.2);
     opacity: 0;
+  }
+}
+
+/* iPad 横屏适配 */
+@media (min-width: 768px) and (orientation: landscape) {
+  .container {
+    padding: 20rpx;
+  }
+  
+  .player-area {
+    padding: 20rpx;
+    margin: 10rpx;
+  }
+  
+  .card {
+    width: 56rpx;
+    height: 82rpx;
+  }
+  
+  .card.large {
+    width: 70rpx;
+    height: 104rpx;
+  }
+  
+  .card-text {
+    font-size: 24rpx;
+  }
+  
+  .card.large .card-text {
+    font-size: 28rpx;
   }
 }

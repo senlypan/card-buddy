@@ -1,9 +1,101 @@
-<!--pages/doudizhu/doudizhu.wxml-->
-<view class="container" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
-  <view class="coming-soon">
-    <text class="emoji">🚧</text>
-    <text class="title">斗地主开发中</text>
-    <text class="desc">敬请期待！</text>
-    <view class="back-btn" bindtap="goBack">返回首页</view>
+<!--pages/doudizhu/doudizhu.wxml - 儿童简化版斗地主-->
+<view class="container">
+  <!-- 游戏信息栏 -->
+  <view class="game-info">
+    <view class="info-item">
+      <text class="label">第 {{round}} 局</text>
+    </view>
+    <view class="info-item">
+      <text class="label">我的积分</text>
+      <text class="points">{{myPoints}}</text>
+    </view>
+    <view class="info-item" bindtap="goHome">
+      <text class="label">🏠 返回</text>
+    </view>
+  </view>
+
+  <!-- 地主区域 -->
+  <view class="player-area landlord-area">
+    <view class="avatar">🤠</view>
+    <view class="player-info">
+      <text class="name">{{isLandlord ? '我（地主）' : '地主'}}</text>
+      <view class="cards" wx:if="{{!showLandlordCards}}">
+        <view class="card back" wx:for="{{3}}" wx:key="*this"></view>
+        <text class="card-count">+{{landlordCards.length - 3}}张</text>
+      </view>
+      <view class="cards" wx:else>
+        <view class="card" wx:for="{{landlordCardsDisplay}}" wx:key="*this">
+          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
+        </view>
+      </view>
+      <!-- 牌型提示 -->
+      <view class="hand-type" wx:if="{{showLandlordCards && landlordHandType}}">
+        <text class="hand-type-text">{{landlordHandType.type}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 游戏提示 -->
+  <view class="message-box">
+    <text class="message">{{message}}</text>
+  </view>
+
+  <!-- 我的手牌区域 -->
+  <view class="player-area my-area">
+    <view class="player-info">
+      <text class="name">{{isLandlord ? '地主（我）' : '我（农民）'}}</text>
+      <view class="cards">
+        <view class="card large" wx:for="{{myCardsDisplay}}" wx:key="*this">
+          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
+        </view>
+      </view>
+      <!-- 牌型提示 -->
+      <view class="hand-type my-hand-type" wx:if="{{myHandType}}">
+        <text class="hand-type-text">✨ {{myHandType.type}}</text>
+      </view>
+    </view>
+    <view class="avatar">👦</view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-area" wx:if="{{gamePhase === 'ready'}}">
+    <view class="big-btn start-btn" bindtap="startGame">
+      🎲 开始比牌
+    </view>
+  </view>
+
+  <view class="action-area" wx:if="{{gamePhase === 'result'}}">
+    <view class="big-btn next-btn" bindtap="nextRound">
+      🃏 再来一局
+    </view>
+  </view>
+
+  <!-- 结算弹窗 -->
+  <view class="modal" wx:if="{{showResult}}" bindtap="closeResult">
+    <view class="modal-content" catchtap="stopClose">
+      <text class="result-emoji">{{resultEmoji}}</text>
+      <text class="result-title">{{resultTitle}}</text>
+      <text class="result-points">{{resultPoints}}</text>
+      <text class="result-subtitle" wx:if="{{!showConfetti}}">继续努力哦～</text>
+      
+      <!-- 关闭按钮 -->
+      <view class="close-btn" bindtap="closeResult">
+        <text>✕ 关闭</text>
+      </view>
+      
+      <!-- 自动关闭倒计时 -->
+      <view class="countdown" wx:if="{{countdown > 0}}">
+        <text>{{countdown}}秒后自动关闭</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 庆祝特效 -->
+  <view class="confetti" wx:if="{{showConfetti}}">
+    <text class="confetti-item" style="left: 10%;">🎉</text>
+    <text class="confetti-item" style="left: 30%;">✨</text>
+    <text class="confetti-item" style="left: 50%;">🌟</text>
+    <text class="confetti-item" style="left: 70%;">🎊</text>
+    <text class="confetti-item" style="left: 90%;">💫</text>
   </view>
 </view>
