@@ -733,14 +733,16 @@ Page({
   evaluateHand(cards) {
     if (cards.length === 0) return { type: 'invalid', value: 0 }
     
+    // 按点数统计（不是按 text，因为 3♠ 和 3♥ 都是 3）
     const valueCount = {}
     cards.forEach(c => {
-      const text = c.text
-      valueCount[text] = (valueCount[text] || 0) + 1
+      // 提取点数部分（去掉花色）
+      const pointValue = c.text.replace(/[♠♥♣♦]/g, '')
+      valueCount[pointValue] = (valueCount[pointValue] || 0) + 1
     })
     
-    const values = Object.keys(valueCount).map(text => 
-      CardUtils.getCardValue(cards.find(c => c.text === text))
+    const values = Object.keys(valueCount).map(point => 
+      CardUtils.getCardValue(cards.find(c => c.text.replace(/[♠♥♣♦]/g, '') === point))
     ).sort((a, b) => b - a)
     
     // 单张
@@ -765,15 +767,10 @@ Page({
     
     // 三带一
     if (cards.length === 4 && values.length === 2) {
-      const tripleValue = values.find(v => {
-        const count = Object.values(valueCount).find((c, i) => 
-          Object.keys(valueCount)[i] === Object.keys(valueCount).find(k => 
-            CardUtils.getCardValue(cards.find(c => c.text === k)) === v
-          )
-        )
-        return count === 3
-      })
-      if (tripleValue) {
+      const counts = Object.values(valueCount)
+      if (counts.includes(3) && counts.includes(1)) {
+        const triplePoint = Object.keys(valueCount).find(point => valueCount[point] === 3)
+        const tripleValue = CardUtils.getCardValue(cards.find(c => c.text.replace(/[♠♥♣♦]/g, '') === triplePoint))
         return { type: '三带一', value: tripleValue }
       }
     }
@@ -782,7 +779,8 @@ Page({
     if (cards.length === 5 && values.length === 2) {
       const counts = Object.values(valueCount)
       if (counts.includes(3) && counts.includes(2)) {
-        const tripleValue = values.find((v, i) => counts[i] === 3)
+        const triplePoint = Object.keys(valueCount).find(point => valueCount[point] === 3)
+        const tripleValue = CardUtils.getCardValue(cards.find(c => c.text.replace(/[♠♥♣♦]/g, '') === triplePoint))
         return { type: '三带二', value: tripleValue }
       }
     }
@@ -796,7 +794,7 @@ Page({
           break
         }
       }
-      if (isContinuous && values[values.length - 1] >= 5) { // 最小从 3 开始，5 张最小是 3-4-5-6-7
+      if (isContinuous && values[values.length - 1] >= 5) {
         return { type: `顺子×${values.length}`, value: values[0] + values.length / 100 }
       }
     }
@@ -804,9 +802,9 @@ Page({
     // 连对（3 个或以上连续对子）
     if (cards.length >= 6 && cards.length % 2 === 0) {
       const pairs = []
-      for (const [text, count] of Object.entries(valueCount)) {
+      for (const [point, count] of Object.entries(valueCount)) {
         if (count === 2) {
-          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          const value = CardUtils.getCardValue(cards.find(c => c.text.replace(/[♠♥♣♦]/g, '') === point))
           pairs.push(value)
         } else {
           return { type: 'invalid', value: 0 }
@@ -832,12 +830,10 @@ Page({
     // 飞机（2 个或以上连续三条）
     if (cards.length >= 6 && cards.length % 3 === 0) {
       const triples = []
-      for (const [text, count] of Object.entries(valueCount)) {
+      for (const [point, count] of Object.entries(valueCount)) {
         if (count === 3) {
-          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          const value = CardUtils.getCardValue(cards.find(c => c.text.replace(/[♠♥♣♦]/g, '') === point))
           triples.push(value)
-        } else if (count !== 0) {
-          // 允许带牌
         }
       }
       
