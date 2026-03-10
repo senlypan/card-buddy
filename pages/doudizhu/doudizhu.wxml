@@ -24,8 +24,9 @@
     
     <!-- 对手牌背 -->
     <view class="opponent-cards">
-      <view class="card-back-stack">
-        <view class="card-back" wx:for="{{landlordCards.length}}" wx:key="*this" style="left: {{index * 8}}rpx;"></view>
+      <view class="card-back-stack" wx:if="{{gamePhase === 'playing' && !showLandlordCards}}">
+        <view class="card-back" wx:for="{{Math.min(landlordCards.length, 20)}}" wx:key="*this" style="left: {{index * 8}}rpx;"></view>
+        <text class="card-count-overlay">{{landlordCards.length}}张</text>
       </view>
     </view>
   </view>
@@ -68,7 +69,7 @@
   <!-- 我的手牌区域 - 紧凑堆叠 -->
   <view class="my-cards-container">
     <view class="cards-compact">
-      <view class="card-compact {{item.selected ? 'selected' : ''}}" 
+      <view class="card-compact {{item.selected ? 'selected' : ''}} {{item.autoHighlight ? 'auto-highlight' : ''}}" 
             wx:for="{{myCardsDisplay}}" 
             wx:key="*this"
             data-index="{{item.index}}"

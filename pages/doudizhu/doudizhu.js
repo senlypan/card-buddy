@@ -272,8 +272,11 @@ Page({
     
     if (hint) {
       // 根据提示自动选牌
-      if (hint.type === 'beat' || hint.type === 'single' || hint.type === 'pair') {
+      if (hint.type === 'beat' || hint.type === 'single' || hint.type === 'pair' || hint.type === 'consecutive_pairs') {
         const myCardsDisplay = this.data.myCardsDisplay
+        
+        // 先重置所有牌
+        myCardsDisplay.forEach(c => c.selected = false)
         
         if (hint.text.includes('建议出：')) {
           // 管牌
@@ -282,7 +285,10 @@ Page({
             const texts = match[1].split(' ')
             texts.forEach(text => {
               const card = myCardsDisplay.find(c => c.text === text)
-              if (card) card.selected = true
+              if (card) {
+                card.selected = true
+                card.autoHighlight = true // 标记为自动高亮
+              }
             })
           }
         } else if (hint.text.includes('对子')) {
@@ -294,8 +300,25 @@ Page({
             myCardsDisplay.forEach(c => {
               if (c.text === text && count < 2) {
                 c.selected = true
+                c.autoHighlight = true
                 count++
               }
+            })
+          }
+        } else if (hint.text.includes('连对')) {
+          // 连对
+          const match = hint.text.match(/连对：(.+)/)
+          if (match) {
+            const texts = match[1].split(' ')
+            texts.forEach(text => {
+              let count = 0
+              myCardsDisplay.forEach(c => {
+                if (c.text === text && count < 2) {
+                  c.selected = true
+                  c.autoHighlight = true
+                  count++
+                }
+              })
             })
           }
         } else if (hint.text.includes('单张')) {
@@ -304,7 +327,10 @@ Page({
           if (match) {
             const text = match[1]
             const card = myCardsDisplay.find(c => c.text === text)
-            if (card) card.selected = true
+            if (card) {
+              card.selected = true
+              card.autoHighlight = true
+            }
           }
         }
         
@@ -312,13 +338,14 @@ Page({
         
         this.setData({
           myCardsDisplay: myCardsDisplay,
-          selectedCount: selectedCount
+          selectedCount: selectedCount,
+          message: `已选择 ${selectedCount} 张牌，即将出牌...`
         })
         
         // 延迟出牌
         setTimeout(() => {
           this.playCards()
-        }, 300)
+        }, 800)
       }
     }
   },
@@ -364,10 +391,11 @@ Page({
     )
     const myCardsDisplay = this.data.myCardsDisplay.filter(c => !c.selected)
     
-    // 重新编号
+    // 重新编号并清除高亮标记
     myCardsDisplay.forEach((c, i) => {
       c.index = i
       c.id = 'card-' + i
+      c.autoHighlight = false
     })
     
     this.setData({
@@ -444,7 +472,7 @@ Page({
         landlordCardsDisplay: newCardsDisplay,
         lastHand: handType,
         lastHandPlayer: 'landlord',
-        lastHandCards: [card],
+        lastHandCards: [{...card, text: CardUtils.cardToString(card), isRed: card.suit === '♥' || card.suit === '♦'}],
         passCount: 0,
         isMyTurn: true,
         message: '牌牌出了牌，轮到你！'
