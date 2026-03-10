@@ -182,9 +182,17 @@ Page({
     if (lastHand) {
       const beatCard = this.findBeatingCard(availableCards, lastHand)
       if (beatCard) {
-        return {
-          text: `建议出：${beatCard.card.text}（比${lastHand.type}大）`,
-          type: 'beat'
+        if (beatCard.cards) {
+          const texts = beatCard.cards.map(c => c.text).join(' ')
+          return {
+            text: `建议出：${texts}（比${lastHand.type}大）`,
+            type: 'beat'
+          }
+        } else {
+          return {
+            text: `建议出：${beatCard.card.text}（比${lastHand.type}大）`,
+            type: 'beat'
+          }
         }
       } else {
         return {
@@ -195,20 +203,43 @@ Page({
     }
     
     // 先手出牌策略
-    // 1. 先出最小的单张
-    const minCard = availableCards.reduce((min, c) => {
-      const val = CardUtils.getCardValue(c)
-      const minVal = CardUtils.getCardValue(min)
-      return val < minVal ? c : min
-    })
-    
-    // 2. 检查有没有对子
     const valueCount = {}
     availableCards.forEach(c => {
       const text = c.text
       valueCount[text] = (valueCount[text] || 0) + 1
     })
     
+    // 1. 检查有没有连对（3 个以上对子）
+    const pairs = []
+    for (const [text, count] of Object.entries(valueCount)) {
+      if (count >= 2) {
+        const value = CardUtils.getCardValue(availableCards.find(c => c.text === text))
+        pairs.push({ text, value })
+      }
+    }
+    
+    if (pairs.length >= 3) {
+      pairs.sort((a, b) => b.value - a.value)
+      // 找连续的对子
+      for (let i = 0; i <= pairs.length - 3; i++) {
+        let isContinuous = true
+        for (let j = 0; j < 2; j++) {
+          if (pairs[i + j].value - pairs[i + j + 1].value !== 1) {
+            isContinuous = false
+            break
+          }
+        }
+        if (isContinuous) {
+          const pairTexts = pairs.slice(i, i + 3).map(p => p.text).join(' ')
+          return {
+            text: `建议出连对：${pairTexts}`,
+            type: 'consecutive_pairs'
+          }
+        }
+      }
+    }
+    
+    // 2. 检查有没有对子
     for (const [text, count] of Object.entries(valueCount)) {
       if (count >= 2) {
         return {
@@ -219,6 +250,12 @@ Page({
     }
     
     // 3. 出最小单张
+    const minCard = availableCards.reduce((min, c) => {
+      const val = CardUtils.getCardValue(c)
+      const minVal = CardUtils.getCardValue(min)
+      return val < minVal ? c : min
+    })
+    
     return {
       text: `建议出最小单张：${minCard.text}`,
       type: 'single'
@@ -403,28 +440,111 @@ Page({
   },
 
   findBeatingCard(cards, lastHand) {
-    for (let i = 0; i < cards.length; i++) {
-      const cardValue = CardUtils.getCardValue(cards[i])
-      if (cardValue > lastHand.value) {
-        return { index: i, card: cards[i] }
+    // 如果是单张或对子
+    if (lastHand.type === '单张' || lastHand.type === '对子') {
+      for (let i = 0; i < cards.length; i++) {
+        const cardValue = CardUtils.getCardValue(cards[i])
+        if (cardValue > lastHand.value) {
+          return { index: i, card: cards[i] }
+        }
       }
     }
+    
+    // 如果是连对，找更大的连对
+    if (lastHand.type.includes('连对')) {
+      const pairCount = parseInt(lastHand.type.split('×')[1])
+      const valueCount = {}
+      cards.forEach(c => {
+        const text = c.text
+        valueCount[text] = (valueCount[text] || 0) + 1
+      })
+      
+      const pairs = []
+      for (const [text, count] of Object.entries(valueCount)) {
+        if (count === 2) {
+          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          pairs.push({ text, value, index: cards.findIndex(c => c.text === text) })
+        }
+      }
+      
+      // 找连续的對子
+      pairs.sort((a, b) => b.value - a.value)
+      for (let i = 0; i <= pairs.length - pairCount; i++) {
+        let isContinuous = true
+        for (let j = 0; j < pairCount - 1; j++) {
+          if (pairs[i + j].value - pairs[i + j + 1].value !== 1) {
+            isContinuous = false
+            break
+          }
+        }
+        
+        if (isContinuous && pairs[i].value > lastHand.value - pairCount) {
+          const beatCards = pairs.slice(i, i + pairCount)
+          return { 
+            index: beatCards[0].index, 
+            cards: beatCards.map(p => cards.find(c => c.text === p.text))
+          }
+        }
+      }
+    }
+    
     return null
   },
 
   evaluateHand(cards) {
     if (cards.length === 0) return { type: 'invalid', value: 0 }
     
+    // 单张
     if (cards.length === 1) {
       const value = CardUtils.getCardValue(cards[0])
       return { type: '单张', value: value }
     }
     
+    // 对子
     if (cards.length === 2) {
       const v1 = CardUtils.getCardValue(cards[0])
       const v2 = CardUtils.getCardValue(cards[1])
       if (v1 === v2) {
         return { type: '对子', value: v1 }
+      }
+    }
+    
+    // 多个对子（连对）- 支持 2-6 个对子
+    if (cards.length >= 4 && cards.length % 2 === 0) {
+      const valueCount = {}
+      cards.forEach(c => {
+        const text = c.text
+        valueCount[text] = (valueCount[text] || 0) + 1
+      })
+      
+      // 检查是否都是对子
+      const pairs = []
+      for (const [text, count] of Object.entries(valueCount)) {
+        if (count === 2) {
+          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
+          pairs.push({ text, value })
+        } else {
+          return { type: 'invalid', value: 0 }
+        }
+      }
+      
+      // 检查对子是否连续
+      if (pairs.length >= 2) {
+        pairs.sort((a, b) => b.value - a.value)
+        let isContinuous = true
+        for (let i = 0; i < pairs.length - 1; i++) {
+          if (pairs[i].value - pairs[i + 1].value !== 1) {
+            isContinuous = false
+            break
+          }
+        }
+        
+        if (isContinuous) {
+          return { 
+            type: `连对×${pairs.length}`, 
+            value: pairs[0].value + pairs.length // 最大的牌值 + 对子数量
+          }
+        }
       }
     }
     
