@@ -1,4 +1,4 @@
-/* pages/zhajinhua/zhajinhua.wxss - iPad 适配优化版 */
+/* pages/zhajinhua/zhajinhua.wxss - 豪华版 */
 
 /* 容器 - 高级渐变背景 */
 .container {
@@ -514,126 +514,303 @@
   }
 }
 
-/* 加注输入框弹窗 */
-.raise-input-content {
-  background: white;
-  border-radius: 32rpx;
-  padding: 50rpx 40rpx;
+/* ===== 豪华版加注弹窗 ===== */
+
+.raise-modal .raise-dialog {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 40rpx;
+  padding: 0;
+  width: 85%;
+  max-width: 640rpx;
+  overflow: hidden;
+  box-shadow: 0 20rpx 100rpx rgba(0, 0, 0, 0.6);
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 顶部装饰 */
+.raise-header {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  padding: 40rpx 30rpx 30rpx;
   text-align: center;
-  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 20rpx 80rpx rgba(0, 0, 0, 0.5);
-  width: 80%;
-  max-width: 600rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.raise-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.raise-emoji {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 10rpx;
+  animation: bounce 2s ease-in-out infinite;
 }
 
 .raise-title {
   font-size: 44rpx;
   font-weight: bold;
-  color: #333;
+  color: white;
   display: block;
-  margin-bottom: 15rpx;
+  margin-bottom: 8rpx;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
 }
 
 .raise-subtitle {
-  font-size: 26rpx;
-  color: #666;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
   display: block;
-  margin-bottom: 30rpx;
 }
 
-.input-section {
-  margin: 30rpx 0;
+/* 信息面板 */
+.info-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 30rpx 20rpx;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 0 20rpx;
+  border-radius: 20rpx;
+  margin-top: -20rpx;
+  position: relative;
+  z-index: 10;
 }
 
-.input-label {
-  font-size: 28rpx;
-  color: #333;
+.info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.info-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.info-value {
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.info-value.current {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.info-value.total {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.info-unit {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.info-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+/* 加注金额设置 */
+.amount-section {
+  padding: 30rpx 30rpx 20rpx;
+}
+
+.section-label {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
   font-weight: bold;
   display: block;
   margin-bottom: 20rpx;
+  text-align: center;
+}
+
+.slider-container {
+  margin: 20rpx 0;
+  padding: 0 10rpx;
 }
 
 .raise-slider {
-  margin: 20rpx 0;
+  width: 100%;
 }
 
-.input-value-box {
+.amount-display {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
+  gap: 10rpx;
+  margin: 25rpx 0;
+  padding: 20rpx;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 20rpx;
+  border: 2rpx solid rgba(255, 107, 107, 0.3);
+}
+
+.amount-number {
+  font-size: 64rpx;
+  font-weight: bold;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.amount-unit {
+  font-size: 28rpx;
+  color: #FF6B6B;
+  font-weight: bold;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 10rpx;
   margin-top: 20rpx;
 }
 
-.raise-input {
-  width: 200rpx;
+.amount-input {
+  width: 240rpx;
   height: 80rpx;
-  border: 2rpx solid #FF6B6B;
-  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 16rpx;
   text-align: center;
   font-size: 36rpx;
   font-weight: bold;
-  color: #FF6B6B;
+  color: white;
+  transition: all 0.3s;
 }
 
-.input-unit {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #FF6B6B;
+.amount-input:focus {
+  border-color: #FF6B6B;
+  background: rgba(255, 107, 107, 0.1);
 }
 
-.quick-amounts {
+.input-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 快捷金额 */
+.quick-section {
+  padding: 20rpx 30rpx 30rpx;
+}
+
+.quick-buttons {
   display: flex;
-  justify-content: space-around;
-  margin: 30rpx 0;
+  justify-content: space-between;
+  gap: 15rpx;
+  margin-top: 15rpx;
 }
 
 .quick-btn {
-  padding: 12rpx 24rpx;
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
-  color: white;
+  flex: 1;
+  height: 120rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2rpx solid rgba(255, 255, 255, 0.15);
   border-radius: 20rpx;
-  font-size: 26rpx;
-  font-weight: bold;
-  box-shadow: 0 4rpx 12rpx rgba(255, 107, 107, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  transition: all 0.2s ease;
 }
 
 .quick-btn:active {
   transform: scale(0.95);
+  background: rgba(255, 107, 107, 0.2);
+  border-color: #FF6B6B;
 }
 
-.raise-buttons {
+.quick-btn.all-in {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 142, 142, 0.1) 100%);
+  border-color: #FF6B6B;
+}
+
+.quick-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: white;
+}
+
+.quick-btn.all-in .quick-value {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.quick-label {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 操作按钮 */
+.action-buttons {
   display: flex;
   gap: 20rpx;
-  margin-top: 30rpx;
+  padding: 20rpx 30rpx 30rpx;
 }
 
-.cancel-btn,
-.confirm-btn {
+.action-buttons .btn {
   flex: 1;
-  height: 90rpx;
-  border-radius: 45rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: bold;
+  transition: all 0.2s ease;
 }
 
-.cancel-btn {
-  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+.action-buttons .btn:active {
+  transform: scale(0.95);
+}
+
+.action-buttons .btn.cancel {
+  background: linear-gradient(135deg, #5a5a5a 0%, #4a4a4a 100%);
   color: white;
 }
 
-.confirm-btn {
+.action-buttons .btn.confirm {
   background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
   color: white;
-}
-
-.cancel-btn:active,
-.confirm-btn:active {
-  opacity: 0.8;
-  transform: scale(0.95);
+  box-shadow: 0 8rpx 24rpx rgba(46, 204, 113, 0.4);
 }
 
 /* iPad 横屏适配 */

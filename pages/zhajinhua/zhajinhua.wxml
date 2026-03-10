@@ -1,4 +1,4 @@
-<!--pages/zhajinhua/zhajinhua.wxml - 带看牌/加注功能-->
+<!--pages/zhajinhua/zhajinhua.wxml - 优化版-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -104,49 +104,6 @@
       🎲 开牌比大小
     </view>
   </view>
-  
-  <!-- 加注输入框弹窗 -->
-  <view class="modal" wx:if="{{showRaiseInput}}" bindtap="closeRaiseInput">
-    <view class="raise-input-content" catchtap="stopClose">
-      <text class="raise-title">📈 自定义加注</text>
-      <text class="raise-subtitle">当前下注：{{betAmount}}分 | 剩余积分：{{myPoints}}分</text>
-      
-      <view class="input-section">
-        <text class="input-label">加注金额：</text>
-        <slider 
-          class="raise-slider"
-          min="1" 
-          max="{{myPoints}}" 
-          value="{{customRaiseAmount}}"
-          block-size="20"
-          activeColor="#FF6B6B"
-          bindchange="onSliderChange"
-        />
-        <view class="input-value-box">
-          <input 
-            class="raise-input"
-            type="number" 
-            value="{{customRaiseAmount}}"
-            bindinput="onInputAmount"
-            placeholder="输入积分"
-          />
-          <text class="input-unit">分</text>
-        </view>
-      </view>
-      
-      <view class="quick-amounts">
-        <view class="quick-btn" bindtap="setQuickAmount" data-amount="10">10</view>
-        <view class="quick-btn" bindtap="setQuickAmount" data-amount="20">20</view>
-        <view class="quick-btn" bindtap="setQuickAmount" data-amount="50">50</view>
-        <view class="quick-btn" bindtap="setQuickAmount" data-amount="{{myPoints}}">全押</view>
-      </view>
-      
-      <view class="raise-buttons">
-        <view class="cancel-btn" bindtap="closeRaiseInput">取消</view>
-        <view class="confirm-btn" bindtap="customRaise">确定加注</view>
-      </view>
-    </view>
-  </view>
 
   <!-- 再来一局 -->
   <view class="action-area" wx:if="{{gamePhase === 'result'}}">
@@ -163,14 +120,110 @@
       <text class="result-points">{{resultPoints}}</text>
       <text class="result-subtitle" wx:if="{{!showConfetti}}">继续努力哦～</text>
       
-      <!-- 关闭按钮 -->
       <view class="close-btn" bindtap="closeResult">
         <text>✕ 关闭</text>
       </view>
       
-      <!-- 自动关闭倒计时 -->
       <view class="countdown" wx:if="{{countdown > 0}}">
         <text>{{countdown}}秒后自动关闭</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加注输入框弹窗 - 豪华版 -->
+  <view class="modal raise-modal" wx:if="{{showRaiseInput}}" bindtap="closeRaiseInput">
+    <view class="raise-dialog" catchtap="stopClose">
+      <!-- 顶部装饰 -->
+      <view class="raise-header">
+        <text class="raise-emoji">📈</text>
+        <text class="raise-title">自定义加注</text>
+        <text class="raise-subtitle">运筹帷幄，决胜千里</text>
+      </view>
+      
+      <!-- 信息面板 -->
+      <view class="info-panel">
+        <view class="info-card">
+          <text class="info-label">当前下注</text>
+          <text class="info-value current">{{betAmount}}</text>
+          <text class="info-unit">分</text>
+        </view>
+        <view class="info-divider"></view>
+        <view class="info-card">
+          <text class="info-label">剩余积分</text>
+          <text class="info-value total">{{myPoints}}</text>
+          <text class="info-unit">分</text>
+        </view>
+      </view>
+      
+      <!-- 加注金额设置 -->
+      <view class="amount-section">
+        <text class="section-label">加注金额</text>
+        
+        <!-- 滑块 -->
+        <view class="slider-container">
+          <slider 
+            class="raise-slider"
+            min="1" 
+            max="{{myPoints}}" 
+            value="{{customRaiseAmount}}"
+            block-size="24"
+            activeColor="#FF6B6B"
+            backgroundColor="rgba(255, 107, 107, 0.3)"
+            bindchange="onSliderChange"
+          />
+        </view>
+        
+        <!-- 数值显示 -->
+        <view class="amount-display">
+          <text class="amount-number">{{customRaiseAmount}}</text>
+          <text class="amount-unit">分</text>
+        </view>
+        
+        <!-- 输入框 -->
+        <view class="input-container">
+          <input 
+            class="amount-input"
+            type="number" 
+            value="{{customRaiseAmount}}"
+            bindinput="onInputAmount"
+            placeholder="输入积分"
+            maxlength="5"
+          />
+          <text class="input-label">手动输入</text>
+        </view>
+      </view>
+      
+      <!-- 快捷金额 -->
+      <view class="quick-section">
+        <text class="section-label">快捷金额</text>
+        <view class="quick-buttons">
+          <view class="quick-btn" bindtap="setQuickAmount" data-amount="10">
+            <text class="quick-value">10</text>
+            <text class="quick-label">分</text>
+          </view>
+          <view class="quick-btn" bindtap="setQuickAmount" data-amount="20">
+            <text class="quick-value">20</text>
+            <text class="quick-label">分</text>
+          </view>
+          <view class="quick-btn" bindtap="setQuickAmount" data-amount="50">
+            <text class="quick-value">50</text>
+            <text class="quick-label">分</text>
+          </view>
+          <view class="quick-btn all-in" bindtap="setQuickAmount" data-amount="{{myPoints}}">
+            <text class="quick-value">ALL IN</text>
+            <text class="quick-label">全押</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 操作按钮 -->
+      <view class="action-buttons">
+        <view class="btn cancel" bindtap="closeRaiseInput">
+          <text>取消</text>
+        </view>
+        <view class="btn confirm" bindtap="customRaise">
+          <text>确定加注</text>
+        </view>
       </view>
     </view>
   </view>
