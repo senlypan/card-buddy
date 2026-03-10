@@ -1,24 +1,23 @@
-/* pages/doudizhu/doudizhu.wxss - 出牌对战版 */
+/* pages/doudizhu/doudizhu.wxss - 优化版 */
 
 .container {
   min-height: 100vh;
   background: linear-gradient(180deg, #2c3e50 0%, #34495e 50%, #1a252f 100%);
-  padding-bottom: 30rpx;
+  padding-bottom: 20rpx;
   max-width: 1024px;
   margin: 0 auto;
 }
 
 .game-info {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
-  padding: 15rpx 20rpx;
+  padding: 12rpx 15rpx;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10rpx);
-  border-radius: 16rpx;
-  margin: 15rpx;
+  border-radius: 12rpx;
+  margin: 10rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.3);
 }
 
 .info-item {
@@ -28,23 +27,22 @@
 }
 
 .label {
-  font-size: 20rpx;
+  font-size: 18rpx;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
 .points {
-  font-size: 34rpx;
+  font-size: 28rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 16rpx rgba(255, 215, 0, 0.5);
 }
 
 .card-count {
-  font-size: 34rpx;
+  font-size: 28rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   -webkit-background-clip: text;
@@ -52,79 +50,168 @@
   background-clip: text;
 }
 
-.player-area {
+/* 玩家信息条 */
+.player-info-bar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 25rpx 20rpx;
-  margin: 15rpx;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10rpx);
-  border-radius: 24rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 10rpx 32rpx rgba(0, 0, 0, 0.4);
+  gap: 15rpx;
+  padding: 10rpx;
+  margin: 8rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12rpx;
 }
 
-.landlord-area {
-  background: linear-gradient(135deg, rgba(230, 126, 34, 0.15) 0%, rgba(211, 84, 0, 0.05) 100%);
+.landlord-info {
+  background: linear-gradient(135deg, rgba(230, 126, 34, 0.2) 0%, rgba(211, 84, 0, 0.1) 100%);
 }
 
-.my-area {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(39, 174, 96, 0.05) 100%);
+.player-avatar {
+  font-size: 36rpx;
 }
 
-.avatar {
-  font-size: 70rpx;
-  flex-shrink: 0;
-  filter: drop-shadow(0 4rpx 12rpx rgba(0, 0, 0, 0.5));
-  animation: bounce 2s ease-in-out infinite;
+.player-name {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: white;
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8rpx); }
+.card-num {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.player-info {
-  flex: 1;
+/* 出牌区域（中间） */
+.play-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 15rpx;
+  justify-content: center;
+  padding: 15rpx;
+  margin: 10rpx;
+  gap: 15rpx;
 }
 
-.name {
-  font-size: 26rpx;
-  font-weight: bold;
-  color: white;
-  margin-bottom: 12rpx;
-  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.5);
-}
-
-.cards {
+.played-cards {
   display: flex;
-  gap: 8rpx;
-  margin-bottom: 12rpx;
+  flex-direction: column;
+  align-items: center;
+  padding: 15rpx 20rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16rpx;
+  min-width: 200rpx;
+  min-height: 100rpx;
+  justify-content: center;
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.played-cards.active {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #FFD700;
+  box-shadow: 0 0 20rpx rgba(255, 215, 0, 0.3);
+}
+
+.played-label {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 8rpx;
+}
+
+.played-cards-inner {
+  display: flex;
+  gap: 4rpx;
   flex-wrap: wrap;
   justify-content: center;
 }
 
-.my-cards {
-  min-height: 100rpx;
+.mini-card {
+  width: 40rpx;
+  height: 56rpx;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  border-radius: 6rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+}
+
+.mini-card-text {
+  font-size: 18rpx;
+  font-weight: bold;
+}
+
+.mini-card-text.red {
+  color: #e74c3c;
+}
+
+.mini-card-text.black {
+  color: #2c3e50;
+}
+
+.no-cards {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.vs-badge {
+  font-size: 40rpx;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* 消息框 */
+.message-box {
+  text-align: center;
+  padding: 15rpx;
+  margin: 8rpx 15rpx;
+}
+
+.message {
+  font-size: 26rpx;
+  color: white;
+  font-weight: bold;
+  line-height: 1.4;
+  text-shadow: 0 0 12rpx rgba(255, 255, 255, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 手牌区域 */
+.my-cards-container {
+  padding: 10rpx;
+  margin: 8rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  align-items: center;
+}
+
+.cards-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6rpx;
+  margin: 0 -3rpx;
 }
 
 .card {
-  width: 50rpx;
-  height: 74rpx;
+  width: 44rpx;
+  height: 64rpx;
   background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  border-radius: 8rpx;
+  border-radius: 6rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.4);
-  position: relative;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
   transition: transform 0.2s;
+  position: relative;
+  margin: 0 -10rpx;
 }
 
 .card:active {
@@ -132,34 +219,25 @@
 }
 
 .card.selected {
-  transform: translateY(-20rpx);
-  box-shadow: 0 12rpx 24rpx rgba(255, 215, 0, 0.5);
+  transform: translateY(-15rpx);
+  box-shadow: 0 8rpx 16rpx rgba(255, 215, 0, 0.4);
   border-color: #FFD700;
+  z-index: 10;
 }
 
-.card.back {
-  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-  border: 2rpx solid #d35400;
-}
-
-.card.back::after {
-  content: '🃏';
-  font-size: 28rpx;
-}
-
-.card.large {
-  width: 64rpx;
-  height: 94rpx;
-  border-width: 2rpx;
+.card.small {
+  width: 44rpx;
+  height: 64rpx;
 }
 
 .card-text {
-  font-size: 22rpx;
+  font-size: 20rpx;
   font-weight: bold;
+  z-index: 1;
 }
 
-.card.large .card-text {
-  font-size: 28rpx;
+.card.small .card-text {
+  font-size: 20rpx;
 }
 
 .card-red {
@@ -170,63 +248,28 @@
   color: #2c3e50;
 }
 
-/* 出的牌提示 */
-.last-hand {
-  margin-top: 8rpx;
-  padding: 6rpx 16rpx;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 16rpx;
-}
-
-.last-hand-text {
-  font-size: 22rpx;
-  color: white;
-  font-weight: bold;
-}
-
-/* 消息框 */
-.message-box {
-  text-align: center;
-  padding: 20rpx;
-  margin: 12rpx 15rpx;
-}
-
-.message {
-  font-size: 30rpx;
-  color: white;
-  font-weight: bold;
-  line-height: 1.5;
-  text-shadow: 0 0 16rpx rgba(255, 255, 255, 0.5);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-}
-
 /* 操作按钮区域 */
 .action-area {
-  padding: 20rpx 15rpx;
+  padding: 15rpx 10rpx;
 }
 
 .button-group {
   display: flex;
   gap: 15rpx;
   justify-content: center;
-  margin-bottom: 15rpx;
+  margin-bottom: 10rpx;
 }
 
 .medium-btn {
-  width: 42%;
-  height: 92rpx;
-  border-radius: 46rpx;
+  width: 40%;
+  height: 80rpx;
+  border-radius: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: bold;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
 }
 
@@ -244,30 +287,24 @@
   color: white;
 }
 
-.tip-text {
-  text-align: center;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
-}
-
 .waiting-text {
   text-align: center;
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: rgba(255, 255, 255, 0.8);
   font-weight: bold;
 }
 
 .big-btn {
   width: 85%;
-  height: 100rpx;
-  margin: 12rpx auto;
-  border-radius: 50rpx;
+  height: 90rpx;
+  margin: 10rpx auto;
+  border-radius: 45rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: bold;
-  box-shadow: 0 10rpx 32rpx rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
 }
 
@@ -303,11 +340,11 @@
 
 .modal-content {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
-  border-radius: 32rpx;
-  padding: 50rpx 70rpx;
+  border-radius: 28rpx;
+  padding: 40rpx 60rpx;
   text-align: center;
   animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 16rpx 64rpx rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12rpx 48rpx rgba(0, 0, 0, 0.5);
 }
 
 @keyframes popIn {
@@ -322,24 +359,24 @@
 }
 
 .result-emoji {
-  font-size: 110rpx;
+  font-size: 90rpx;
   display: block;
   animation: bounce 0.8s ease;
 }
 
 .result-title {
-  font-size: 44rpx;
+  font-size: 38rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   display: block;
-  margin: 20rpx 0 12rpx;
+  margin: 16rpx 0 10rpx;
 }
 
 .result-points {
-  font-size: 40rpx;
+  font-size: 34rpx;
   background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -349,17 +386,17 @@
 }
 
 .result-subtitle {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: #95a5a6;
   display: block;
-  margin-top: 16rpx;
+  margin-top: 12rpx;
 }
 
 .close-btn {
-  margin-top: 28rpx;
-  padding: 14rpx 40rpx;
+  margin-top: 24rpx;
+  padding: 12rpx 35rpx;
   background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   display: inline-block;
 }
 
@@ -369,20 +406,20 @@
 }
 
 .close-btn text {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: white;
   font-weight: bold;
 }
 
 .countdown {
-  margin-top: 16rpx;
-  padding: 10rpx 24rpx;
+  margin-top: 12rpx;
+  padding: 8rpx 20rpx;
   background: rgba(52, 152, 219, 0.2);
-  border-radius: 20rpx;
+  border-radius: 16rpx;
 }
 
 .countdown text {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #3498db;
 }
 
@@ -398,8 +435,8 @@
 
 .confetti-item {
   position: absolute;
-  top: -50rpx;
-  font-size: 56rpx;
+  top: -40rpx;
+  font-size: 48rpx;
   animation: fall 2.5s ease-in-out infinite;
 }
 
@@ -411,7 +448,7 @@
 
 @keyframes fall {
   0% {
-    top: -50rpx;
+    top: -40rpx;
     transform: rotate(0deg) scale(0.8);
     opacity: 1;
   }

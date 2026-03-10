@@ -1,4 +1,4 @@
-<!--pages/doudizhu/doudizhu.wxml - 简化版斗地主出牌对战-->
+<!--pages/doudizhu/doudizhu.wxml - 优化版-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -10,29 +10,47 @@
       <text class="points">{{myPoints}}</text>
     </view>
     <view class="info-item">
-      <text class="label">剩余牌数</text>
+      <text class="label">剩余</text>
       <text class="card-count">{{myCardsDisplay.length}}张</text>
     </view>
     <view class="info-item" bindtap="goHome">
-      <text class="label">🏠 返回</text>
+      <text class="label">🏠</text>
     </view>
   </view>
 
-  <!-- 地主区域 -->
-  <view class="player-area landlord-area">
-    <view class="avatar">🤠</view>
-    <view class="player-info">
-      <text class="name">{{isLandlord ? '我（地主）' : '地主'}}</text>
-      <view class="cards" wx:if="{{!showLandlordCards}}">
-        <view class="card back" wx:for="{{landlordCards.length}}" wx:key="*this"></view>
-      </view>
-      <view class="cards" wx:else>
-        <view class="card" wx:for="{{landlordCardsDisplay}}" wx:key="*this">
-          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
+  <!-- 地主信息 -->
+  <view class="player-info-bar landlord-info">
+    <text class="player-avatar">🤠</text>
+    <text class="player-name">{{isLandlord ? '我（地主）' : '地主'}}</text>
+    <text class="card-num">剩余 {{landlordCards.length}} 张</text>
+  </view>
+
+  <!-- 出牌区域（中间） -->
+  <view class="play-area">
+    <!-- 地主出的牌 -->
+    <view class="played-cards {{lastHandPlayer === 'landlord' ? 'active' : ''}}">
+      <view class="played-label" wx:if="{{lastHandPlayer === 'landlord'}}">地主出：</view>
+      <view class="played-cards-inner">
+        <view class="mini-card" wx:for="{{lastHandPlayer === 'landlord' ? lastHandCards : []}}" wx:key="*this">
+          <text class="mini-card-text {{item.isRed ? 'red' : 'black'}}">{{item.text}}</text>
         </view>
+        <text class="no-cards" wx:if="{{!lastHand || lastHandPlayer !== 'landlord'}}">-</text>
       </view>
-      <view class="last-hand" wx:if="{{lastHand && lastHandPlayer === 'landlord'}}">
-        <text class="last-hand-text">刚出：{{lastHand.type}}</text>
+    </view>
+
+    <!-- VS 标识 -->
+    <view class="vs-badge" wx:if="{{gamePhase === 'playing'}}">
+      <text>⚔️</text>
+    </view>
+
+    <!-- 我出的牌 -->
+    <view class="played-cards {{lastHandPlayer === 'me' ? 'active' : ''}}">
+      <view class="played-label" wx:if="{{lastHandPlayer === 'me'}}">我出：</view>
+      <view class="played-cards-inner">
+        <view class="mini-card" wx:for="{{lastHandPlayer === 'me' ? lastHandCards : []}}" wx:key="*this">
+          <text class="mini-card-text {{item.isRed ? 'red' : 'black'}}">{{item.text}}</text>
+        </view>
+        <text class="no-cards" wx:if="{{!lastHand || lastHandPlayer !== 'me'}}">-</text>
       </view>
     </view>
   </view>
@@ -43,23 +61,16 @@
   </view>
 
   <!-- 我的手牌区域 -->
-  <view class="player-area my-area">
-    <view class="player-info">
-      <text class="name">{{isLandlord ? '地主（我）' : '我（农民）'}}</text>
-      <view class="cards my-cards">
-        <view class="card large {{item.selected ? 'selected' : ''}}" 
-              wx:for="{{myCardsDisplay}}" 
-              wx:key="*this"
-              data-index="{{index}}"
-              bindtap="toggleCard">
-          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
-        </view>
-      </view>
-      <view class="last-hand" wx:if="{{lastHand && lastHandPlayer === 'me'}}">
-        <text class="last-hand-text">你出了：{{lastHand.type}}</text>
+  <view class="my-cards-container">
+    <view class="cards-row" wx:for="{{cardsRows}}" wx:key="*this">
+      <view class="card small {{item.selected ? 'selected' : ''}}" 
+            wx:for="{{item}}" 
+            wx:key="*this"
+            data-index="{{item.index}}"
+            bindtap="toggleCard">
+        <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
       </view>
     </view>
-    <view class="avatar">👦</view>
   </view>
 
   <!-- 操作按钮 -->
@@ -72,7 +83,6 @@
         ✋ 不要
       </view>
     </view>
-    <view class="tip-text">点击手牌选择，再点击"出牌"</view>
   </view>
 
   <view class="action-area" wx:if="{{gamePhase === 'playing' && !isMyTurn}}">

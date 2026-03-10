@@ -1,4 +1,4 @@
-// pages/doudizhu/doudizhu.js - 简化版斗地主出牌对战
+// pages/doudizhu/doudizhu.js - 优化版
 const CardUtils = require('../../utils/cards.js')
 
 Page({
@@ -10,7 +10,7 @@ Page({
     landlordCards: [],
     landlordCardsDisplay: [],
     showLandlordCards: false,
-    gamePhase: 'dealing', // 'dealing', 'playing', 'result'
+    gamePhase: 'dealing',
     message: '发牌中...',
     showResult: false,
     resultEmoji: '',
@@ -19,13 +19,15 @@ Page({
     showConfetti: false,
     countdown: 3,
     countdownTimer: null,
-    isLandlord: false, // 是否当地主
-    isMyTurn: true, // 是否轮到我出牌
-    lastHand: null, // 最后出的牌
-    lastHandPlayer: null, // 最后出牌的人 'me' or 'landlord'
+    isLandlord: false,
+    isMyTurn: true,
+    lastHand: null,
+    lastHandPlayer: null,
+    lastHandCards: [], // 最后出的牌（显示用）
     myHandType: null,
     landlordHandType: null,
-    passCount: 0 // 连续不要次数
+    passCount: 0,
+    cardsRows: [] // 手牌分行显示
   },
 
   onLoad() {
@@ -60,30 +62,29 @@ Page({
       isMyTurn: true,
       lastHand: null,
       lastHandPlayer: null,
+      lastHandCards: [],
       myHandType: null,
       landlordHandType: null,
-      passCount: 0
+      passCount: 0,
+      cardsRows: []
     })
 
     setTimeout(() => {
-      // 初始化牌堆（去掉大小王）
       const deck = this.createDouDiZhuDeck()
       CardUtils.shuffle(deck)
       
-      // 发牌：玩家 17 张，地主 20 张
       const myCards = CardUtils.dealCards(deck, 17)
       const landlordCards = CardUtils.dealCards(deck, 20)
       
-      // 排序手牌
       myCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
       landlordCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
       
-      // 准备显示数据
-      const myCardsDisplay = myCards.map(c => ({
+      const myCardsDisplay = myCards.map((c, i) => ({
         ...c,
         text: CardUtils.cardToString(c),
         isRed: c.suit === '♥' || c.suit === '♦',
-        selected: false
+        selected: false,
+        index: i
       }))
       
       const landlordCardsDisplay = landlordCards.map(c => ({
@@ -92,8 +93,10 @@ Page({
         isRed: c.suit === '♥' || c.suit === '♦'
       }))
       
-      // 随机决定谁当地主
       const isLandlord = Math.random() > 0.5
+      
+      // 分行显示手牌（每行最多 9 张）
+      const cardsRows = this.splitCardsToRows(myCardsDisplay, 9)
       
       this.setData({
         myCards: myCards,
@@ -103,12 +106,21 @@ Page({
         isLandlord: isLandlord,
         gamePhase: 'playing',
         message: isLandlord ? '✨ 你是地主！你先出牌！' : '✨ 你是农民！准备出牌！',
-        isMyTurn: isLandlord // 地主先出
+        isMyTurn: isLandlord,
+        cardsRows: cardsRows
       })
     }, 800)
   },
 
-  // 创建斗地主牌堆
+  // 分行显示手牌
+  splitCardsToRows(cards, perRow) {
+    const rows = []
+    for (let i = 0; i < cards.length; i += perRow) {
+      rows.push(cards.slice(i, i + perRow))
+    }
+    return rows.length > 0 ? rows : [[]]
+  },
+
   createDouDiZhuDeck() {
     const suits = ['♠', '♥', '♣', '♦']
     const values = ['3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2']
@@ -123,7 +135,6 @@ Page({
     return deck
   },
 
-  // 选择/取消选择牌
   toggleCard(e) {
     const index = e.currentTarget.dataset.index
     
@@ -132,20 +143,23 @@ Page({
     }
     
     const myCardsDisplay = this.data.myCardsDisplay
-    myCardsDisplay[index].selected = !myCardsDisplay[index].selected
+    const cardIndex = myCardsDisplay.findIndex(c => c.index === index)
     
-    this.setData({
-      myCardsDisplay: myCardsDisplay
-    })
+    if (cardIndex !== -1) {
+      myCardsDisplay[cardIndex].selected = !myCardsDisplay[cardIndex].selected
+      
+      this.setData({
+        myCardsDisplay: myCardsDisplay,
+        cardsRows: this.splitCardsToRows(myCardsDisplay, 9)
+      })
+    }
   },
 
-  // 出牌
   playCards() {
     if (!this.data.isMyTurn || this.data.gamePhase !== 'playing') {
       return
     }
     
-    // 获取选中的牌
     const selectedCards = this.data.myCardsDisplay.filter(c => c.selected)
     
     if (selectedCards.length === 0) {
@@ -156,7 +170,6 @@ Page({
       return
     }
     
-    // 检查牌型是否合法
     const handType = this.evaluateHand(selectedCards)
     
     if (handType.type === 'invalid') {
@@ -167,7 +180,6 @@ Page({
       return
     }
     
-    // 检查是否能管上
     if (this.data.lastHand && this.data.lastHandPlayer !== 'me') {
       if (handType.value <= this.data.lastHand.value) {
         wx.showToast({
@@ -178,36 +190,34 @@ Page({
       }
     }
     
-    // 移除选中的牌
+    const selectedTexts = selectedCards.map(c => c.text)
     const myCards = this.data.myCards.filter(c => 
-      !selectedCards.find(s => s.text === CardUtils.cardToString(c))
+      !selectedTexts.includes(CardUtils.cardToString(c))
     )
     const myCardsDisplay = this.data.myCardsDisplay.filter(c => !c.selected)
     
-    // 更新状态
     this.setData({
       myCards: myCards,
       myCardsDisplay: myCardsDisplay,
       lastHand: handType,
       lastHandPlayer: 'me',
+      lastHandCards: selectedCards,
       passCount: 0,
       isMyTurn: false,
-      message: '你出了牌，等待牌牌...'
+      message: '你出了牌，等待牌牌...',
+      cardsRows: this.splitCardsToRows(myCardsDisplay, 9)
     })
     
-    // 检查是否获胜
     if (myCards.length === 0) {
       this.endRound('me')
       return
     }
     
-    // 牌牌 AI 出牌
     setTimeout(() => {
       this.landlordAI()
     }, 1500)
   },
 
-  // 不要
   pass() {
     if (!this.data.isMyTurn || this.data.gamePhase !== 'playing') {
       return
@@ -227,12 +237,12 @@ Page({
       message: '你不要，等待牌牌...'
     })
     
-    // 如果连续两次不要，重新出牌
     if (this.data.passCount >= 2) {
       this.setData({
         isMyTurn: true,
         lastHand: null,
         lastHandPlayer: null,
+        lastHandCards: [],
         passCount: 0,
         message: '轮到你出牌！'
       })
@@ -243,11 +253,9 @@ Page({
     }
   },
 
-  // 牌牌 AI 出牌
   landlordAI() {
     const { landlordCards, lastHand, lastHandPlayer } = this.data
     
-    // 如果是先手，随机出一张牌
     if (!lastHand || lastHandPlayer === 'landlord') {
       const randomIndex = Math.floor(Math.random() * landlordCards.length)
       const card = landlordCards[randomIndex]
@@ -262,23 +270,21 @@ Page({
         landlordCardsDisplay: newCardsDisplay,
         lastHand: handType,
         lastHandPlayer: 'landlord',
+        lastHandCards: [card],
         passCount: 0,
         isMyTurn: true,
         message: '牌牌出了牌，轮到你！'
       })
       
-      // 检查是否获胜
       if (newCards.length === 0) {
         this.endRound('landlord')
       }
       return
     }
     
-    // 尝试管牌
     const canBeat = this.findBeatingCard(landlordCards, lastHand)
     
     if (canBeat) {
-      // 能管上
       const cardIndex = canBeat.index
       const card = landlordCards[cardIndex]
       
@@ -292,28 +298,27 @@ Page({
         landlordCardsDisplay: newCardsDisplay,
         lastHand: handType,
         lastHandPlayer: 'landlord',
+        lastHandCards: [card],
         passCount: 0,
         isMyTurn: true,
         message: '牌牌管上了，轮到你！'
       })
       
-      // 检查是否获胜
       if (newCards.length === 0) {
         this.endRound('landlord')
       }
     } else {
-      // 要不起
       this.setData({
         passCount: this.data.passCount + 1,
         isMyTurn: true,
         message: '牌牌要不起，轮到你！'
       })
       
-      // 如果对方要不起，重新出牌
       if (this.data.passCount >= 1) {
         this.setData({
           lastHand: null,
           lastHandPlayer: null,
+          lastHandCards: [],
           passCount: 0,
           message: '轮到你出牌！'
         })
@@ -321,9 +326,7 @@ Page({
     }
   },
 
-  // 找能管上的牌
   findBeatingCard(cards, lastHand) {
-    // 简化版：找一张比对方大的单牌
     for (let i = 0; i < cards.length; i++) {
       const cardValue = CardUtils.getCardValue(cards[i])
       if (cardValue > lastHand.value) {
@@ -333,7 +336,6 @@ Page({
     return null
   },
 
-  // 评估牌型（简化版）
   evaluateHand(cards) {
     if (cards.length === 0) return { type: 'invalid', value: 0 }
     
@@ -342,7 +344,6 @@ Page({
       return { type: '单张', value: value }
     }
     
-    // 检查对子
     if (cards.length === 2) {
       const v1 = CardUtils.getCardValue(cards[0])
       const v2 = CardUtils.getCardValue(cards[1])
@@ -351,11 +352,9 @@ Page({
       }
     }
     
-    // 其他牌型暂时不支持
     return { type: 'invalid', value: 0 }
   },
 
-  // 结束回合
   endRound(winner) {
     const { myPoints, isLandlord } = this.data
     
@@ -464,6 +463,5 @@ Page({
   },
 
   stopClose() {
-    // 空函数，阻止事件冒泡
   }
 })
