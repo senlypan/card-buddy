@@ -8,6 +8,8 @@ Page({
     buddyPoints: 100,
     myCards: [],
     buddyCards: [],
+    myCardsDisplay: [],
+    buddyCardsDisplay: [],
     myHandType: null,
     buddyHandType: null,
     showBuddyCards: false,
@@ -71,9 +73,22 @@ Page({
       const myType = CardUtils.evaluateHand(myCards)
       const buddyType = CardUtils.evaluateHand(buddyCards)
       
+      // 准备显示数据（包含颜色信息）
+      const myCardsDisplay = myCards.map(c => ({
+        text: CardUtils.cardToString(c),
+        isRed: c.suit === '♥' || c.suit === '♦'
+      }))
+      
+      const buddyCardsDisplay = buddyCards.map(c => ({
+        text: CardUtils.cardToString(c),
+        isRed: c.suit === '♥' || c.suit === '♦'
+      }))
+      
       this.setData({
-        myCards: myCards.map(c => CardUtils.cardToString(c)),
-        buddyCards: buddyCards.map(c => CardUtils.cardToString(c)),
+        myCards: myCards,
+        buddyCards: buddyCards,
+        myCardsDisplay: myCardsDisplay,
+        buddyCardsDisplay: buddyCardsDisplay,
         myHandType: myType,
         buddyHandType: buddyType,
         showBuddyCards: false,

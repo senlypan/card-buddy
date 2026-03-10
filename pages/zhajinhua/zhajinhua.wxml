@@ -23,8 +23,8 @@
         <view class="card back" wx:for="{{3}}" wx:key="*this"></view>
       </view>
       <view class="cards" wx:else>
-        <view class="card" wx:for="{{buddyCards}}" wx:key="*this">
-          <text class="card-text {{item.indexOf('♥') > -1 || item.indexOf('♦') > -1 ? 'card-red' : 'card-black'}}">{{item}}</text>
+        <view class="card" wx:for="{{buddyCardsDisplay}}" wx:key="*this">
+          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
         </view>
       </view>
       <!-- 牌型提示 -->
@@ -44,8 +44,8 @@
     <view class="player-info">
       <text class="name">我</text>
       <view class="cards">
-        <view class="card large" wx:for="{{myCards}}" wx:key="*this">
-          <text class="card-text {{item.indexOf('♥') > -1 || item.indexOf('♦') > -1 ? 'card-red' : 'card-black'}}">{{item}}</text>
+        <view class="card large" wx:for="{{myCardsDisplay}}" wx:key="*this">
+          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
         </view>
       </view>
       <!-- 牌型提示 -->
