@@ -1,4 +1,4 @@
-/* pages/zhajinhua/zhajinhua.wxss - 高级版炸金花 */
+/* pages/zhajinhua/zhajinhua.wxss - 带看牌/加注功能 */
 
 /* 容器 - 高级渐变背景 */
 .container {
@@ -12,11 +12,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25rpx 35rpx;
+  padding: 20rpx 30rpx;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10rpx);
   border-radius: 20rpx;
-  margin: 25rpx;
+  margin: 20rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
 }
@@ -28,13 +28,13 @@
 }
 
 .label {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
 .points {
-  font-size: 44rpx;
+  font-size: 40rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   -webkit-background-clip: text;
@@ -43,13 +43,22 @@
   text-shadow: 0 0 20rpx rgba(255, 215, 0, 0.5);
 }
 
+.bet-amount {
+  font-size: 36rpx;
+  font-weight: bold;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* 玩家区域 - 悬浮卡片效果 */
 .player-area {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 35rpx 30rpx;
-  margin: 25rpx;
+  padding: 30rpx 25rpx;
+  margin: 20rpx;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10rpx);
   border-radius: 28rpx;
@@ -78,7 +87,7 @@
 }
 
 .avatar {
-  font-size: 90rpx;
+  font-size: 80rpx;
   flex-shrink: 0;
   filter: drop-shadow(0 4rpx 12rpx rgba(0, 0, 0, 0.5));
   animation: bounce 2s ease-in-out infinite;
@@ -94,29 +103,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 25rpx;
+  margin: 0 20rpx;
 }
 
 .name {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: bold;
   color: white;
-  margin-bottom: 20rpx;
+  margin-bottom: 15rpx;
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.5);
   letter-spacing: 2rpx;
 }
 
 .cards {
   display: flex;
-  gap: 20rpx;
-  margin-bottom: 20rpx;
+  gap: 15rpx;
+  margin-bottom: 15rpx;
 }
 
 .card {
-  width: 85rpx;
-  height: 125rpx;
+  width: 75rpx;
+  height: 110rpx;
   background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  border-radius: 14rpx;
+  border-radius: 12rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
@@ -133,7 +142,7 @@
   left: 4rpx;
   right: 4rpx;
   bottom: 4rpx;
-  border-radius: 10rpx;
+  border-radius: 8rpx;
   border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
@@ -144,26 +153,26 @@
 
 .card.back::after {
   content: '🃏';
-  font-size: 44rpx;
+  font-size: 40rpx;
   filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.3));
 }
 
 .card.large {
-  width: 110rpx;
-  height: 160rpx;
+  width: 95rpx;
+  height: 140rpx;
   border-width: 3rpx;
   transform: translateY(-5rpx);
   box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.5), inset 0 2rpx 8rpx rgba(255, 255, 255, 0.6);
 }
 
 .card-text {
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: bold;
   z-index: 1;
 }
 
 .card.large .card-text {
-  font-size: 40rpx;
+  font-size: 38rpx;
 }
 
 /* 扑克牌花色颜色 */
@@ -180,9 +189,9 @@
 /* 牌型提示 - 霓虹效果 */
 .hand-type {
   background: linear-gradient(135deg, rgba(155, 89, 182, 0.3) 0%, rgba(142, 68, 173, 0.2) 100%);
-  padding: 10rpx 25rpx;
-  border-radius: 24rpx;
-  margin-top: 15rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  margin-top: 10rpx;
   border: 1rpx solid rgba(155, 89, 182, 0.4);
   box-shadow: 0 4rpx 16rpx rgba(155, 89, 182, 0.3);
 }
@@ -194,21 +203,51 @@
 }
 
 .hand-type-text {
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: bold;
   color: white;
   text-shadow: 0 0 10rpx rgba(255, 255, 255, 0.5);
 }
 
+/* 加注标识 */
+.raise-badge {
+  margin-top: 10rpx;
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.raise-badge text {
+  font-size: 22rpx;
+  color: white;
+  font-weight: bold;
+}
+
+/* 盲打标识 */
+.blind-badge {
+  margin-top: 10rpx;
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.blind-badge text {
+  font-size: 22rpx;
+  color: white;
+  font-weight: bold;
+}
+
 /* 消息框 - 呼吸灯效果 */
 .message-box {
   text-align: center;
-  padding: 30rpx;
-  margin: 20rpx 25rpx;
+  padding: 25rpx;
+  margin: 15rpx 20rpx;
 }
 
 .message {
-  font-size: 36rpx;
+  font-size: 34rpx;
   color: white;
   font-weight: bold;
   line-height: 1.5;
@@ -223,18 +262,18 @@
 
 /* 操作按钮区域 */
 .action-area {
-  padding: 30rpx 25rpx;
+  padding: 25rpx 20rpx;
 }
 
 .big-btn {
   width: 90%;
-  height: 140rpx;
-  margin: 0 auto;
-  border-radius: 70rpx;
+  height: 120rpx;
+  margin: 15rpx auto;
+  border-radius: 60rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40rpx;
+  font-size: 38rpx;
   font-weight: bold;
   box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease;
@@ -261,6 +300,18 @@
   transform: scale(0.95);
 }
 
+.look-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.blind-btn {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  color: white;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
 .showdown-btn {
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   color: white;
@@ -268,6 +319,42 @@
 }
 
 .next-btn {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+/* 中等按钮（加注/不加注） */
+.bet-buttons {
+  display: flex;
+  gap: 20rpx;
+  justify-content: center;
+}
+
+.medium-btn {
+  width: 45%;
+  height: 110rpx;
+  border-radius: 55rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+  font-weight: bold;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.medium-btn:active {
+  transform: scale(0.95);
+}
+
+.raise-btn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.call-btn {
   background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
   color: white;
   border: 2rpx solid rgba(255, 255, 255, 0.2);

@@ -1,4 +1,4 @@
-<!--pages/zhajinhua/zhajinhua.wxml - 儿童简化版炸金花-->
+<!--pages/zhajinhua/zhajinhua.wxml - 带看牌/加注功能-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -8,6 +8,10 @@
     <view class="info-item">
       <text class="label">我的积分</text>
       <text class="points">{{myPoints}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">本局下注</text>
+      <text class="bet-amount">{{betAmount}}分</text>
     </view>
     <view class="info-item" bindtap="goHome">
       <text class="label">🏠 返回</text>
@@ -31,6 +35,10 @@
       <view class="hand-type" wx:if="{{showBuddyCards && buddyHandType}}">
         <text class="hand-type-text">{{buddyHandType.type}}</text>
       </view>
+      <!-- 加注标识 -->
+      <view class="raise-badge" wx:if="{{buddyRaised}}">
+        <text>📈 已加注</text>
+      </view>
     </view>
   </view>
 
@@ -43,26 +51,61 @@
   <view class="player-area my-area">
     <view class="player-info">
       <text class="name">我</text>
-      <view class="cards">
+      
+      <!-- 未看牌时显示牌背 -->
+      <view class="cards" wx:if="{{!showMyCards}}">
+        <view class="card large back" wx:for="{{3}}" wx:key="*this"></view>
+      </view>
+      
+      <!-- 已看牌时显示牌面 -->
+      <view class="cards" wx:else>
         <view class="card large" wx:for="{{myCardsDisplay}}" wx:key="*this">
           <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
         </view>
       </view>
+      
       <!-- 牌型提示 -->
-      <view class="hand-type my-hand-type" wx:if="{{myHandType}}">
+      <view class="hand-type my-hand-type" wx:if="{{showMyCards && myHandType}}">
         <text class="hand-type-text">✨ {{myHandType.type}}</text>
+      </view>
+      
+      <!-- 盲打标识 -->
+      <view class="blind-badge" wx:if="{{!showMyCards && gamePhase === 'betting'}}">
+        <text>🎯 盲打中</text>
       </view>
     </view>
     <view class="avatar">👦</view>
   </view>
 
-  <!-- 操作按钮 -->
-  <view class="action-area" wx:if="{{gamePhase === 'ready'}}">
-    <view class="big-btn showdown-btn" bindtap="showdown">
+  <!-- 选择是否看牌 -->
+  <view class="action-area" wx:if="{{gamePhase === 'choose'}}">
+    <view class="big-btn look-btn" bindtap="lookCards">
+      👀 看牌
+    </view>
+    <view class="big-btn blind-btn" bindtap="dontLookCards">
+      🎯 不看牌（盲打）
+    </view>
+  </view>
+
+  <!-- 下注操作 -->
+  <view class="action-area" wx:if="{{gamePhase === 'betting'}}">
+    <!-- 加注按钮 -->
+    <view class="bet-buttons" wx:if="{{!isRaised}}">
+      <view class="medium-btn raise-btn" bindtap="raise">
+        📈 加注 +20 分
+      </view>
+      <view class="medium-btn call-btn" bindtap="call">
+      ✅ 不加注，开牌
+      </view>
+    </view>
+    
+    <!-- 已加注，等待开牌 -->
+    <view class="big-btn showdown-btn" wx:if="{{isRaised && !showBuddyCards}}" bindtap="showdown">
       🎲 开牌比大小
     </view>
   </view>
 
+  <!-- 再来一局 -->
   <view class="action-area" wx:if="{{gamePhase === 'result'}}">
     <view class="big-btn next-btn" bindtap="nextRound">
       🃏 再来一局
