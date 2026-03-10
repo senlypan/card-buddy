@@ -1,4 +1,4 @@
-// pages/doudizhu/doudizhu.js - 优化版
+// pages/doudizhu/doudizhu.js - 滑动选牌版
 const CardUtils = require('../../utils/cards.js')
 
 Page({
@@ -23,11 +23,12 @@ Page({
     isMyTurn: true,
     lastHand: null,
     lastHandPlayer: null,
-    lastHandCards: [], // 最后出的牌（显示用）
+    lastHandCards: [],
     myHandType: null,
     landlordHandType: null,
     passCount: 0,
-    cardsRows: [] // 手牌分行显示
+    selectedCount: 0,
+    scrollToView: ''
   },
 
   onLoad() {
@@ -66,7 +67,8 @@ Page({
       myHandType: null,
       landlordHandType: null,
       passCount: 0,
-      cardsRows: []
+      selectedCount: 0,
+      scrollToView: ''
     })
 
     setTimeout(() => {
@@ -84,7 +86,8 @@ Page({
         text: CardUtils.cardToString(c),
         isRed: c.suit === '♥' || c.suit === '♦',
         selected: false,
-        index: i
+        index: i,
+        id: 'card-' + i
       }))
       
       const landlordCardsDisplay = landlordCards.map(c => ({
@@ -95,9 +98,6 @@ Page({
       
       const isLandlord = Math.random() > 0.5
       
-      // 分行显示手牌（每行最多 9 张）
-      const cardsRows = this.splitCardsToRows(myCardsDisplay, 9)
-      
       this.setData({
         myCards: myCards,
         myCardsDisplay: myCardsDisplay,
@@ -106,19 +106,9 @@ Page({
         isLandlord: isLandlord,
         gamePhase: 'playing',
         message: isLandlord ? '✨ 你是地主！你先出牌！' : '✨ 你是农民！准备出牌！',
-        isMyTurn: isLandlord,
-        cardsRows: cardsRows
+        isMyTurn: isLandlord
       })
     }, 800)
-  },
-
-  // 分行显示手牌
-  splitCardsToRows(cards, perRow) {
-    const rows = []
-    for (let i = 0; i < cards.length; i += perRow) {
-      rows.push(cards.slice(i, i + perRow))
-    }
-    return rows.length > 0 ? rows : [[]]
   },
 
   createDouDiZhuDeck() {
@@ -135,6 +125,7 @@ Page({
     return deck
   },
 
+  // 点击选牌
   toggleCard(e) {
     const index = e.currentTarget.dataset.index
     
@@ -148,9 +139,11 @@ Page({
     if (cardIndex !== -1) {
       myCardsDisplay[cardIndex].selected = !myCardsDisplay[cardIndex].selected
       
+      const selectedCount = myCardsDisplay.filter(c => c.selected).length
+      
       this.setData({
         myCardsDisplay: myCardsDisplay,
-        cardsRows: this.splitCardsToRows(myCardsDisplay, 9)
+        selectedCount: selectedCount
       })
     }
   },
@@ -164,7 +157,7 @@ Page({
     
     if (selectedCards.length === 0) {
       wx.showToast({
-        title: '请选择要出的牌',
+        title: '请点击选择要出的牌',
         icon: 'none'
       })
       return
@@ -196,6 +189,12 @@ Page({
     )
     const myCardsDisplay = this.data.myCardsDisplay.filter(c => !c.selected)
     
+    // 重新编号
+    myCardsDisplay.forEach((c, i) => {
+      c.index = i
+      c.id = 'card-' + i
+    })
+    
     this.setData({
       myCards: myCards,
       myCardsDisplay: myCardsDisplay,
@@ -205,7 +204,7 @@ Page({
       passCount: 0,
       isMyTurn: false,
       message: '你出了牌，等待牌牌...',
-      cardsRows: this.splitCardsToRows(myCardsDisplay, 9)
+      selectedCount: 0
     })
     
     if (myCards.length === 0) {

@@ -1,4 +1,4 @@
-<!--pages/doudizhu/doudizhu.wxml - 优化版-->
+<!--pages/doudizhu/doudizhu.wxml - 滑动选牌版-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -6,12 +6,12 @@
       <text class="label">第 {{round}} 局</text>
     </view>
     <view class="info-item">
-      <text class="label">我的积分</text>
+      <text class="label">积分</text>
       <text class="points">{{myPoints}}</text>
     </view>
     <view class="info-item">
       <text class="label">剩余</text>
-      <text class="card-count">{{myCardsDisplay.length}}张</text>
+      <text class="card-count">{{myCardsDisplay.length}}</text>
     </view>
     <view class="info-item" bindtap="goHome">
       <text class="label">🏠</text>
@@ -22,7 +22,7 @@
   <view class="player-info-bar landlord-info">
     <text class="player-avatar">🤠</text>
     <text class="player-name">{{isLandlord ? '我（地主）' : '地主'}}</text>
-    <text class="card-num">剩余 {{landlordCards.length}} 张</text>
+    <text class="card-num">{{landlordCards.length}}张</text>
   </view>
 
   <!-- 出牌区域（中间） -->
@@ -60,24 +60,27 @@
     <text class="message">{{message}}</text>
   </view>
 
-  <!-- 我的手牌区域 -->
+  <!-- 我的手牌区域 - 横向滑动 -->
   <view class="my-cards-container">
-    <view class="cards-row" wx:for="{{cardsRows}}" wx:key="*this">
-      <view class="card small {{item.selected ? 'selected' : ''}}" 
-            wx:for="{{item}}" 
-            wx:key="*this"
-            data-index="{{item.index}}"
-            bindtap="toggleCard">
-        <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
+    <scroll-view class="cards-scroll" scroll-x="true" scroll-into-view="{{scrollToView}}">
+      <view class="cards-wrapper">
+        <view class="card {{item.selected ? 'selected' : ''}}" 
+              wx:for="{{myCardsDisplay}}" 
+              wx:key="*this"
+              data-index="{{item.index}}"
+              bindtap="toggleCard">
+          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
+        </view>
       </view>
-    </view>
+    </scroll-view>
+    <view class="card-tip">💡 点击牌选中，滑动查看</view>
   </view>
 
   <!-- 操作按钮 -->
   <view class="action-area" wx:if="{{gamePhase === 'playing' && isMyTurn}}">
     <view class="button-group">
       <view class="medium-btn play-btn" bindtap="playCards">
-        🎴 出牌
+        🎴 出牌 ({{selectedCount}})
       </view>
       <view class="medium-btn pass-btn" bindtap="pass" wx:if="{{lastHand && lastHandPlayer !== 'me'}}">
         ✋ 不要
