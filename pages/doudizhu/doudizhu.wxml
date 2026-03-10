@@ -1,4 +1,4 @@
-<!--pages/doudizhu/doudizhu.wxml - 儿童简化版斗地主-->
+<!--pages/doudizhu/doudizhu.wxml - 简化版斗地主出牌对战-->
 <view class="container">
   <!-- 游戏信息栏 -->
   <view class="game-info">
@@ -8,6 +8,10 @@
     <view class="info-item">
       <text class="label">我的积分</text>
       <text class="points">{{myPoints}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">剩余牌数</text>
+      <text class="card-count">{{myCardsDisplay.length}}张</text>
     </view>
     <view class="info-item" bindtap="goHome">
       <text class="label">🏠 返回</text>
@@ -20,17 +24,15 @@
     <view class="player-info">
       <text class="name">{{isLandlord ? '我（地主）' : '地主'}}</text>
       <view class="cards" wx:if="{{!showLandlordCards}}">
-        <view class="card back" wx:for="{{3}}" wx:key="*this"></view>
-        <text class="card-count">+{{landlordCards.length - 3}}张</text>
+        <view class="card back" wx:for="{{landlordCards.length}}" wx:key="*this"></view>
       </view>
       <view class="cards" wx:else>
         <view class="card" wx:for="{{landlordCardsDisplay}}" wx:key="*this">
           <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
         </view>
       </view>
-      <!-- 牌型提示 -->
-      <view class="hand-type" wx:if="{{showLandlordCards && landlordHandType}}">
-        <text class="hand-type-text">{{landlordHandType.type}}</text>
+      <view class="last-hand" wx:if="{{lastHand && lastHandPlayer === 'landlord'}}">
+        <text class="last-hand-text">刚出：{{lastHand.type}}</text>
       </view>
     </view>
   </view>
@@ -44,26 +46,40 @@
   <view class="player-area my-area">
     <view class="player-info">
       <text class="name">{{isLandlord ? '地主（我）' : '我（农民）'}}</text>
-      <view class="cards">
-        <view class="card large" wx:for="{{myCardsDisplay}}" wx:key="*this">
+      <view class="cards my-cards">
+        <view class="card large {{item.selected ? 'selected' : ''}}" 
+              wx:for="{{myCardsDisplay}}" 
+              wx:key="*this"
+              data-index="{{index}}"
+              bindtap="toggleCard">
           <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
         </view>
       </view>
-      <!-- 牌型提示 -->
-      <view class="hand-type my-hand-type" wx:if="{{myHandType}}">
-        <text class="hand-type-text">✨ {{myHandType.type}}</text>
+      <view class="last-hand" wx:if="{{lastHand && lastHandPlayer === 'me'}}">
+        <text class="last-hand-text">你出了：{{lastHand.type}}</text>
       </view>
     </view>
     <view class="avatar">👦</view>
   </view>
 
   <!-- 操作按钮 -->
-  <view class="action-area" wx:if="{{gamePhase === 'ready'}}">
-    <view class="big-btn start-btn" bindtap="startGame">
-      🎲 开始比牌
+  <view class="action-area" wx:if="{{gamePhase === 'playing' && isMyTurn}}">
+    <view class="button-group">
+      <view class="medium-btn play-btn" bindtap="playCards">
+        🎴 出牌
+      </view>
+      <view class="medium-btn pass-btn" bindtap="pass" wx:if="{{lastHand && lastHandPlayer !== 'me'}}">
+        ✋ 不要
+      </view>
     </view>
+    <view class="tip-text">点击手牌选择，再点击"出牌"</view>
   </view>
 
+  <view class="action-area" wx:if="{{gamePhase === 'playing' && !isMyTurn}}">
+    <view class="waiting-text">⏳ 等待牌牌出牌...</view>
+  </view>
+
+  <!-- 再来一局 -->
   <view class="action-area" wx:if="{{gamePhase === 'result'}}">
     <view class="big-btn next-btn" bindtap="nextRound">
       🃏 再来一局
@@ -78,12 +94,10 @@
       <text class="result-points">{{resultPoints}}</text>
       <text class="result-subtitle" wx:if="{{!showConfetti}}">继续努力哦～</text>
       
-      <!-- 关闭按钮 -->
       <view class="close-btn" bindtap="closeResult">
         <text>✕ 关闭</text>
       </view>
       
-      <!-- 自动关闭倒计时 -->
       <view class="countdown" wx:if="{{countdown > 0}}">
         <text>{{countdown}}秒后自动关闭</text>
       </view>

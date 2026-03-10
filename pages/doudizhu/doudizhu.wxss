@@ -1,6 +1,5 @@
-/* pages/doudizhu/doudizhu.wxss - iPad 适配版 */
+/* pages/doudizhu/doudizhu.wxss - 出牌对战版 */
 
-/* 容器 */
 .container {
   min-height: 100vh;
   background: linear-gradient(180deg, #2c3e50 0%, #34495e 50%, #1a252f 100%);
@@ -9,7 +8,6 @@
   margin: 0 auto;
 }
 
-/* 游戏信息栏 */
 .game-info {
   display: flex;
   justify-content: space-between;
@@ -45,7 +43,15 @@
   text-shadow: 0 0 16rpx rgba(255, 215, 0, 0.5);
 }
 
-/* 玩家区域 */
+.card-count {
+  font-size: 34rpx;
+  font-weight: bold;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .player-area {
   display: flex;
   justify-content: space-between;
@@ -97,20 +103,14 @@
 
 .cards {
   display: flex;
-  gap: 10rpx;
+  gap: 8rpx;
   margin-bottom: 12rpx;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 100%;
 }
 
-.card-count {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  margin-left: 10rpx;
+.my-cards {
+  min-height: 100rpx;
 }
 
 .card {
@@ -124,6 +124,17 @@
   justify-content: center;
   box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.4);
   position: relative;
+  transition: transform 0.2s;
+}
+
+.card:active {
+  transform: scale(0.95);
+}
+
+.card.selected {
+  transform: translateY(-20rpx);
+  box-shadow: 0 12rpx 24rpx rgba(255, 215, 0, 0.5);
+  border-color: #FFD700;
 }
 
 .card.back {
@@ -151,7 +162,6 @@
   font-size: 28rpx;
 }
 
-/* 扑克牌花色颜色 */
 .card-red {
   color: #e74c3c;
 }
@@ -160,24 +170,18 @@
   color: #2c3e50;
 }
 
-/* 牌型提示 */
-.hand-type {
-  background: linear-gradient(135deg, rgba(230, 126, 34, 0.3) 0%, rgba(211, 84, 0, 0.2) 100%);
-  padding: 6rpx 16rpx;
-  border-radius: 16rpx;
+/* 出的牌提示 */
+.last-hand {
   margin-top: 8rpx;
-  border: 1rpx solid rgba(230, 126, 34, 0.4);
+  padding: 6rpx 16rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16rpx;
 }
 
-.my-hand-type {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.3) 0%, rgba(39, 174, 96, 0.2) 100%);
-  border: 1rpx solid rgba(46, 204, 113, 0.4);
-}
-
-.hand-type-text {
+.last-hand-text {
   font-size: 22rpx;
-  font-weight: bold;
   color: white;
+  font-weight: bold;
 }
 
 /* 消息框 */
@@ -206,6 +210,53 @@
   padding: 20rpx 15rpx;
 }
 
+.button-group {
+  display: flex;
+  gap: 15rpx;
+  justify-content: center;
+  margin-bottom: 15rpx;
+}
+
+.medium-btn {
+  width: 42%;
+  height: 92rpx;
+  border-radius: 46rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: bold;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.medium-btn:active {
+  transform: scale(0.95);
+}
+
+.play-btn {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+}
+
+.pass-btn {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+  color: white;
+}
+
+.tip-text {
+  text-align: center;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.waiting-text {
+  text-align: center;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
+
 .big-btn {
   width: 85%;
   height: 100rpx;
@@ -222,11 +273,6 @@
 
 .big-btn:active {
   transform: scale(0.95);
-}
-
-.start-btn {
-  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-  color: white;
 }
 
 .next-btn {
@@ -309,7 +355,6 @@
   margin-top: 16rpx;
 }
 
-/* 关闭按钮 */
 .close-btn {
   margin-top: 28rpx;
   padding: 14rpx 40rpx;
@@ -329,7 +374,6 @@
   font-weight: bold;
 }
 
-/* 倒计时 */
 .countdown {
   margin-top: 16rpx;
   padding: 10rpx 24rpx;
@@ -342,7 +386,6 @@
   color: #3498db;
 }
 
-/* 庆祝特效 */
 .confetti {
   position: fixed;
   top: 0;
