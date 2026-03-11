@@ -1,5 +1,6 @@
-// pages/doudizhu/doudizhu.js - 修复版
-const CardUtils = require('../../utils/cards.js')
+// pages/doudizhu/doudizhu.js - 三人完整版（1 地主 vs 2 农民）
+const DouDiZhuUtils = require('../../utils/doudizhu.js')
+const audioUtils = require('../../utils/audio.js')
 
 Page({
   data: {
@@ -29,7 +30,16 @@ Page({
     passCount: 0,
     selectedCount: 0,
     scrollToView: '',
-    hint: null
+    hint: null,
+    // 思维锻炼功能
+    showCardCounter: false, // 是否显示记牌器
+    cardCounter: null, // 记牌器数据
+    playedCards: [], // 已出的牌
+    handAnalysis: null, // 手牌分析
+    playSuggestion: null, // 出牌建议
+    
+    // 明牌模式
+    showOpponentCards: false // 是否显示对手牌（明牌模式）
   },
 
   onLoad() {
@@ -72,21 +82,21 @@ Page({
 
     setTimeout(() => {
       const deck = this.createDouDiZhuDeck()
-      CardUtils.shuffle(deck)
+      DouDiZhuUtils.shuffle(deck)
       
       // 地主 20 张，农民 17 张
       const myCardCount = isLandlord ? 20 : 17
       const landlordCardCount = isLandlord ? 17 : 20
       
-      const myCards = CardUtils.dealCards(deck, myCardCount)
-      const landlordCards = CardUtils.dealCards(deck, landlordCardCount)
+      const myCards = deck.slice(0, myCardCount)
+      const landlordCards = deck.slice(myCardCount, myCardCount + landlordCardCount)
       
-      myCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
-      landlordCards.sort((a, b) => CardUtils.getCardValue(b) - CardUtils.getCardValue(a))
+      myCards.sort((a, b) => DouDiZhuUtils.getCardValue(b) - DouDiZhuUtils.getCardValue(a))
+      landlordCards.sort((a, b) => DouDiZhuUtils.getCardValue(b) - DouDiZhuUtils.getCardValue(a))
       
       const myCardsDisplay = myCards.map((c, i) => ({
         ...c,
-        text: CardUtils.cardToString(c),
+        text: c.value + c.suit,
         isRed: c.suit === '♥' || c.suit === '♦',
         selected: false,
         index: i,
@@ -95,9 +105,12 @@ Page({
       
       const landlordCardsDisplay = landlordCards.map(c => ({
         ...c,
-        text: CardUtils.cardToString(c),
+        text: c.value + c.suit,
         isRed: c.suit === '♥' || c.suit === '♦'
       }))
+      
+      console.log('明牌调试 - landlordCards:', landlordCards)
+      console.log('明牌调试 - landlordCardsDisplay:', landlordCardsDisplay)
       
       this.setData({
         myCards: myCards,
@@ -113,11 +126,12 @@ Page({
         lastHandCards: []
       })
       
-      // 如果不是地主，让地主（AI）先出牌
+      // 如果不是地主（选择农民），让地主（AI）先出牌
       if (!isLandlord) {
+        console.log('玩家选择农民，地主 AI 先出牌')
         setTimeout(() => {
           this.landlordAI()
-        }, 1000)
+        }, 1500)
       }
     }, 800)
   },
@@ -303,7 +317,18 @@ Page({
       return
     }
     
-    const handType = this.evaluateHand(selectedCards)
+    // 安全检查：确保选中的牌有 text 属性
+    const validCards = selectedCards.filter(c => c && c.text)
+    if (validCards.length !== selectedCards.length) {
+      console.error('选中的牌数据无效:', selectedCards)
+      wx.showToast({
+        title: '牌数据错误，请重新选择',
+        icon: 'none'
+      })
+      return
+    }
+    
+    const handType = this.evaluateHand(validCards)
     
     if (handType.type === 'invalid') {
       wx.showToast({
@@ -334,7 +359,7 @@ Page({
     setTimeout(() => {
       const selectedTexts = selectedCards.map(c => c.text)
       const myCards = this.data.myCards.filter(c => 
-        !selectedTexts.includes(CardUtils.cardToString(c))
+        !selectedTexts.includes(c.value + c.suit)
       )
       const myCardsDisplay = this.data.myCardsDisplay.filter(c => !c.selected)
       
@@ -344,6 +369,18 @@ Page({
         c.autoHighlight = false
       })
       
+      // 更新已出的牌
+      const playedCards = [...this.data.playedCards, ...selectedCards]
+      
+      // 更新记牌器
+      const cardCounter = DouDiZhuUtils.createCardCounter ? DouDiZhuUtils.createCardCounter(this.data.myCards, playedCards) : null
+      
+      // 分析手牌
+      const handAnalysis = DouDiZhuUtils.analyzeHand(myCards)
+      
+      // 检查是否出完了
+      const isWin = myCards.length === 0
+      
       this.setData({
         myCards: myCards,
         myCardsDisplay: myCardsDisplay,
@@ -352,14 +389,21 @@ Page({
         lastHandCards: selectedCards,
         passCount: 0,
         isMyTurn: false,
-        message: '你出了牌，等待对手...',
+        message: isWin ? '🎉 你赢了！' : '你出了牌，等待对手...',
         selectedCount: 0,
         playingAnimation: false,
-        flyingCards: []
+        flyingCards: [],
+        playedCards,
+        cardCounter,
+        handAnalysis
       })
       
-      if (myCards.length === 0) {
-        this.endRound('me')
+      // 如果出完了，立即结算
+      if (isWin) {
+        console.log('玩家出完牌，触发结算')
+        setTimeout(() => {
+          this.endRound('me')
+        }, 500)
         return
       }
       
@@ -383,10 +427,14 @@ Page({
       return
     }
     
+    // 更新记牌器（对手出牌后不要）
+    const cardCounter = DouDiZhuUtils.createCardCounter ? DouDiZhuUtils.createCardCounter(this.data.myCards, this.data.playedCards) : null
+    
     this.setData({
       passCount: this.data.passCount + 1,
       isMyTurn: false,
-      message: '你不要，等待对手...'
+      message: '你不要，等待对手...',
+      cardCounter
     })
     
     if (this.data.passCount >= 2) {
@@ -440,7 +488,7 @@ Page({
         landlordCardsDisplay: newCardsDisplay,
         lastHand: handType,
         lastHandPlayer: 'landlord',
-        lastHandCards: [{...card, text: CardUtils.cardToString(card), isRed: card.suit === '♥' || card.suit === '♦'}],
+        lastHandCards: [{...card, text: card.value + card.suit, isRed: card.suit === '♥' || card.suit === '♦'}],
         passCount: 0,
         isMyTurn: true,
         message: '对手出了牌，轮到你！'
@@ -459,9 +507,9 @@ Page({
       const cardIndex = canBeat.index
       const cardsToPlay = canBeat.cards || [landlordCards[cardIndex]]
       
-      const cardTexts = cardsToPlay.map(c => c.text || CardUtils.cardToString(c))
-      const newCards = landlordCards.filter(c => !cardTexts.includes(c.text || CardUtils.cardToString(c)))
-      const newCardsDisplay = this.data.landlordCardsDisplay.filter(c => !cardTexts.includes(c.text || CardUtils.cardToString(c)))
+      const cardTexts = cardsToPlay.map(c => c.value + c.suit)
+      const newCards = landlordCards.filter(c => !cardTexts.includes(c.value + c.suit))
+      const newCardsDisplay = this.data.landlordCardsDisplay.filter(c => !cardTexts.includes(c.value + c.suit))
       
       const handType = this.evaluateHand(cardsToPlay)
       
@@ -470,7 +518,7 @@ Page({
         landlordCardsDisplay: newCardsDisplay,
         lastHand: handType,
         lastHandPlayer: 'landlord',
-        lastHandCards: cardsToPlay.map(c => ({...c, text: c.text || CardUtils.cardToString(c), isRed: c.suit === '♥' || c.suit === '♦'})),
+        lastHandCards: cardsToPlay.map(c => ({...c, text: c.value + c.suit, isRed: c.suit === '♥' || c.suit === '♦'})),
         passCount: 0,
         isMyTurn: true,
         message: '对手管上了，轮到你！'
@@ -501,33 +549,22 @@ Page({
   },
 
   findBeatingCard(cards, lastHand) {
-    const valueCount = {}
-    cards.forEach(c => {
-      const text = c.text
-      valueCount[text] = (valueCount[text] || 0) + 1
-    })
+    // 使用斗地主专用工具找能管上的牌
+    const cardsData = cards.map(c => ({
+      suit: c.suit,
+      value: c.value
+    }))
     
-    if (lastHand.type === '单张') {
-      for (let i = 0; i < cards.length; i++) {
-        const cardValue = CardUtils.getCardValue(cards[i])
-        if (cardValue > lastHand.value) {
-          return { index: i, card: cards[i] }
-        }
-      }
-    }
+    const beatingCards = DouDiZhuUtils.findBeatingCards(cardsData, lastHand)
     
-    if (lastHand.type === '对子') {
-      for (const [text, count] of Object.entries(valueCount)) {
-        if (count >= 2) {
-          const value = CardUtils.getCardValue(cards.find(c => c.text === text))
-          if (value > lastHand.value) {
-            const indices = cards.reduce((acc, c, i) => {
-              if (c.text === text) acc.push(i)
-              return acc
-            }, [])
-            return { index: indices[0], cards: [cards[indices[0]], cards[indices[1]]] }
-          }
-        }
+    if (beatingCards && beatingCards.length > 0) {
+      // 返回原始卡牌对象
+      return {
+        cards: beatingCards.map(c => ({
+          suit: c.suit,
+          value: c.value,
+          text: c.value + c.suit
+        }))
       }
     }
     
@@ -537,28 +574,20 @@ Page({
   evaluateHand(cards) {
     if (cards.length === 0) return { type: 'invalid', value: 0 }
     
-    const valueCount = {}
-    cards.forEach(c => {
-      const pointValue = c.text.replace(/[♠♥♣♦]/g, '')
-      valueCount[pointValue] = (valueCount[pointValue] || 0) + 1
-    })
+    // 使用斗地主专用工具分析牌型
+    const cardsData = cards.map(c => ({
+      suit: c.suit,
+      value: c.value
+    }))
     
-    const values = Object.keys(valueCount).map(point => 
-      CardUtils.getCardValue(cards.find(c => c.text.replace(/[♠♥♣♦]/g, '') === point))
-    ).sort((a, b) => b - a)
-    
-    if (cards.length === 1) {
-      return { type: '单张', value: values[0] }
-    }
-    
-    if (cards.length === 2 && values.length === 1) {
-      return { type: '对子', value: values[0] }
-    }
-    
-    return { type: 'invalid', value: 0 }
+    return DouDiZhuUtils.analyzeHand(cardsData)
   },
 
   endRound(winner) {
+    console.log('===== 游戏结束结算 =====')
+    console.log('获胜者:', winner)
+    console.log('我是地主吗？:', this.data.isLandlord)
+    
     const { myPoints, isLandlord } = this.data
     
     const isMeWin = winner === 'me'
@@ -585,6 +614,10 @@ Page({
     
     const newPoints = Math.max(0, myPoints + pointsChange)
     
+    console.log('设置结算数据...')
+    console.log('显示弹窗:', true)
+    console.log('积分变化:', pointsChange)
+    
     this.setData({
       myPoints: newPoints,
       gamePhase: 'result',
@@ -597,14 +630,55 @@ Page({
     })
     
     this.saveUserInfo(newPoints, win)
+    
+    // 播放音效
+    if (win) {
+      audioUtils.playAudio('win')
+    } else {
+      audioUtils.playAudio('lose')
+    }
+    
+    console.log('启动倒计时...')
     this.startCountdown()
   },
 
   nextRound() {
+    console.log('===== 点击再玩一次 =====')
+    console.log('当前回合:', this.data.round)
+    console.log('设置游戏状态为：select')
+    
     this.setData({
-      round: this.data.round + 1
+      round: this.data.round + 1,
+      gamePhase: 'select',
+      message: '选择角色',
+      showResult: false,
+      showConfetti: false,
+      countdown: 3,
+      landlordCards: [],
+      landlordCardsDisplay: [],
+      myCards: [],
+      myCardsDisplay: [],
+      lastHand: null,
+      lastHandPlayer: null,
+      lastHandCards: [],
+      showOpponentCards: false,
+      isLandlord: false,
+      isMyTurn: true,
+      passCount: 0,
+      selectedCount: 0
     })
-    this.startNewRound()
+    
+    console.log('新回合:', this.data.round + 1)
+    console.log('游戏状态:', 'select')
+    console.log('可以重新选择地主或农民了！')
+  },
+
+  // 开始新游戏（重置）
+  startNewRound() {
+    this.setData({
+      gamePhase: 'select',
+      message: '选择角色'
+    })
   },
 
   startNewRound() {
@@ -634,6 +708,66 @@ Page({
     wx.navigateBack()
   },
 
+  // 切换记牌器显示
+  toggleCardCounter() {
+    this.setData({
+      showCardCounter: !this.data.showCardCounter
+    })
+  },
+
+  // 获取出牌建议
+  getPlaySuggestion() {
+    if (!this.data.isMyTurn) {
+      wx.showToast({
+        title: '还没轮到你出牌',
+        icon: 'none'
+      })
+      return
+    }
+    
+    const suggestedCards = DouDiZhuUtils.suggestPlay(
+      this.data.myCards,
+      this.data.lastHand,
+      this.data.landlordSeat === 0
+    )
+    
+    if (suggestedCards && suggestedCards.length > 0) {
+      // 分析建议的牌型
+      const handAnalysis = DouDiZhuUtils.analyzeHand(suggestedCards)
+      
+      // 显示建议
+      wx.showModal({
+        title: '💡 出牌建议',
+        content: `建议出：${handAnalysis.type}（${suggestedCards.length}张牌）`,
+        showCancel: false,
+        confirmText: '知道了'
+      })
+    } else {
+      wx.showModal({
+        title: '💡 出牌建议',
+        content: '要不起，选择"不要"吧！',
+        showCancel: false,
+        confirmText: '知道了'
+      })
+    }
+  },
+
+  // 切换明牌模式
+  toggleOpponentCards() {
+    const newShow = !this.data.showOpponentCards
+    this.setData({
+      showOpponentCards: newShow
+    })
+    
+    console.log('明牌切换:', newShow ? '开启' : '关闭')
+    console.log('landlordCardsDisplay:', this.data.landlordCardsDisplay)
+    
+    wx.showToast({
+      title: newShow ? '已开启明牌' : '已关闭明牌',
+      icon: 'none'
+    })
+  },
+
   startCountdown() {
     if (this.data.countdownTimer) {
       clearInterval(this.data.countdownTimer)
@@ -644,7 +778,7 @@ Page({
       
       if (newCountdown <= 0) {
         clearInterval(timer)
-        this.closeResult()
+        this.backToSelect()
       } else {
         this.setData({
           countdown: newCountdown
@@ -657,22 +791,37 @@ Page({
     })
   },
 
-  closeResult() {
-    if (this.data.countdownTimer) {
-      clearInterval(this.data.countdownTimer)
-      this.setData({
-        countdownTimer: null
-      })
-    }
+  // 回到角色选择界面
+  backToSelect() {
+    console.log('===== 回到角色选择 =====')
+    console.log('回合:', this.data.round, '→', this.data.round + 1)
     
     this.setData({
+      round: this.data.round + 1,
+      gamePhase: 'select',
+      message: '选择角色',
       showResult: false,
       showConfetti: false,
-      countdown: 0
+      countdown: 3,
+      landlordCards: [],
+      landlordCardsDisplay: [],
+      myCards: [],
+      myCardsDisplay: [],
+      lastHand: null,
+      lastHandPlayer: null,
+      lastHandCards: [],
+      showOpponentCards: false,
+      isLandlord: false,
+      isMyTurn: true,
+      passCount: 0,
+      selectedCount: 0
     })
+    
+    console.log('已回到角色选择界面，可以重新选择地主或农民')
   },
 
   stopClose() {
+    // 阻止事件冒泡，防止误触关闭
   },
 
   onSliderChange(e) {
@@ -727,8 +876,8 @@ Page({
     }
     
     const minCard = availableCards.reduce((min, c) => {
-      const val = CardUtils.getCardValue(c)
-      const minVal = CardUtils.getCardValue(min)
+      const val = DouDiZhuUtils.getCardValue(c)
+      const minVal = DouDiZhuUtils.getCardValue(min)
       return val < minVal ? c : min
     })
     

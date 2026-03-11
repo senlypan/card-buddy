@@ -1,36 +1,106 @@
-<!--pages/index/index.wxml-->
+<!--pages/index/index.wxml - 高级游戏感版本-->
 <view class="container">
-  <!-- 牌友打招呼 -->
-  <view class="buddy-bubble">
-    <text class="buddy-text">嗨！我是牌牌 🃏<br/>今天想玩什么游戏呀？</text>
+  <!-- 星空背景装饰 -->
+  <view class="stars">
+    <view class="star" style="left: 10%; top: 20%; animation-delay: 0s;"></view>
+    <view class="star" style="left: 30%; top: 40%; animation-delay: 0.5s;"></view>
+    <view class="star" style="left: 50%; top: 15%; animation-delay: 1s;"></view>
+    <view class="star" style="left: 70%; top: 35%; animation-delay: 1.5s;"></view>
+    <view class="star" style="left: 90%; top: 25%; animation-delay: 2s;"></view>
   </view>
 
-  <!-- 积分显示 -->
-  <view class="card" style="text-align: center;">
-    <text style="font-size: 28rpx; color: #666;">我的积分</text>
-    <view class="points-badge" style="margin-top: 10rpx;">{{points}} 分</view>
+  <!-- 顶部欢迎区 -->
+  <view class="header-section">
+    <view class="welcome-card">
+      <view class="buddy-avatar">🃏</view>
+      <view class="welcome-text">
+        <text class="greeting">你好呀，{{nickname}}!</text>
+        <text class="sub-greeting">今天想玩什么游戏呢？</text>
+      </view>
+    </view>
   </view>
 
-  <!-- 游戏选择 -->
-  <view class="game-title">选择游戏</view>
-
-  <view class="big-btn" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);" bindtap="playZhajinhua">
-    🎴 炸金花
+  <!-- 积分展示区 -->
+  <view class="points-section">
+    <view class="points-card">
+      <view class="points-icon">💎</view>
+      <view class="points-info">
+        <text class="points-label">我的积分</text>
+        <text class="points-value">{{points}}</text>
+        <text class="points-unit">分</text>
+      </view>
+      <view class="points-glow"></view>
+    </view>
   </view>
 
-  <view class="big-btn" style="background: linear-gradient(135deg, #4ECDC4 0%, #7EDDD6 100%);" bindtap="playDoudizhu">
-    🃏 斗地主
+  <!-- 游戏选择区 -->
+  <view class="games-section">
+    <view class="section-title">
+      <text class="title-icon">🎮</text>
+      <text class="title-text">选择游戏</text>
+    </view>
+
+    <!-- 炸金花卡片 -->
+    <view class="game-card zhajinhua-card" bindtap="playZhajinhua">
+      <view class="card-bg"></view>
+      <view class="card-content">
+        <view class="game-emoji">🎴</view>
+        <view class="game-info">
+          <text class="game-name">炸金花</text>
+          <text class="game-desc">比拼牌型，赢取积分</text>
+        </view>
+        <view class="play-badge">
+          <text>开始游戏</text>
+        </view>
+      </view>
+      <view class="card-glow"></view>
+    </view>
+
+    <!-- 斗地主卡片 -->
+    <view class="game-card doudizhu-card" bindtap="playDoudizhu">
+      <view class="card-bg"></view>
+      <view class="card-content">
+        <view class="game-emoji">🃏</view>
+        <view class="game-info">
+          <text class="game-name">斗地主</text>
+          <text class="game-desc">经典玩法，趣味无穷</text>
+        </view>
+        <view class="play-badge">
+          <text>开始游戏</text>
+        </view>
+      </view>
+      <view class="card-glow"></view>
+    </view>
+
+    <!-- 更多游戏卡片 -->
+    <view class="game-card coming-card" bindtap="comingSoon">
+      <view class="card-bg"></view>
+      <view class="card-content">
+        <view class="game-emoji">🎲</view>
+        <view class="game-info">
+          <text class="game-name">更多游戏</text>
+          <text class="game-desc">敬请期待</text>
+        </view>
+        <view class="dev-badge">
+          <text>开发中</text>
+        </view>
+      </view>
+    </view>
   </view>
 
-  <view class="big-btn" style="background: linear-gradient(135deg, #A8E6CF 0%, #D4F0E0 100%);" bindtap="comingSoon">
-    🎲 更多游戏（开发中）
+  <!-- 温馨提示区 -->
+  <view class="tips-section">
+    <view class="tips-card">
+      <view class="tips-icon">💡</view>
+      <view class="tips-content">
+        <text class="tips-title">游戏小贴士</text>
+        <text class="tips-text">适度游戏，每次不要超过 30 分钟哦～</text>
+      </view>
+    </view>
   </view>
 
-  <!-- 游戏规则提示 -->
-  <view class="card" style="margin-top: 40rpx;">
-    <text style="font-size: 28rpx; color: #666; font-weight: bold;">💡 小提示</text>
-    <text style="font-size: 24rpx; color: #999; display: block; margin-top: 10rpx;">
-      适度游戏，每次不要超过 30 分钟哦～
-    </text>
+  <!-- 底部装饰 -->
+  <view class="footer-decoration">
+    <text class="footer-text">Made with ❤️ for Leo</text>
   </view>
 </view>

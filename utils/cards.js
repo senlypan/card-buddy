@@ -34,13 +34,22 @@ function cardToString(card) {
   return card.value + card.suit
 }
 
-// 获取牌的数值（用于比较）
+// 获取牌的数值（用于比较大小）
 function getCardValue(card) {
   const valueMap = {
     '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
     'J': 11, 'Q': 12, 'K': 13, 'A': 14
   }
   return valueMap[card.value]
+}
+
+// 获取牌的点数（用于散牌计算总和）
+function getCardPoints(card) {
+  const pointsMap = {
+    '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+    'J': 10, 'Q': 10, 'K': 10, 'A': 1
+  }
+  return pointsMap[card.value] || 0
 }
 
 // 评估牌型（炸金花）
@@ -90,8 +99,14 @@ function evaluateHand(cards) {
     return { type: '👫 对子', value: 500 + pairValue, values: values }
   }
   
-  // 单张（比最大牌）
-  return { type: '🂡 单张', value: values[0], values: values }
+  // 单张（比三张总点数的个位数）
+  // 炸金花规则：散牌比大小时计算三张牌的总点数，只取个位数（0-9 点）
+  // A=1 点，2-10=牌面数字，JQK=10 点
+  // 例如：30 点=0 点，25 点=5 点，16 点=6 点，8 点=8 点
+  const points = cards.map(c => getCardPoints(c))
+  const totalPoints = points.reduce((sum, p) => sum + p, 0)
+  const finalPoints = totalPoints % 10  // 取个位数（0-9）
+  return { type: '🂡 单张', value: finalPoints, values: values, points: points, totalPoints: totalPoints, finalPoints: finalPoints }
 }
 
 // 比较两手牌（完整比较逻辑）
@@ -100,7 +115,20 @@ function compareHands(hand1, hand2) {
   if (hand1.value > hand2.value) return 1
   if (hand1.value < hand2.value) return -1
   
-  // 牌型相同，逐张比较牌面
+  // 牌型相同，根据牌型采用不同比较方式
+  const type1 = hand1.type
+  const type2 = hand2.type
+  
+  // 如果是单张（散牌），比较个位数点数（0-9 点）
+  if (type1 === '🂡 单张' && type2 === '🂡 单张') {
+    const points1 = hand1.finalPoints || hand1.value
+    const points2 = hand2.finalPoints || hand2.value
+    if (points1 > points2) return 1
+    if (points1 < points2) return -1
+    return 0 // 个位数点数相同，平局
+  }
+  
+  // 其他牌型（豹子、顺金、金花、顺子、对子），逐张比较牌面
   const values1 = hand1.values || []
   const values2 = hand2.values || []
   
@@ -121,9 +149,21 @@ function getHandTypeDescription(type) {
     '🌟 金花': '三张同花色！很好哦！',
     '📶 顺子': '三张连续的牌！不错呢！',
     '👫 对子': '有一对牌！继续加油！',
-    '🂡 单张': '比单张大小～别灰心！'
+    '🂡 单张': '比三张总点数～别灰心！'
   }
   return descriptions[type] || '加油！'
+}
+
+// 获取散牌点数说明（给小朋友看）
+function getSingleCardsExplanation(cards) {
+  if (!cards || cards.length !== 3) return ''
+  
+  const points = cards.map(c => getCardPoints(c))
+  const total = points.reduce((sum, p) => sum + p, 0)
+  
+  const ranks = cards.map(c => c.value)
+  
+  return `${ranks.join('+')}=${total}点`
 }
 
 module.exports = {
@@ -132,7 +172,9 @@ module.exports = {
   dealCards,
   cardToString,
   getCardValue,
+  getCardPoints,
   evaluateHand,
   compareHands,
-  getHandTypeDescription
+  getHandTypeDescription,
+  getSingleCardsExplanation
 }

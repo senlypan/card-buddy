@@ -1,5 +1,7 @@
-// pages/zhajinhua/zhajinhua.js - 儿童简化版炸金花（带看牌/加注）
+// pages/zhajinhua/zhajinhua.js - 儿童简化版炸金花（带看牌/加注 + 思维锻炼）
 const CardUtils = require('../../utils/cards.js')
+const audioUtils = require('../../utils/audio.js')
+const ThinkingUtils = require('../../utils/thinking.js')
 
 Page({
   data: {
@@ -25,7 +27,12 @@ Page({
     countdownTimer: null,
     betAmount: 10, // 当前下注额
     isRaised: false, // 是否已加注
-    buddyRaised: false // 牌牌是否加注
+    buddyRaised: false, // 牌牌是否加注
+    // 思维锻炼功能
+    showProbability: false, // 是否显示概率提示
+    handStrength: null, // 手牌强度分析
+    winRate: null, // 胜率分析
+    riskDecision: null // 风险决策建议
   },
 
   onLoad() {
@@ -99,7 +106,9 @@ Page({
           dealingCards: newDealingCards
         })
         
-        // 播放发牌音效（后续添加）
+        // 播放发牌音效
+        audioUtils.playAudio('deal')
+        
         dealIndex++
         setTimeout(dealAnimation, 200)
       } else {
@@ -123,12 +132,39 @@ Page({
     setTimeout(dealAnimation, 300)
   },
 
-  // 看牌
+  // 看牌（显示概率提示 - 儿童友好版）
   lookCards() {
+    // 安全检查：确保手牌数据有效
+    if (!this.data.myCards || this.data.myCards.length < 3) {
+      console.error('看牌时手牌数据无效:', this.data.myCards)
+      this.setData({
+        showMyCards: true,
+        gamePhase: 'betting',
+        message: '看看你的牌怎么样～',
+        showProbability: false
+      })
+      return
+    }
+    
+    // 打印手牌数据用于调试
+    console.log('🃏 我的手牌:', this.data.myCards)
+    console.log('🃏 手牌值:', this.data.myCards.map(c => c.value))
+    console.log('🃏 手牌花色:', this.data.myCards.map(c => c.suit))
+    
+    // 计算手牌分析（儿童友好版）
+    const handAnalysis = ThinkingUtils.calculateHandStrength(this.data.myCards)
+    
+    // 打印分析结果用于调试
+    console.log('📊 手牌分析:', handAnalysis)
+    console.log('📊 胜率:', handAnalysis.winRate)
+    console.log('📊 建议:', handAnalysis.suggestion)
+    
     this.setData({
       showMyCards: true,
       gamePhase: 'betting',
-      message: '看看你的牌怎么样～'
+      message: '看看你的牌怎么样～',
+      handAnalysis,
+      showProbability: true
     })
   },
 
@@ -137,7 +173,8 @@ Page({
     this.setData({
       showMyCards: false,
       gamePhase: 'betting',
-      message: '勇敢！盲打更有挑战性！'
+      message: '勇敢！盲打更有挑战性！',
+      showProbability: false // 盲打不显示概率
     })
   },
 
@@ -185,6 +222,12 @@ Page({
       message: `你加注了${amount}分！牌牌要思考一下...`
     })
     
+    // 重新计算手牌分析（如果显示了概率）
+    if (this.data.showProbability) {
+      const handAnalysis = ThinkingUtils.calculateHandStrength(this.data.myCards)
+      this.setData({ handAnalysis })
+    }
+    
     // 牌牌 AI 响应
     setTimeout(() => {
       this.buddyResponse()
@@ -221,6 +264,20 @@ Page({
     }, 800)
   },
 
+  // 切换概率提示显示
+  toggleProbability() {
+    if (this.data.showMyCards) {
+      this.setData({
+        showProbability: !this.data.showProbability
+      })
+    } else {
+      wx.showToast({
+        title: '先看牌才能显示概率哦',
+        icon: 'none'
+      })
+    }
+  },
+
   // 牌牌 AI 响应
   buddyResponse() {
     const { buddyHandType, betAmount } = this.data
@@ -244,21 +301,28 @@ Page({
     }
   },
 
-  // 开牌比大小
+  // 开牌比大小 - 添加比牌特效
   showdown() {
     this.setData({
       message: '🎲 开牌啦！',
-      showBuddyCards: true
+      showBuddyCards: true,
+      comparing: true // 触发比牌动画
     })
 
+    // 比牌特效：逐张对比
     setTimeout(() => {
       this.endRound()
-    }, 1000)
+    }, 2000)
   },
 
   // 结束回合
   endRound(reason) {
     const { myHandType, buddyHandType, myPoints, betAmount, isRaised, showMyCards } = this.data
+    
+    // 防止重复结算
+    if (this.data.gamePhase === 'result') {
+      return
+    }
     
     // 比较牌型
     let compare = 0
@@ -311,6 +375,7 @@ Page({
       myPoints: newPoints,
       message: message,
       gamePhase: 'result',
+      isRaised: false, // 重置加注状态
       showResult: true,
       resultEmoji: resultEmoji,
       resultTitle: resultTitle,
@@ -321,6 +386,13 @@ Page({
     
     // 保存用户信息
     this.saveUserInfo(newPoints, win)
+    
+    // 播放音效
+    if (win) {
+      audioUtils.playAudio('win')
+    } else {
+      audioUtils.playAudio('lose')
+    }
     
     // 启动自动关闭倒计时
     this.startCountdown()
@@ -420,8 +492,22 @@ Page({
   setQuickAmount(e) {
     const amount = e.currentTarget.dataset.amount
     const maxAmount = this.data.myPoints
+    const finalAmount = Math.min(amount, maxAmount)
+    
+    // 更新滑块显示
     this.setData({
-      customRaiseAmount: Math.min(amount, maxAmount)
+      customRaiseAmount: finalAmount
+    })
+    
+    // 振动反馈
+    wx.vibrateShort({ type: 'light' })
+  },
+  
+  // 输入金额
+  onInputAmount(e) {
+    const value = parseInt(e.detail.value) || 0
+    this.setData({
+      customRaiseAmount: value
     })
   }
 })

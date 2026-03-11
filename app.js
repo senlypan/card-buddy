@@ -1,3 +1,5 @@
+const audioUtils = require('./utils/audio.js')
+
 App({
   onLaunch() {
     // 初始化用户积分
@@ -11,6 +13,9 @@ App({
       })
     }
     this.globalData.userInfo = wx.getStorageSync('userInfo')
+    
+    // 静默初始化音效系统（不显示日志）
+    audioUtils.initAudio()
   },
   
   globalData: {
@@ -19,6 +24,7 @@ App({
       name: '牌牌',
       emoji: '🃏',
       personality: '活泼友好'
-    }
+    },
+    audioEnabled: true  // 音效开关
   }
 })

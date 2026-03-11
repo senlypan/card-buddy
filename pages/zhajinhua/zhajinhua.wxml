@@ -1,239 +1,207 @@
-<!--pages/zhajinhua/zhajinhua.wxml - 优化版-->
+<!--pages/zhajinhua/zhajinhua.wxml - iPad 竖屏优化版-->
 <view class="container">
-  <!-- 游戏信息栏 -->
-  <view class="game-info">
+  <!-- 游戏信息栏（顶部固定） -->
+  <view class="game-info-bar">
     <view class="info-item">
-      <text class="label">第 {{round}} 局</text>
+      <text class="info-label">第 {{round}} 局</text>
     </view>
-    <view class="info-item">
-      <text class="label">我的积分</text>
-      <text class="points">{{myPoints}}</text>
+    <view class="info-item points">
+      <text class="info-label">积分</text>
+      <text class="info-value">{{myPoints}}</text>
     </view>
-    <view class="info-item">
-      <text class="label">本局下注</text>
-      <text class="bet-amount">{{betAmount}}分</text>
-    </view>
-    <view class="info-item" bindtap="goHome">
-      <text class="label">🏠 返回</text>
+    <view class="info-item bet">
+      <text class="info-label">下注</text>
+      <text class="info-value">{{betAmount}}</text>
     </view>
   </view>
 
-  <!-- 牌友（对手）区域 -->
+  <!-- 牌友区域（上方） -->
   <view class="player-area buddy-area">
-    <view class="avatar">🃏</view>
-    <view class="player-info">
-      <text class="name">牌牌</text>
-      <view class="cards" wx:if="{{!showBuddyCards}}">
-        <view class="card back" wx:for="{{3}}" wx:key="*this"></view>
+    <view class="avatar-large">🃏</view>
+    <view class="player-content">
+      <text class="player-name">牌牌</text>
+      <view class="cards-small">
+        <block wx:if="{{!showBuddyCards}}">
+          <view class="card-mini back" wx:for="{{3}}" wx:key="*this"></view>
+        </block>
+        <block wx:else>
+          <view class="card-mini" wx:for="{{buddyCardsDisplay}}" wx:key="*this">
+            <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
+          </view>
+        </block>
       </view>
-      <view class="cards" wx:else>
-        <view class="card" wx:for="{{buddyCardsDisplay}}" wx:key="*this">
-          <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
-        </view>
-      </view>
-      <!-- 牌型提示 -->
-      <view class="hand-type" wx:if="{{showBuddyCards && buddyHandType}}">
-        <text class="hand-type-text">{{buddyHandType.type}}</text>
-      </view>
-      <!-- 加注标识 -->
-      <view class="raise-badge" wx:if="{{buddyRaised}}">
-        <text>📈 已加注</text>
+      <view class="hand-type-badge" wx:if="{{showBuddyCards && buddyHandType}}">
+        <text>{{buddyHandType.type}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 游戏提示 -->
-  <view class="message-box">
-    <text class="message">{{message}}</text>
+  <!-- 游戏提示（中间） -->
+  <view class="message-box-compact">
+    <text class="message-text">{{message}}</text>
   </view>
 
-  <!-- 我的手牌区域 -->
+  <!-- 我的手牌区域（下方） -->
   <view class="player-area my-area">
-    <view class="player-info">
-      <text class="name">我</text>
+    <view class="player-content">
+      <text class="player-name">我</text>
       
-      <!-- 未看牌时显示牌背 -->
-      <view class="cards" wx:if="{{!showMyCards}}">
-        <view class="card large back" wx:for="{{3}}" wx:key="*this"></view>
+      <!-- 未看牌 -->
+      <view class="cards-medium" wx:if="{{!showMyCards}}">
+        <view class="card-back" wx:for="{{3}}" wx:key="*this"></view>
       </view>
       
-      <!-- 已看牌时显示牌面 -->
-      <view class="cards" wx:else>
-        <view class="card large" wx:for="{{myCardsDisplay}}" wx:key="*this">
+      <!-- 已看牌 -->
+      <view class="cards-medium" wx:else>
+        <view class="card-normal" wx:for="{{myCardsDisplay}}" wx:key="*this">
           <text class="card-text {{item.isRed ? 'card-red' : 'card-black'}}">{{item.text}}</text>
         </view>
       </view>
       
       <!-- 牌型提示 -->
-      <view class="hand-type my-hand-type" wx:if="{{showMyCards && myHandType}}">
-        <text class="hand-type-text">✨ {{myHandType.type}}</text>
+      <view class="hand-type-badge my-type" wx:if="{{showMyCards && myHandType}}">
+        <text>{{myHandType.type}}</text>
       </view>
       
       <!-- 盲打标识 -->
-      <view class="blind-badge" wx:if="{{!showMyCards && gamePhase === 'betting'}}">
-        <text>🎯 盲打中</text>
+      <view class="blind-badge-compact" wx:if="{{!showMyCards && gamePhase === 'betting'}}">
+        <text>🎯 盲打</text>
       </view>
     </view>
-    <view class="avatar">👦</view>
+    <view class="avatar-large">👦</view>
   </view>
 
-  <!-- 选择是否看牌 -->
-  <view class="action-area" wx:if="{{gamePhase === 'choose'}}">
-    <view class="big-btn look-btn" bindtap="lookCards">
-      👀 看牌
+  <!-- 概率提示（紧凑版） -->
+  <view class="probability-compact" wx:if="{{showProbability && handAnalysis}}">
+    <view class="prob-line">
+      <text class="prob-text">{{handAnalysis.explanation}}</text>
     </view>
-    <view class="big-btn blind-btn" bindtap="dontLookCards">
-      🎯 不看牌（盲打）
+    <view class="prob-line">
+      <text class="prob-label">胜率：</text>
+      <text class="prob-value" style="color: #2ecc71">{{handAnalysis.winRate.rate}}%</text>
+      <text class="prob-sub">({{handAnalysis.winRate.text}})</text>
+    </view>
+    <view class="prob-line suggestion" style="border-left-color: {{handAnalysis.suggestion.color}}">
+      <text class="prob-emoji">{{handAnalysis.suggestion.emoji}}</text>
+      <text class="prob-action" style="color: {{handAnalysis.suggestion.color}}">{{handAnalysis.suggestion.action}}</text>
+      <text class="prob-reason">{{handAnalysis.suggestion.reason}}</text>
     </view>
   </view>
 
-  <!-- 下注操作 -->
-  <view class="action-area" wx:if="{{gamePhase === 'betting'}}">
-    <!-- 加注按钮 -->
-    <view class="bet-buttons" wx:if="{{!isRaised}}">
-      <view class="medium-btn raise-btn" bindtap="showRaiseInput">
-        📈 自定义加注
-      </view>
-      <view class="medium-btn call-btn" bindtap="call">
-        ✅ 不加注，开牌
-      </view>
+  <!-- 操作按钮区域（底部固定） -->
+  <view class="action-bar">
+    <!-- 看牌选择 -->
+    <view class="button-row" wx:if="{{gamePhase === 'choose'}}">
+      <view class="btn-medium look" bindtap="lookCards">👀 看牌</view>
+      <view class="btn-medium blind" bindtap="dontLookCards">🎯 盲打</view>
     </view>
     
-    <!-- 已加注，等待开牌 -->
-    <view class="big-btn showdown-btn" wx:if="{{isRaised && !showBuddyCards}}" bindtap="showdown">
-      🎲 开牌比大小
+    <!-- 下注操作 -->
+    <view class="button-row" wx:if="{{gamePhase === 'betting' && !isRaised}}">
+      <view class="btn-medium raise" bindtap="showRaiseInput">📈 加注</view>
+      <view class="btn-medium call" bindtap="call">✅ 开牌</view>
     </view>
-  </view>
-
-  <!-- 再来一局 -->
-  <view class="action-area" wx:if="{{gamePhase === 'result'}}">
-    <view class="big-btn next-btn" bindtap="nextRound">
-      🃏 再来一局
+    
+    <!-- 开牌 -->
+    <view class="button-row" wx:if="{{isRaised && !showBuddyCards}}">
+      <view class="btn-large showdown" bindtap="showdown">🎲 开牌比大小</view>
+    </view>
+    
+    <!-- 再来一局 -->
+    <view class="button-row" wx:if="{{gamePhase === 'result'}}">
+      <view class="btn-large next" bindtap="nextRound">🃏 再来一局</view>
     </view>
   </view>
 
   <!-- 结算弹窗 -->
-  <view class="modal" wx:if="{{showResult}}" bindtap="closeResult">
-    <view class="modal-content" catchtap="stopClose">
-      <text class="result-emoji">{{resultEmoji}}</text>
-      <text class="result-title">{{resultTitle}}</text>
-      <text class="result-points">{{resultPoints}}</text>
-      <text class="result-subtitle" wx:if="{{!showConfetti}}">继续努力哦～</text>
+  <view class="modal-compact" wx:if="{{showResult}}" bindtap="closeResult">
+    <view class="modal-content-compact" catchtap="stopClose">
+      <text class="result-emoji-compact">{{resultEmoji}}</text>
+      <text class="result-title-compact">{{resultTitle}}</text>
+      <text class="result-points-compact">{{resultPoints}}</text>
       
-      <view class="close-btn" bindtap="closeResult">
-        <text>✕ 关闭</text>
+      <!-- 手动关闭按钮 -->
+      <view class="close-button-row">
+        <view class="btn-close" bindtap="closeResult">
+          <text>✕ 关闭</text>
+        </view>
       </view>
       
-      <view class="countdown" wx:if="{{countdown > 0}}">
+      <view class="countdown-compact" wx:if="{{countdown > 0}}">
         <text>{{countdown}}秒后自动关闭</text>
       </view>
     </view>
   </view>
 
-  <!-- 加注输入框弹窗 - 豪华版 -->
-  <view class="modal raise-modal" wx:if="{{showRaiseInput}}" bindtap="closeRaiseInput">
-    <view class="raise-dialog" catchtap="stopClose">
-      <!-- 顶部装饰 -->
-      <view class="raise-header">
-        <text class="raise-emoji">📈</text>
-        <text class="raise-title">自定义加注</text>
-        <text class="raise-subtitle">运筹帷幄，决胜千里</text>
-      </view>
+  <!-- 加注弹窗 -->
+  <view class="modal-compact" wx:if="{{showRaiseInput}}" bindtap="closeRaiseInput">
+    <view class="raise-dialog-compact" catchtap="stopClose">
+      <text class="raise-title-compact">📈 加注多少？</text>
       
-      <!-- 信息面板 -->
-      <view class="info-panel">
+      <!-- 当前信息 -->
+      <view class="raise-info-row">
         <view class="info-card">
           <text class="info-label">当前下注</text>
-          <text class="info-value current">{{betAmount}}</text>
-          <text class="info-unit">分</text>
+          <text class="info-value">{{betAmount}}</text>
         </view>
-        <view class="info-divider"></view>
         <view class="info-card">
           <text class="info-label">剩余积分</text>
           <text class="info-value total">{{myPoints}}</text>
-          <text class="info-unit">分</text>
         </view>
       </view>
       
-      <!-- 加注金额设置 -->
-      <view class="amount-section">
-        <text class="section-label">加注金额</text>
-        
-        <!-- 滑块 -->
-        <view class="slider-container">
+      <!-- 快捷金额 -->
+      <view class="quick-amounts">
+        <view class="quick-btn" bindtap="setQuickAmount" data-amount="10">
+          <text class="quick-value">10</text>
+          <text class="quick-label">分</text>
+        </view>
+        <view class="quick-btn" bindtap="setQuickAmount" data-amount="20">
+          <text class="quick-value">20</text>
+          <text class="quick-label">分</text>
+        </view>
+        <view class="quick-btn" bindtap="setQuickAmount" data-amount="50">
+          <text class="quick-value">50</text>
+          <text class="quick-label">分</text>
+        </view>
+        <view class="quick-btn all-in" bindtap="setQuickAmount" data-amount="{{myPoints}}">
+          <text class="quick-value">ALL IN</text>
+          <text class="quick-label">全押</text>
+        </view>
+      </view>
+      
+      <!-- 滑块调节 -->
+      <view class="slider-section">
+        <text class="slider-label">或自定义金额：</text>
+        <view class="slider-compact">
           <slider 
             class="raise-slider"
             min="1" 
             max="{{myPoints}}" 
             value="{{customRaiseAmount}}"
-            block-size="24"
+            block-size="20"
             activeColor="#FF6B6B"
-            backgroundColor="rgba(255, 107, 107, 0.3)"
             bindchange="onSliderChange"
           />
         </view>
-        
-        <!-- 数值显示 -->
-        <view class="amount-display">
+        <view class="amount-display-compact">
           <text class="amount-number">{{customRaiseAmount}}</text>
           <text class="amount-unit">分</text>
-        </view>
-        
-        <!-- 输入框 -->
-        <view class="input-container">
-          <input 
-            class="amount-input"
-            type="number" 
-            value="{{customRaiseAmount}}"
-            bindinput="onInputAmount"
-            placeholder="输入积分"
-            maxlength="5"
-          />
-          <text class="input-label">手动输入</text>
-        </view>
-      </view>
-      
-      <!-- 快捷金额 -->
-      <view class="quick-section">
-        <text class="section-label">快捷金额</text>
-        <view class="quick-buttons">
-          <view class="quick-btn" bindtap="setQuickAmount" data-amount="10">
-            <text class="quick-value">10</text>
-            <text class="quick-label">分</text>
-          </view>
-          <view class="quick-btn" bindtap="setQuickAmount" data-amount="20">
-            <text class="quick-value">20</text>
-            <text class="quick-label">分</text>
-          </view>
-          <view class="quick-btn" bindtap="setQuickAmount" data-amount="50">
-            <text class="quick-value">50</text>
-            <text class="quick-label">分</text>
-          </view>
-          <view class="quick-btn all-in" bindtap="setQuickAmount" data-amount="{{myPoints}}">
-            <text class="quick-value">ALL IN</text>
-            <text class="quick-label">全押</text>
-          </view>
         </view>
       </view>
       
       <!-- 操作按钮 -->
-      <view class="action-buttons">
-        <view class="btn cancel" bindtap="closeRaiseInput">
-          <text>取消</text>
-        </view>
-        <view class="btn confirm" bindtap="customRaise">
-          <text>确定加注</text>
-        </view>
+      <view class="button-row-compact">
+        <view class="btn-small cancel" bindtap="closeRaiseInput">取消</view>
+        <view class="btn-small confirm" bindtap="customRaise">确定加注</view>
       </view>
     </view>
   </view>
 
   <!-- 庆祝特效 -->
-  <view class="confetti" wx:if="{{showConfetti}}">
-    <text class="confetti-item" style="left: 10%;">🎉</text>
-    <text class="confetti-item" style="left: 30%;">✨</text>
-    <text class="confetti-item" style="left: 50%;">🌟</text>
-    <text class="confetti-item" style="left: 70%;">🎊</text>
-    <text class="confetti-item" style="left: 90%;">💫</text>
+  <view class="confetti-compact" wx:if="{{showConfetti}}">
+    <text class="confetti-item">🎉</text>
+    <text class="confetti-item">✨</text>
+    <text class="confetti-item">🌟</text>
   </view>
 </view>

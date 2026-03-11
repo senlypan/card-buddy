@@ -1,4 +1,380 @@
-/* pages/index/index.wxss */
+/* pages/index/index.wxss - 高级游戏感版本 */
+
+/* 容器 - 深邃星空背景 */
 .container {
-  padding-bottom: 40rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  padding: 20rpx;
+  padding-bottom: 60rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 星空背景动画 */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.star {
+  position: absolute;
+  width: 6rpx;
+  height: 6rpx;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 10rpx rgba(255, 255, 255, 0.8), 0 0 20rpx rgba(255, 255, 255, 0.4);
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { 
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+/* 顶部欢迎区 */
+.header-section {
+  margin: 20rpx 0 30rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-card {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20rpx);
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+}
+
+.buddy-avatar {
+  font-size: 80rpx;
+  margin-right: 24rpx;
+  filter: drop-shadow(0 4rpx 12rpx rgba(0, 0, 0, 0.5));
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10rpx); }
+}
+
+.welcome-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.greeting {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.5);
+}
+
+.sub-greeting {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 积分展示区 */
+.points-section {
+  margin: 30rpx 0;
+  position: relative;
+  z-index: 1;
+}
+
+.points-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.1) 100%);
+  backdrop-filter: blur(20rpx);
+  border-radius: 32rpx;
+  border: 2rpx solid rgba(255, 215, 0, 0.3);
+  box-shadow: 0 12rpx 48rpx rgba(255, 215, 0, 0.2), inset 0 0 20rpx rgba(255, 215, 0, 0.1);
+  overflow: hidden;
+}
+
+.points-icon {
+  font-size: 64rpx;
+  margin-right: 20rpx;
+  filter: drop-shadow(0 4rpx 12rpx rgba(255, 215, 0, 0.5));
+}
+
+.points-info {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.points-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.points-value {
+  font-size: 64rpx;
+  font-weight: bold;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20rpx rgba(255, 215, 0, 0.5);
+  line-height: 1;
+}
+
+.points-unit {
+  font-size: 28rpx;
+  color: rgba(255, 215, 0, 0.8);
+}
+
+.points-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+  animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 游戏选择区 */
+.games-section {
+  margin: 40rpx 0;
+  position: relative;
+  z-index: 1;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+  padding: 0 8rpx;
+}
+
+.title-icon {
+  font-size: 32rpx;
+}
+
+.title-text {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.5);
+}
+
+/* 游戏卡片 */
+.game-card {
+  position: relative;
+  margin-bottom: 24rpx;
+  padding: 32rpx;
+  border-radius: 28rpx;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+}
+
+.game-card:active {
+  transform: scale(0.98);
+}
+
+.card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.9;
+}
+
+.zhajinhua-card .card-bg {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+}
+
+.doudizhu-card .card-bg {
+  background: linear-gradient(135deg, #4ECDC4 0%, #7EDDD6 100%);
+}
+
+.coming-card .card-bg {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 2rpx dashed rgba(255, 255, 255, 0.2);
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.game-emoji {
+  font-size: 64rpx;
+  filter: drop-shadow(0 4rpx 12rpx rgba(0, 0, 0, 0.4));
+}
+
+.game-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.game-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.4);
+}
+
+.game-desc {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.play-badge {
+  padding: 12rpx 28rpx;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10rpx);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.play-badge text {
+  font-size: 22rpx;
+  font-weight: bold;
+  color: white;
+}
+
+.dev-badge {
+  padding: 12rpx 28rpx;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10rpx);
+  border-radius: 20rpx;
+  border: 1rpx dashed rgba(255, 255, 255, 0.3);
+}
+
+.dev-badge text {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.card-glow {
+  position: absolute;
+  bottom: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* 温馨提示区 */
+.tips-section {
+  margin: 40rpx 0;
+  position: relative;
+  z-index: 1;
+}
+
+.tips-card {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: rgba(52, 152, 219, 0.15);
+  backdrop-filter: blur(20rpx);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4rpx 20rpx rgba(52, 152, 219, 0.2);
+}
+
+.tips-icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.tips-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.tips-title {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #3498db;
+}
+
+.tips-text {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 底部装饰 */
+.footer-decoration {
+  margin-top: 60rpx;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-text {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2rpx;
+}
+
+/* iPad 横屏适配 */
+@media (min-width: 768px) and (orientation: landscape) {
+  .container {
+    padding: 30rpx;
+  }
+  
+  .welcome-card {
+    padding: 24rpx;
+  }
+  
+  .buddy-avatar {
+    font-size: 64rpx;
+  }
+  
+  .points-card {
+    padding: 30rpx;
+  }
+  
+  .game-card {
+    padding: 24rpx;
+  }
+  
+  .game-emoji {
+    font-size: 56rpx;
+  }
 }
