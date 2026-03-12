@@ -1,6 +1,7 @@
 // pages/doudizhu/doudizhu.js - 三人完整版（1 地主 vs 2 农民）
 const DouDiZhuUtils = require('../../utils/doudizhu.js')
 const audioUtils = require('../../utils/audio.js')
+const { DouDiZhuAI, AIDifficulty } = require('../../utils/doudizhu-ai.js')
 
 Page({
   data: {
@@ -39,8 +40,15 @@ Page({
     playSuggestion: null, // 出牌建议
     
     // 明牌模式
-    showOpponentCards: false // 是否显示对手牌（明牌模式）
+    showOpponentCards: false, // 是否显示对手牌（明牌模式）
+    
+    // AI 难度选择
+    aiDifficulty: 'normal', // 'easy', 'normal', 'hell'
+    showDifficultySelect: false // 是否显示难度选择
   },
+  
+  // AI 实例
+  ai: null,
 
   onLoad() {
     this.loadUserInfo()
@@ -62,6 +70,52 @@ Page({
     })
   },
 
+  // 显示难度选择
+  showDifficultySelect() {
+    this.setData({
+      showDifficultySelect: true
+    })
+  },
+  
+  // 关闭难度选择
+  closeDifficultySelect() {
+    this.setData({
+      showDifficultySelect: false
+    })
+  },
+  
+  // 选择难度
+  selectDifficulty(e) {
+    const difficulty = e.currentTarget.dataset.difficulty
+    this.setData({
+      aiDifficulty: difficulty,
+      showDifficultySelect: false
+    })
+    
+    // 初始化 AI
+    this.initAI(difficulty)
+    
+    wx.showToast({
+      title: `难度：${this.getDifficultyName(difficulty)}`,
+      icon: 'none'
+    })
+  },
+  
+  // 获取难度名称
+  getDifficultyName(difficulty) {
+    const names = {
+      'easy': '简单 😊',
+      'normal': '普通 🎯',
+      'hell': '地狱 🔥'
+    }
+    return names[difficulty] || '普通'
+  },
+  
+  // 初始化 AI
+  initAI(difficulty) {
+    this.ai = new DouDiZhuAI(difficulty)
+  },
+  
   // 选择地主
   selectLandlord() {
     this.startGame(true)
@@ -74,6 +128,13 @@ Page({
 
   // 开始游戏
   startGame(isLandlord) {
+    // 初始化 AI（如果还没初始化）
+    if (!this.ai) {
+      this.initAI(this.data.aiDifficulty)
+    } else {
+      this.ai.reset()
+    }
+    
     this.setData({
       gamePhase: 'dealing',
       message: '🃏 发牌中...',
