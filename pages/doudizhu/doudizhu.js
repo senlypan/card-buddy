@@ -70,26 +70,11 @@ Page({
     })
   },
 
-  // 显示难度选择
-  showDifficultySelect() {
-    this.setData({
-      showDifficultySelect: true
-    })
-  },
-  
-  // 关闭难度选择
-  closeDifficultySelect() {
-    this.setData({
-      showDifficultySelect: false
-    })
-  },
-  
   // 选择难度
   selectDifficulty(e) {
     const difficulty = e.currentTarget.dataset.difficulty
     this.setData({
-      aiDifficulty: difficulty,
-      showDifficultySelect: false
+      aiDifficulty: difficulty
     })
     
     // 初始化 AI
