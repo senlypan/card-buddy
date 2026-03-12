@@ -83,107 +83,78 @@
   color: white;
 }
 
-/* 难度选择 */
+/* 难度选择 - 一行显示 */
 .difficulty-section {
   margin-bottom: 50rpx;
 }
 
-.difficulty-cards {
+.difficulty-row {
   display: flex;
-  flex-direction: column;
   gap: 20rpx;
+  justify-content: center;
 }
 
-.difficulty-card {
+.difficulty-btn-small {
+  flex: 1;
+  max-width: 220rpx;
+  padding: 25rpx 15rpx;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   border: 3rpx solid rgba(255, 255, 255, 0.15);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
   position: relative;
   transition: all 0.3s;
 }
 
-.difficulty-card:active {
-  transform: scale(0.98);
+.difficulty-btn-small:active {
+  transform: scale(0.95);
 }
 
-.difficulty-card.active {
+.difficulty-btn-small.active {
   border-color: rgba(255, 215, 0, 0.8);
-  box-shadow: 0 0 40rpx rgba(255, 215, 0, 0.4);
+  box-shadow: 0 0 30rpx rgba(255, 215, 0, 0.4);
   background: rgba(255, 215, 0, 0.1);
 }
 
-.card-header {
-  height: 120rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+/* 难度专属配色 */
+.difficulty-btn-small[data-difficulty="easy"].active {
+  border-color: rgba(78, 205, 196, 0.8);
+  box-shadow: 0 0 30rpx rgba(78, 205, 196, 0.4);
+  background: rgba(78, 205, 196, 0.15);
 }
 
-.easy-bg {
-  background: linear-gradient(135deg, #4ECDC4 0%, #44A085 100%);
+.difficulty-btn-small[data-difficulty="normal"].active {
+  border-color: rgba(255, 165, 0, 0.8);
+  box-shadow: 0 0 30rpx rgba(255, 165, 0, 0.4);
+  background: rgba(255, 165, 0, 0.15);
 }
 
-.normal-bg {
-  background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+.difficulty-btn-small[data-difficulty="hell"].active {
+  border-color: rgba(255, 65, 108, 0.8);
+  box-shadow: 0 0 30rpx rgba(255, 65, 108, 0.4);
+  background: rgba(255, 65, 108, 0.15);
 }
 
-.hell-bg {
-  background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+.btn-emoji {
+  font-size: 50rpx;
+  filter: drop-shadow(0 3rpx 6rpx rgba(0, 0, 0, 0.3));
 }
 
-.card-emoji {
-  font-size: 72rpx;
-  filter: drop-shadow(0 4rpx 8rpx rgba(0, 0, 0, 0.3));
-}
-
-.card-body {
-  padding: 25rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.card-name {
-  font-size: 34rpx;
+.btn-name {
+  font-size: 28rpx;
   font-weight: bold;
   color: white;
 }
 
-.card-desc {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.card-winrate {
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 5rpx;
-}
-
-.card-check {
-  position: absolute;
-  top: 20rpx;
-  right: 20rpx;
-  width: 50rpx;
-  height: 50rpx;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
-  color: white;
-  opacity: 0;
-  transition: all 0.3s;
-}
-
-.card-check.checked {
-  opacity: 1;
-  background: rgba(255, 215, 0, 0.9);
-  transform: scale(1.1);
+.btn-rate {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 10rpx;
 }
 
 /* 角色选择 */
@@ -193,18 +164,19 @@
 
 .role-cards {
   display: flex;
-  gap: 25rpx;
+  gap: 20rpx;
   justify-content: center;
 }
 
 .role-card {
   flex: 1;
-  max-width: 320rpx;
+  max-width: 280rpx;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   border: 3rpx solid rgba(255, 255, 255, 0.15);
   overflow: hidden;
   transition: all 0.3s;
+  padding: 20rpx;
 }
 
 .role-card:active {
@@ -213,76 +185,53 @@
 
 .landlord-card {
   border-color: rgba(255, 107, 107, 0.4);
-  background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(255, 107, 107, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.12) 0%, rgba(255, 107, 107, 0.05) 100%);
 }
 
 .farmer-card {
   border-color: rgba(78, 205, 196, 0.4);
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.15) 0%, rgba(78, 205, 196, 0.05) 100%);
-}
-
-.role-card-header {
-  height: 150rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 15rpx;
-  position: relative;
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.12) 0%, rgba(78, 205, 196, 0.05) 100%);
 }
 
 .role-card-emoji {
-  font-size: 80rpx;
-  filter: drop-shadow(0 4rpx 8rpx rgba(0, 0, 0, 0.3));
-}
-
-.role-card-badge {
-  padding: 8rpx 20rpx;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  border-radius: 20rpx;
-  font-size: 20rpx;
-  font-weight: bold;
-  color: #1a1a2e;
-  box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.4);
-}
-
-.role-card-body {
-  padding: 25rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20rpx;
+  font-size: 64rpx;
+  display: block;
+  text-align: center;
+  margin-bottom: 15rpx;
+  filter: drop-shadow(0 3rpx 6rpx rgba(0, 0, 0, 0.3));
 }
 
 .role-card-name {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: bold;
   color: white;
+  display: block;
+  text-align: center;
+  margin-bottom: 20rpx;
 }
 
 .role-card-features {
   display: flex;
   flex-direction: column;
-  gap: 15rpx;
-  width: 100%;
+  gap: 12rpx;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10rpx;
-  padding: 12rpx;
+  gap: 8rpx;
+  padding: 10rpx;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12rpx;
+  border-radius: 10rpx;
 }
 
 .feature-icon {
-  font-size: 28rpx;
+  font-size: 24rpx;
 }
 
 .feature-text {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: rgba(255, 255, 255, 0.8);
 }
 

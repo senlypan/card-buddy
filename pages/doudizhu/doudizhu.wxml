@@ -26,50 +26,32 @@
     <view class="difficulty-section">
       <view class="section-header">
         <text class="section-icon">🎯</text>
-        <text class="section-title">第一步：选择难度</text>
+        <text class="section-title">选择难度</text>
       </view>
       
-      <view class="difficulty-cards">
-        <view class="difficulty-card {{aiDifficulty === 'easy' ? 'active' : ''}}" 
+      <view class="difficulty-row">
+        <view class="difficulty-btn-small {{aiDifficulty === 'easy' ? 'active' : ''}}" 
               bindtap="selectDifficulty" 
               data-difficulty="easy">
-          <view class="card-header easy-bg">
-            <text class="card-emoji">😊</text>
-          </view>
-          <view class="card-body">
-            <text class="card-name">简单</text>
-            <text class="card-desc">新手练习</text>
-            <text class="card-winrate">AI 胜率 30%</text>
-          </view>
-          <view class="card-check {{aiDifficulty === 'easy' ? 'checked' : ''}}">✓</view>
+          <text class="btn-emoji">😊</text>
+          <text class="btn-name">简单</text>
+          <text class="btn-rate">30%</text>
         </view>
         
-        <view class="difficulty-card {{aiDifficulty === 'normal' ? 'active' : ''}}" 
+        <view class="difficulty-btn-small {{aiDifficulty === 'normal' ? 'active' : ''}}" 
               bindtap="selectDifficulty" 
               data-difficulty="normal">
-          <view class="card-header normal-bg">
-            <text class="card-emoji">🎯</text>
-          </view>
-          <view class="card-body">
-            <text class="card-name">普通</text>
-            <text class="card-desc">正常体验</text>
-            <text class="card-winrate">AI 胜率 50%</text>
-          </view>
-          <view class="card-check {{aiDifficulty === 'normal' ? 'checked' : ''}}">✓</view>
+          <text class="btn-emoji">🎯</text>
+          <text class="btn-name">普通</text>
+          <text class="btn-rate">50%</text>
         </view>
         
-        <view class="difficulty-card {{aiDifficulty === 'hell' ? 'active' : ''}}" 
+        <view class="difficulty-btn-small {{aiDifficulty === 'hell' ? 'active' : ''}}" 
               bindtap="selectDifficulty" 
               data-difficulty="hell">
-          <view class="card-header hell-bg">
-            <text class="card-emoji">🔥</text>
-          </view>
-          <view class="card-body">
-            <text class="card-name">地狱</text>
-            <text class="card-desc">极限挑战</text>
-            <text class="card-winrate">AI 胜率 75%</text>
-          </view>
-          <view class="card-check {{aiDifficulty === 'hell' ? 'checked' : ''}}">✓</view>
+          <text class="btn-emoji">🔥</text>
+          <text class="btn-name">地狱</text>
+          <text class="btn-rate">75%</text>
         </view>
       </view>
     </view>
