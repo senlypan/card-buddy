@@ -154,10 +154,10 @@ class DouDiZhuAI {
 
   /**
    * 地狱难度自由出牌 - 专业策略
-   * 核心：长牌优先、减少手数、保留控制牌
+   * 核心：长牌优先、减少手数、保留控制牌、不拆组合
    */
   playHellFree(hand) {
-    // 1. 剩牌少，直接出完
+    // 1. 剩牌少（≤5 张），直接出最小牌
     if (hand.length <= 5) {
       return this.playAllRemaining(hand)
     }
@@ -173,16 +173,18 @@ class DouDiZhuAI {
       return bestHand
     }
 
-    // 4. 没有组合牌型，出最小单张
+    // 4. 没有组合牌型，出最小单张（确保不拆对子和三张）
     if (this.handStructure.singles && this.handStructure.singles.length > 0) {
+      // 出最小的真单张
       return [this.handStructure.singles[0]]
     }
 
-    // 5. 出最小对子
+    // 5. 出最小对子（确保不拆三张）
     if (this.handStructure.pairs && this.handStructure.pairs.length > 0) {
       return this.handStructure.pairs[0]
     }
 
+    // 6. 万不得已，出最小牌
     const sorted = [...hand].sort((a, b) => this.getCardValue(a) - this.getCardValue(b))
     return [sorted[0]]
   }
@@ -257,7 +259,7 @@ class DouDiZhuAI {
   }
 
   /**
-   * 分析手牌结构
+   * 分析手牌结构 - 优先保留组合牌型
    */
   analyzeHandStructure(hand) {
     const info = {
@@ -276,26 +278,69 @@ class DouDiZhuAI {
       handCount: 0
     }
 
+    // 第一步：统计每个点数的牌数
     const valueCount = {}
+    const cardsByValue = {}
+    
     hand.forEach(c => {
       const value = c.value
       valueCount[value] = (valueCount[value] || 0) + 1
+      if (!cardsByValue[value]) cardsByValue[value] = []
+      cardsByValue[value].push(c)
     })
 
+    // 第二步：优先识别组合牌型（三张、炸弹）
     Object.keys(valueCount).forEach(value => {
       const count = valueCount[value]
-      const cards = hand.filter(c => c.value === value)
+      const cards = cardsByValue[value]
       
-      if (count === 1) info.singles.push(cards[0])
-      else if (count === 2) info.pairs.push(cards)
-      else if (count === 3) info.triples.push(cards)
-      else if (count === 4) {
+      if (count === 4) {
         info.bombs.push(cards)
         info.hasBomb = true
+      } else if (count === 3) {
+        info.triples.push(cards)
       }
     })
 
-    // 排序
+    // 第三步：识别三带一、三带二（优先组合）
+    const usedValues = new Set()
+    
+    // 尝试用三张带单张
+    info.triples.forEach(triple => {
+      const tripleValue = triple[0].value
+      usedValues.add(tripleValue)
+      
+      // 找一个最小的单张来带
+      const availableSingles = hand.filter(c => 
+        c.value !== tripleValue && !usedValues.has(c.value)
+      )
+      
+      if (availableSingles.length > 0) {
+        // 找最小的单张
+        availableSingles.sort((a, b) => this.getCardValue(a) - this.getCardValue(b))
+        const single = availableSingles[0]
+        usedValues.add(single.value)
+        
+        info.triplesWithOne.push([...triple, single])
+      }
+    })
+    
+    // 第四步：识别对子和剩余单张（不拆三张和炸弹）
+    Object.keys(valueCount).forEach(value => {
+      const count = valueCount[value]
+      const cards = cardsByValue[value]
+      
+      // 三张、炸弹、已使用的牌跳过
+      if (count === 3 || count === 4 || usedValues.has(value)) return
+      
+      if (count === 2) {
+        info.pairs.push(cards)
+      } else if (count === 1) {
+        info.singles.push(cards[0])
+      }
+    })
+
+    // 排序（从小到大）
     info.singles.sort((a, b) => this.getCardValue(a) - this.getCardValue(b))
     info.pairs.sort((a, b) => this.getCardValue(a[0]) - this.getCardValue(b[0]))
     info.triples.sort((a, b) => this.getCardValue(a[0]) - this.getCardValue(b[0]))
@@ -309,30 +354,52 @@ class DouDiZhuAI {
 
   /**
    * 找出最优出牌（按牌型价值排序）
+   * 核心：长牌优先，不拆组合
    */
   findBestHandToPlay() {
     // 按价值排序：飞机 > 顺子 > 连对 > 三带 > 四带 > 对子 > 单张
+    
+    // 1. 飞机（优先级最高）
     if (this.handStructure.airplanes && this.handStructure.airplanes.length > 0) {
       return this.handStructure.airplanes[0]
     }
+    
+    // 2. 顺子
     if (this.handStructure.sequences && this.handStructure.sequences.length > 0) {
       return this.handStructure.sequences[0]
     }
+    
+    // 3. 连对
     if (this.handStructure.pairSequences && this.handStructure.pairSequences.length > 0) {
       return this.handStructure.pairSequences[0]
     }
+    
+    // 4. 三带二
     if (this.handStructure.triplesWithPair && this.handStructure.triplesWithPair.length > 0) {
       return this.handStructure.triplesWithPair[0]
     }
+    
+    // 5. 三带一
     if (this.handStructure.triplesWithOne && this.handStructure.triplesWithOne.length > 0) {
       return this.handStructure.triplesWithOne[0]
     }
+    
+    // 6. 四带二
     if (this.handStructure.fourWithTwo && this.handStructure.fourWithTwo.length > 0) {
       return this.handStructure.fourWithTwo[0]
     }
+    
+    // 7. 三张（不带的）
     if (this.handStructure.triples && this.handStructure.triples.length > 0) {
       return this.handStructure.triples[0]
     }
+    
+    // 8. 四带两对
+    if (this.handStructure.fourWithTwoPairs && this.handStructure.fourWithTwoPairs.length > 0) {
+      return this.handStructure.fourWithTwoPairs[0]
+    }
+    
+    // 没有组合牌型，返回 null（让后续逻辑出最小单张或对子）
     return null
   }
 
