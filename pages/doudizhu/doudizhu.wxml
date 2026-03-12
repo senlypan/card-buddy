@@ -16,52 +16,110 @@
 
   <!-- 角色选择界面 -->
   <view class="select-area" wx:if="{{gamePhase === 'select'}}">
-    <text class="select-title">🎮 选择角色</text>
-    <text class="select-subtitle">地主 20 张牌，先出牌 | 农民 17 张牌，后出牌</text>
+    <!-- 标题区域 -->
+    <view class="title-section">
+      <text class="main-title">🃏 斗地主</text>
+      <text class="sub-title">选择难度和角色开始游戏</text>
+    </view>
     
     <!-- 难度选择 -->
     <view class="difficulty-section">
-      <text class="difficulty-title">🎯 选择难度</text>
-      <view class="difficulty-buttons">
-        <view class="difficulty-btn {{aiDifficulty === 'easy' ? 'active' : ''}}" 
+      <view class="section-header">
+        <text class="section-icon">🎯</text>
+        <text class="section-title">第一步：选择难度</text>
+      </view>
+      
+      <view class="difficulty-cards">
+        <view class="difficulty-card {{aiDifficulty === 'easy' ? 'active' : ''}}" 
               bindtap="selectDifficulty" 
               data-difficulty="easy">
-          <text class="difficulty-emoji">😊</text>
-          <text class="difficulty-name">简单</text>
-          <text class="difficulty-desc">新手练习</text>
+          <view class="card-header easy-bg">
+            <text class="card-emoji">😊</text>
+          </view>
+          <view class="card-body">
+            <text class="card-name">简单</text>
+            <text class="card-desc">新手练习</text>
+            <text class="card-winrate">AI 胜率 30%</text>
+          </view>
+          <view class="card-check {{aiDifficulty === 'easy' ? 'checked' : ''}}">✓</view>
         </view>
         
-        <view class="difficulty-btn {{aiDifficulty === 'normal' ? 'active' : ''}}" 
+        <view class="difficulty-card {{aiDifficulty === 'normal' ? 'active' : ''}}" 
               bindtap="selectDifficulty" 
               data-difficulty="normal">
-          <text class="difficulty-emoji">🎯</text>
-          <text class="difficulty-name">普通</text>
-          <text class="difficulty-desc">正常体验</text>
+          <view class="card-header normal-bg">
+            <text class="card-emoji">🎯</text>
+          </view>
+          <view class="card-body">
+            <text class="card-name">普通</text>
+            <text class="card-desc">正常体验</text>
+            <text class="card-winrate">AI 胜率 50%</text>
+          </view>
+          <view class="card-check {{aiDifficulty === 'normal' ? 'checked' : ''}}">✓</view>
         </view>
         
-        <view class="difficulty-btn {{aiDifficulty === 'hell' ? 'active' : ''}}" 
+        <view class="difficulty-card {{aiDifficulty === 'hell' ? 'active' : ''}}" 
               bindtap="selectDifficulty" 
               data-difficulty="hell">
-          <text class="difficulty-emoji">🔥</text>
-          <text class="difficulty-name">地狱</text>
-          <text class="difficulty-desc">极限挑战</text>
+          <view class="card-header hell-bg">
+            <text class="card-emoji">🔥</text>
+          </view>
+          <view class="card-body">
+            <text class="card-name">地狱</text>
+            <text class="card-desc">极限挑战</text>
+            <text class="card-winrate">AI 胜率 75%</text>
+          </view>
+          <view class="card-check {{aiDifficulty === 'hell' ? 'checked' : ''}}">✓</view>
         </view>
       </view>
     </view>
     
-    <view class="role-buttons">
-      <view class="role-btn landlord-btn" bindtap="selectLandlord">
-        <text class="role-emoji">🤠</text>
-        <text class="role-name">地主</text>
-        <text class="role-desc">20 张牌</text>
-        <text class="role-desc">先出牌</text>
+    <!-- 角色选择 -->
+    <view class="role-section">
+      <view class="section-header">
+        <text class="section-icon">🎭</text>
+        <text class="section-title">第二步：选择角色</text>
       </view>
       
-      <view class="role-btn farmer-btn" bindtap="selectFarmer">
-        <text class="role-emoji">👦</text>
-        <text class="role-name">农民</text>
-        <text class="role-desc">17 张牌</text>
-        <text class="role-desc">后出牌</text>
+      <view class="role-cards">
+        <view class="role-card landlord-card" bindtap="selectLandlord">
+          <view class="role-card-header">
+            <text class="role-card-emoji">🤠</text>
+            <text class="role-card-badge">推荐</text>
+          </view>
+          <view class="role-card-body">
+            <text class="role-card-name">地主</text>
+            <view class="role-card-features">
+              <view class="feature-item">
+                <text class="feature-icon">🃏</text>
+                <text class="feature-text">20 张牌</text>
+              </view>
+              <view class="feature-item">
+                <text class="feature-icon">⚡</text>
+                <text class="feature-text">先出牌</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <view class="role-card farmer-card" bindtap="selectFarmer">
+          <view class="role-card-header">
+            <text class="role-card-emoji">👦</text>
+          </view>
+          <view class="role-card-body">
+            <text class="role-card-name">农民</text>
+            <view class="role-card-features">
+              <view class="feature-item">
+                <text class="feature-icon">🃏</text>
+                <text class="feature-text">17 张牌</text>
+              </view>
+              <view class="feature-item">
+                <text class="feature-icon">🛡️</text>
+                <text class="feature-text">后出牌</text>
+              </view>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
   </view>
