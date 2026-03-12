@@ -187,7 +187,7 @@
   border: 3rpx solid rgba(255, 255, 255, 0.15);
   overflow: hidden;
   transition: all 0.3s;
-  padding: 20rpx;
+  padding: 15rpx 20rpx 20rpx;
 }
 
 .role-card:active {
@@ -205,15 +205,18 @@
 }
 
 .role-card-header {
-  height: 120rpx;
+  height: 100rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-bottom: 10rpx;
 }
 
 .role-card-emoji {
   font-size: 64rpx;
+  display: block;
+  text-align: center;
   filter: drop-shadow(0 3rpx 6rpx rgba(0, 0, 0, 0.3));
 }
 

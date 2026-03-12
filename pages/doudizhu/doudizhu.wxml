@@ -63,7 +63,7 @@
     <view class="role-section">
       <view class="section-header">
         <text class="section-icon">🎭</text>
-        <text class="section-title">第二步：选择角色</text>
+        <text class="section-title">选择角色</text>
       </view>
       
       <view class="role-cards">
