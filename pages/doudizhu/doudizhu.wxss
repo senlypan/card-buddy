@@ -197,8 +197,36 @@
   font-size: 64rpx;
   display: block;
   text-align: center;
-  margin-bottom: 15rpx;
+  margin-bottom: 10rpx;
   filter: drop-shadow(0 3rpx 6rpx rgba(0, 0, 0, 0.3));
+}
+
+.role-card-badge-wrapper {
+  margin-bottom: 10rpx;
+}
+
+.role-card-badge {
+  padding: 10rpx 24rpx;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border-radius: 24rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #1a1a2e;
+  box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.5);
+  text-shadow: 0 1rpx 2rpx rgba(255, 255, 255, 0.3);
+  letter-spacing: 2rpx;
+  animation: badgeGlow 2s ease-in-out infinite;
+}
+
+@keyframes badgeGlow {
+  0%, 100% {
+    box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 8rpx 24rpx rgba(255, 215, 0, 0.7);
+    transform: scale(1.05);
+  }
 }
 
 .role-card-name {
