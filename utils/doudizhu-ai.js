@@ -1,6 +1,6 @@
 /**
- * 斗地主 AI 策略模块 - 优化版
- * 基于成熟的斗地主 AI 算法
+ * 斗地主 AI 策略模块 - 专业版
+ * 基于成熟斗地主 AI 算法和高手策略
  * @author 小主人
  * @since 2026-03-12
  */
@@ -17,52 +17,61 @@ const AIDifficulty = {
 }
 
 /**
- * 牌型权重（用于评估牌力）
+ * 牌型价值排序（高手策略）
+ * 长牌 > 短牌，组合 > 单张
  */
-const HAND_WEIGHTS = {
-  'single': 1,
-  'pair': 2,
-  'triple': 3,
-  'tripleWithOne': 4,
-  'tripleWithPair': 5,
-  'sequence': 6,
-  'pairSequence': 7,
-  'airplane': 8,
-  'airplaneWithOne': 9,
-  'airplaneWithPair': 10,
-  'fourWithTwo': 11,
-  'fourWithTwoPairs': 12,
-  'bomb': 100,
-  'rocket': 200
+const HAND_VALUE_ORDER = {
+  'rocket': 100,        // 王炸
+  'bomb': 90,           // 炸弹
+  'airplaneWithPair': 80, // 飞机带对
+  'airplaneWithOne': 75,  // 飞机带单
+  'airplane': 70,         // 飞机
+  'fourWithTwoPairs': 65, // 四带两对
+  'fourWithTwo': 60,      // 四带二
+  'pairSequence': 55,     // 连对
+  'sequence': 50,         // 顺子
+  'tripleWithPair': 45,   // 三带二
+  'tripleWithOne': 40,    // 三带一
+  'triple': 35,           // 三张
+  'pair': 20,             // 对子
+  'single': 10            // 单张
 }
 
 /**
- * 牌值权重（2 最大，3 最小）
+ * 控制牌（关键牌）
  */
-const CARD_VALUES = {
-  '3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
-  '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12,
-  'K': 13, 'A': 14, '2': 15, '小王': 16, '大王': 17
-}
+const CONTROL_CARDS = ['大王', '小王', '2', 'A']
 
 /**
  * AI 出牌策略类
  */
 class DouDiZhuAI {
-  constructor(difficulty = AIDifficulty.NORMAL) {
+  constructor(difficulty = AIDifficulty.NORMAL, isLandlord = false) {
     this.difficulty = difficulty
+    this.isLandlord = isLandlord
     this.playedCards = []
     this.rememberedCards = new Set()
+    this.handStructure = null
+    this.controlCount = 0
   }
 
   /**
    * 选择出牌（主入口）
    */
   selectCards(hand, lastHand = null, isFree = false) {
-    // 记录已出的牌
+    // 记录已出的牌（记牌技巧）
     if (lastHand && lastHand.cards) {
-      lastHand.cards.forEach(c => this.rememberedCards.add(c.value + c.suit))
+      lastHand.cards.forEach(c => {
+        this.rememberedCards.add(c.value + c.suit)
+        this.playedCards.push(c)
+      })
     }
+
+    // 分析手牌结构
+    this.handStructure = this.analyzeHandStructure(hand)
+    
+    // 计算控制牌数量
+    this.controlCount = this.countControlCards(hand)
 
     switch (this.difficulty) {
       case AIDifficulty.EASY:
@@ -81,13 +90,11 @@ class DouDiZhuAI {
    */
   easyStrategy(hand, lastHand, isFree) {
     if (isFree) {
-      // 随机出小牌
       const sorted = [...hand].sort((a, b) => 
         this.getCardValue(a) - this.getCardValue(b)
       )
       return [sorted[Math.floor(Math.random() * Math.min(3, sorted.length))]]
     } else {
-      // 50% 概率管牌
       if (Math.random() < 0.5) {
         const beatingCards = DouDiZhuUtils.findBeatingCards(hand, lastHand)
         if (beatingCards && beatingCards.length > 0) {
@@ -110,7 +117,8 @@ class DouDiZhuAI {
   }
 
   /**
-   * 地狱难度 - 智能策略（基于规则和牌力评估）
+   * 地狱难度 - 专业高手策略
+   * 基于：规划优先、牌型价值、控制权、手数原则
    */
   hellStrategy(hand, lastHand, isFree) {
     if (isFree) {
@@ -124,19 +132,12 @@ class DouDiZhuAI {
    * 普通难度自由出牌
    */
   playNormalFree(hand) {
-    const analysis = DouDiZhuUtils.analyzeHand(hand)
-    
-    // 优先出最小的单张
-    if (analysis.singles && analysis.singles.length > 0) {
-      return [analysis.singles[0]]
+    if (this.handStructure.singles && this.handStructure.singles.length > 0) {
+      return [this.handStructure.singles[0]]
     }
-    
-    // 其次出最小的对子
-    if (analysis.pairs && analysis.pairs.length > 0) {
-      return analysis.pairs[0]
+    if (this.handStructure.pairs && this.handStructure.pairs.length > 0) {
+      return this.handStructure.pairs[0]
     }
-    
-    // 出最小的牌
     const sorted = [...hand].sort((a, b) => this.getCardValue(a) - this.getCardValue(b))
     return [sorted[0]]
   }
@@ -146,80 +147,49 @@ class DouDiZhuAI {
    */
   playNormalBeat(hand, lastHand) {
     const beatingCards = DouDiZhuUtils.findBeatingCards(hand, lastHand)
-    
-    if (!beatingCards || beatingCards.length === 0) {
-      return null
-    }
-    
-    // 70% 概率管牌
-    if (Math.random() > 0.7) {
-      return null
-    }
-    
-    // 选择最小的能管上的牌
+    if (!beatingCards || beatingCards.length === 0) return null
+    if (Math.random() > 0.7) return null
     return this.selectSmallestBeatingCards(beatingCards)
   }
 
   /**
-   * 地狱难度自由出牌 - 智能选择最优牌型
+   * 地狱难度自由出牌 - 专业策略
+   * 核心：长牌优先、减少手数、保留控制牌
    */
   playHellFree(hand) {
-    // 1. 先分析手牌结构
-    const handInfo = this.analyzeHandStructure(hand)
-    
-    // 2. 如果剩牌少，直接出最小的
+    // 1. 剩牌少，直接出完
     if (hand.length <= 5) {
       return this.playAllRemaining(hand)
     }
-    
-    // 3. 有炸弹保留
-    if (handInfo.hasBomb && handInfo.bombs.length > 0) {
-      return this.playWithoutBomb(hand, handInfo)
+
+    // 2. 有炸弹，先出其他牌（炸弹关键时刻用）
+    if (this.handStructure.hasBomb) {
+      return this.playWithoutBomb(hand)
     }
-    
-    // 4. 优先出组合牌型（不拆牌）
-    // 4.1 顺子
-    if (handInfo.sequences && handInfo.sequences.length > 0) {
-      return handInfo.sequences[0]
+
+    // 3. 按牌型价值排序，优先出价值高的牌型（长牌优先）
+    const bestHand = this.findBestHandToPlay()
+    if (bestHand) {
+      return bestHand
     }
-    
-    // 4.2 连对
-    if (handInfo.pairSequences && handInfo.pairSequences.length > 0) {
-      return handInfo.pairSequences[0]
+
+    // 4. 没有组合牌型，出最小单张
+    if (this.handStructure.singles && this.handStructure.singles.length > 0) {
+      return [this.handStructure.singles[0]]
     }
-    
-    // 4.3 飞机
-    if (handInfo.airplanes && handInfo.airplanes.length > 0) {
-      return handInfo.airplanes[0]
+
+    // 5. 出最小对子
+    if (this.handStructure.pairs && this.handStructure.pairs.length > 0) {
+      return this.handStructure.pairs[0]
     }
-    
-    // 4.4 三带一
-    if (handInfo.triplesWithOne && handInfo.triplesWithOne.length > 0) {
-      return handInfo.triplesWithOne[0]
-    }
-    
-    // 4.5 三带二
-    if (handInfo.triplesWithPair && handInfo.triplesWithPair.length > 0) {
-      return handInfo.triplesWithPair[0]
-    }
-    
-    // 5. 没有组合牌型，出最小单张
-    if (handInfo.singles && handInfo.singles.length > 0) {
-      return [handInfo.singles[0]]
-    }
-    
-    // 6. 出最小对子
-    if (handInfo.pairs && handInfo.pairs.length > 0) {
-      return handInfo.pairs[0]
-    }
-    
-    // 默认出最小牌
+
     const sorted = [...hand].sort((a, b) => this.getCardValue(a) - this.getCardValue(b))
     return [sorted[0]]
   }
 
   /**
-   * 地狱难度管牌 - 智能判断是否值得管
+   * 地狱难度管牌 - 专业策略
+   * 核心：能不管就不管、不拆牌、不用大牌管小牌、保留关键牌
    */
   playHellBeat(hand, lastHand) {
     const beatingCards = DouDiZhuUtils.findBeatingCards(hand, lastHand)
@@ -227,39 +197,58 @@ class DouDiZhuAI {
     if (!beatingCards || beatingCards.length === 0) {
       return null // 真的要不起
     }
-    
-    // 1. 分析对手牌型
-    const opponentType = lastHand.type
-    const opponentValue = lastHand.value
-    
-    // 2. 判断是否是小牌
-    const isSmallHand = this.isSmallHand(lastHand)
-    
-    // 3. 判断是否是大牌
-    const isBigHand = this.isBigHand(lastHand)
-    
-    // 4. 判断是否是关键牌型
-    const isKeyHand = this.isKeyHandType(opponentType)
-    
-    // 5. 智能决策
-    if (isSmallHand) {
-      // 小牌优先管，用小牌管
+
+    // 【管牌三原则】
+    // 原则 1: 不轻易拆牌
+    if (this.willBreakGoodHand(beatingCards, hand)) {
+      return null // 会拆散好牌，不管
+    }
+
+    // 原则 2: 不用大牌管小牌
+    if (this.isBigCardBeatingSmall(lastHand, beatingCards)) {
+      // 判断是否必须管
+      if (!this.mustBeat(lastHand)) {
+        return null // 不用大牌管小牌
+      }
+    }
+
+    // 原则 3: 关键牌保留（王、2、炸弹）
+    if (this.isControlCardBeating(beatingCards)) {
+      if (!this.mustBeat(lastHand)) {
+        return null // 保留关键牌
+      }
+    }
+
+    // 【必须管的情况】
+    // 1. 对手快出完（剩 2 张牌）
+    if (this.opponentIsNearWin(lastHand)) {
+      return this.selectOptimalBeatingCards(beatingCards, hand)
+    }
+
+    // 2. 对手出长牌（顺子、飞机等）
+    if (this.isLongHand(lastHand)) {
+      return this.selectOptimalBeatingCards(beatingCards, hand)
+    }
+
+    // 3. 对手在配合（农民喂牌）
+    if (this.isOpponentCooperating(lastHand)) {
+      return this.selectOptimalBeatingCards(beatingCards, hand)
+    }
+
+    // 【普通情况】
+    // 小牌优先管
+    if (this.isSmallHand(lastHand)) {
       return this.selectSmallestBeatingCards(beatingCards)
     }
-    
-    if (isBigHand) {
-      // 大牌谨慎管
-      if (isKeyHand) {
-        // 关键牌型（三带、飞机等），优先管
-        return this.selectOptimalBeatingCards(beatingCards, hand)
-      }
-      // 非关键大牌，30% 概率管
+
+    // 大牌谨慎管
+    if (this.isBigHand(lastHand)) {
       if (Math.random() < 0.3) {
         return this.selectOptimalBeatingCards(beatingCards, hand)
       }
       return null
     }
-    
+
     // 普通牌型，90% 概率管
     if (Math.random() < 0.9) {
       return this.selectOptimalBeatingCards(beatingCards, hand)
@@ -281,39 +270,70 @@ class DouDiZhuAI {
       airplanes: [],
       triplesWithOne: [],
       triplesWithPair: [],
-      hasBomb: false
+      fourWithTwo: [],
+      hasBomb: false,
+      handValue: 0,
+      handCount: 0
     }
-    
-    // 统计每个点数的牌数
+
     const valueCount = {}
     hand.forEach(c => {
       const value = c.value
       valueCount[value] = (valueCount[value] || 0) + 1
     })
-    
-    // 分类
+
     Object.keys(valueCount).forEach(value => {
       const count = valueCount[value]
       const cards = hand.filter(c => c.value === value)
       
-      if (count === 1) {
-        info.singles.push(cards[0])
-      } else if (count === 2) {
-        info.pairs.push(cards)
-      } else if (count === 3) {
-        info.triples.push(cards)
-      } else if (count === 4) {
+      if (count === 1) info.singles.push(cards[0])
+      else if (count === 2) info.pairs.push(cards)
+      else if (count === 3) info.triples.push(cards)
+      else if (count === 4) {
         info.bombs.push(cards)
         info.hasBomb = true
       }
     })
-    
+
     // 排序
     info.singles.sort((a, b) => this.getCardValue(a) - this.getCardValue(b))
     info.pairs.sort((a, b) => this.getCardValue(a[0]) - this.getCardValue(b[0]))
     info.triples.sort((a, b) => this.getCardValue(a[0]) - this.getCardValue(b[0]))
-    
+
+    // 计算手数和牌型价值
+    info.handCount = this.calculateHandCount(info)
+    info.handValue = this.calculateHandValue(info)
+
     return info
+  }
+
+  /**
+   * 找出最优出牌（按牌型价值排序）
+   */
+  findBestHandToPlay() {
+    // 按价值排序：飞机 > 顺子 > 连对 > 三带 > 四带 > 对子 > 单张
+    if (this.handStructure.airplanes && this.handStructure.airplanes.length > 0) {
+      return this.handStructure.airplanes[0]
+    }
+    if (this.handStructure.sequences && this.handStructure.sequences.length > 0) {
+      return this.handStructure.sequences[0]
+    }
+    if (this.handStructure.pairSequences && this.handStructure.pairSequences.length > 0) {
+      return this.handStructure.pairSequences[0]
+    }
+    if (this.handStructure.triplesWithPair && this.handStructure.triplesWithPair.length > 0) {
+      return this.handStructure.triplesWithPair[0]
+    }
+    if (this.handStructure.triplesWithOne && this.handStructure.triplesWithOne.length > 0) {
+      return this.handStructure.triplesWithOne[0]
+    }
+    if (this.handStructure.fourWithTwo && this.handStructure.fourWithTwo.length > 0) {
+      return this.handStructure.fourWithTwo[0]
+    }
+    if (this.handStructure.triples && this.handStructure.triples.length > 0) {
+      return this.handStructure.triples[0]
+    }
+    return null
   }
 
   /**
@@ -326,7 +346,7 @@ class DouDiZhuAI {
     let smallestValue = Infinity
     
     for (const cards of beatingCards) {
-      const value = this.calculateHandValue(cards)
+      const value = this.calculateCardsValue(cards)
       if (value < smallestValue) {
         smallestValue = value
         smallestCards = cards
@@ -376,23 +396,28 @@ class DouDiZhuAI {
       score -= 100
     }
     
-    // 4. 保留控制牌（2、王）得分高
+    // 4. 保留控制牌得分高
     const hasControlCard = cards.some(c => 
-      c.value === '2' || c.value === '小王' || c.value === '大王'
+      CONTROL_CARDS.includes(c.value)
     )
     if (!hasControlCard) {
       score += 20
+    }
+    
+    // 5. 牌型价值高得分高
+    const handType = cardsAnalysis.type
+    if (HAND_VALUE_ORDER[handType]) {
+      score += HAND_VALUE_ORDER[handType]
     }
     
     return score
   }
 
   /**
-   * 计算牌型值
+   * 计算牌值
    */
-  calculateHandValue(cards) {
+  calculateCardsValue(cards) {
     if (!cards || cards.length === 0) return Infinity
-    
     let value = 0
     for (const card of cards) {
       value += this.getCardValue(card)
@@ -414,6 +439,143 @@ class DouDiZhuAI {
   }
 
   /**
+   * 计算手牌手数
+   */
+  calculateHandCount(structure) {
+    let count = 0
+    if (structure.sequences) count += structure.sequences.length
+    if (structure.pairSequences) count += structure.pairSequences.length
+    if (structure.airplanes) count += structure.airplanes.length
+    if (structure.triplesWithPair) count += structure.triplesWithPair.length
+    if (structure.triplesWithOne) count += structure.triplesWithOne.length
+    if (structure.fourWithTwo) count += structure.fourWithTwo.length
+    if (structure.triples) count += structure.triples.length
+    if (structure.pairs) count += structure.pairs.length
+    if (structure.singles) count += structure.singles.length
+    if (structure.bombs) count += structure.bombs.length
+    return count
+  }
+
+  /**
+   * 计算牌型价值
+   */
+  calculateHandValue(structure) {
+    let value = 0
+    if (structure.sequences) {
+      structure.sequences.forEach(seq => {
+        value += HAND_VALUE_ORDER['sequence'] || 0
+      })
+    }
+    if (structure.pairSequences) {
+      structure.pairSequences.forEach(seq => {
+        value += HAND_VALUE_ORDER['pairSequence'] || 0
+      })
+    }
+    if (structure.airplanes) {
+      structure.airplanes.forEach(plane => {
+        value += HAND_VALUE_ORDER['airplane'] || 0
+      })
+    }
+    return value
+  }
+
+  /**
+   * 计算控制牌数量
+   */
+  countControlCards(hand) {
+    return hand.filter(c => CONTROL_CARDS.includes(c.value)).length
+  }
+
+  /**
+   * 是否会拆散好牌
+   */
+  willBreakGoodHand(cardsToPlay, hand) {
+    // 检查是否会拆散顺子、连对、飞机等
+    const playValues = cardsToPlay.map(c => c.value)
+    
+    // 检查是否会拆散顺子
+    if (this.handStructure.sequences && this.handStructure.sequences.length > 0) {
+      for (const seq of this.handStructure.sequences) {
+        const seqValues = seq.map(c => c.value)
+        if (playValues.some(v => seqValues.includes(v))) {
+          return true
+        }
+      }
+    }
+    
+    // 检查是否会拆散连对
+    if (this.handStructure.pairSequences && this.handStructure.pairSequences.length > 0) {
+      for (const pairSeq of this.handStructure.pairSequences) {
+        const pairValues = pairSeq.map(c => c.value)
+        if (playValues.some(v => pairValues.includes(v))) {
+          return true
+        }
+      }
+    }
+    
+    return false
+  }
+
+  /**
+   * 是否用大牌管小牌
+   */
+  isBigCardBeatingSmall(lastHand, beatingCards) {
+    const lastHandValue = lastHand.value || 0
+    const beatingValue = this.calculateCardsValue(beatingCards)
+    
+    // 如果对手出的是小牌（<10），我们用大牌（>13）管
+    return lastHandValue < 10 && beatingValue > 13
+  }
+
+  /**
+   * 是否用控制牌管
+   */
+  isControlCardBeating(beatingCards) {
+    return beatingCards.some(c => CONTROL_CARDS.includes(c.value))
+  }
+
+  /**
+   * 是否必须管牌
+   */
+  mustBeat(lastHand) {
+    // 对手快出完（剩 2 张）
+    if (this.opponentIsNearWin(lastHand)) {
+      return true
+    }
+    
+    // 对手出长牌
+    if (this.isLongHand(lastHand)) {
+      return true
+    }
+    
+    return false
+  }
+
+  /**
+   * 对手是否快出完
+   */
+  opponentIsNearWin(lastHand) {
+    // 简化判断：如果对手出的是大牌，可能快出完了
+    return lastHand.value >= 15
+  }
+
+  /**
+   * 是否是长牌型
+   */
+  isLongHand(lastHand) {
+    const longTypes = ['sequence', 'pairSequence', 'airplane', 'airplaneWithOne', 'airplaneWithPair']
+    return longTypes.includes(lastHand.type)
+  }
+
+  /**
+   * 是否是对手在配合
+   */
+  isOpponentCooperating(lastHand) {
+    // 简化判断：如果对手出的是小牌且牌型整齐，可能在配合
+    return lastHand.value < 8 && this.isLongHand(lastHand)
+  }
+
+  /**
    * 判断是否是小牌型
    */
   isSmallHand(lastHand) {
@@ -425,17 +587,8 @@ class DouDiZhuAI {
    * 判断是否是大牌型
    */
   isBigHand(lastHand) {
-    const bigTypes = ['bomb', 'rocket', 'airplane', 'fourWithTwo']
+    const bigTypes = ['bomb', 'rocket']
     return bigTypes.includes(lastHand.type) || lastHand.value >= 14
-  }
-
-  /**
-   * 判断是否是关键牌型
-   */
-  isKeyHandType(type) {
-    const keyTypes = ['tripleWithOne', 'tripleWithPair', 'airplane', 
-                      'airplaneWithOne', 'airplaneWithPair', 'sequence', 'pairSequence']
-    return keyTypes.includes(type)
   }
 
   /**
@@ -467,18 +620,13 @@ class DouDiZhuAI {
   /**
    * 不出炸弹，出其他牌
    */
-  playWithoutBomb(hand, handInfo) {
-    // 优先出单张
-    if (handInfo.singles && handInfo.singles.length > 0) {
-      return [handInfo.singles[0]]
+  playWithoutBomb(hand) {
+    if (this.handStructure.singles && this.handStructure.singles.length > 0) {
+      return [this.handStructure.singles[0]]
     }
-    
-    // 其次出对子
-    if (handInfo.pairs && handInfo.pairs.length > 0) {
-      return handInfo.pairs[0]
+    if (this.handStructure.pairs && this.handStructure.pairs.length > 0) {
+      return this.handStructure.pairs[0]
     }
-    
-    // 默认出最小牌
     const sorted = [...hand].sort((a, b) => this.getCardValue(a) - this.getCardValue(b))
     return [sorted[0]]
   }
@@ -489,6 +637,8 @@ class DouDiZhuAI {
   reset() {
     this.playedCards = []
     this.rememberedCards = new Set()
+    this.handStructure = null
+    this.controlCount = 0
   }
 }
 
