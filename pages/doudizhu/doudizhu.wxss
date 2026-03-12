@@ -204,46 +204,17 @@
   background: linear-gradient(135deg, rgba(78, 205, 196, 0.12) 0%, rgba(78, 205, 196, 0.05) 100%);
 }
 
-.emoji-badge-row {
+.role-card-header {
+  height: 120rpx;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 20rpx;
-  margin-bottom: 15rpx;
+  justify-content: center;
 }
 
 .role-card-emoji {
   font-size: 64rpx;
   filter: drop-shadow(0 3rpx 6rpx rgba(0, 0, 0, 0.3));
-}
-
-.role-card-badge-wrapper {
-  position: relative;
-  top: -10rpx;
-}
-
-.role-card-badge {
-  padding: 8rpx 18rpx;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  border-radius: 20rpx;
-  font-size: 20rpx;
-  font-weight: bold;
-  color: #1a1a2e;
-  box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.4);
-  text-shadow: 0 1rpx 1rpx rgba(255, 255, 255, 0.2);
-  letter-spacing: 1rpx;
-  white-space: nowrap;
-  animation: badgeGlow 2s ease-in-out infinite;
-}
-
-@keyframes badgeGlow {
-  0%, 100% {
-    box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.4);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.6);
-    transform: scale(1.03);
-  }
 }
 
 .role-card-name {

@@ -69,12 +69,7 @@
       <view class="role-cards">
         <view class="role-card landlord-card" bindtap="selectLandlord">
           <view class="role-card-header">
-            <view class="emoji-badge-row">
-              <text class="role-card-emoji">🤠</text>
-              <view class="role-card-badge-wrapper">
-                <text class="role-card-badge">⭐ 推荐</text>
-              </view>
-            </view>
+            <text class="role-card-emoji">🤠</text>
           </view>
           <view class="role-card-body">
             <text class="role-card-name">地主</text>
