@@ -46,15 +46,26 @@
   margin-bottom: 50rpx;
 }
 
-.main-title {
-  font-size: 56rpx;
+.main-title-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15rpx;
+  margin-bottom: 15rpx;
+}
+
+.title-emoji {
+  font-size: 64rpx;
+  filter: drop-shadow(0 4rpx 8rpx rgba(255, 215, 0, 0.5));
+}
+
+.main-title-text {
+  font-size: 52rpx;
   font-weight: bold;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  display: block;
-  margin-bottom: 15rpx;
   text-shadow: 0 0 30rpx rgba(255, 215, 0, 0.5);
 }
 
@@ -193,39 +204,45 @@
   background: linear-gradient(135deg, rgba(78, 205, 196, 0.12) 0%, rgba(78, 205, 196, 0.05) 100%);
 }
 
+.emoji-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 15rpx;
+}
+
 .role-card-emoji {
   font-size: 64rpx;
-  display: block;
-  text-align: center;
-  margin-bottom: 10rpx;
   filter: drop-shadow(0 3rpx 6rpx rgba(0, 0, 0, 0.3));
 }
 
 .role-card-badge-wrapper {
-  margin-bottom: 10rpx;
+  position: relative;
+  top: -10rpx;
 }
 
 .role-card-badge {
-  padding: 10rpx 24rpx;
+  padding: 8rpx 18rpx;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  border-radius: 24rpx;
-  font-size: 24rpx;
+  border-radius: 20rpx;
+  font-size: 20rpx;
   font-weight: bold;
   color: #1a1a2e;
-  box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.5);
-  text-shadow: 0 1rpx 2rpx rgba(255, 255, 255, 0.3);
-  letter-spacing: 2rpx;
+  box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.4);
+  text-shadow: 0 1rpx 1rpx rgba(255, 255, 255, 0.2);
+  letter-spacing: 1rpx;
+  white-space: nowrap;
   animation: badgeGlow 2s ease-in-out infinite;
 }
 
 @keyframes badgeGlow {
   0%, 100% {
-    box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.5);
+    box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.4);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 8rpx 24rpx rgba(255, 215, 0, 0.7);
-    transform: scale(1.05);
+    box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.6);
+    transform: scale(1.03);
   }
 }
 

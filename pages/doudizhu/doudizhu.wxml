@@ -18,7 +18,10 @@
   <view class="select-area" wx:if="{{gamePhase === 'select'}}">
     <!-- 标题区域 -->
     <view class="title-section">
-      <text class="main-title">🃏 斗地主</text>
+      <view class="main-title-wrapper">
+        <text class="title-emoji">🃏</text>
+        <text class="main-title-text">斗地主</text>
+      </view>
       <text class="sub-title">选择难度和角色开始游戏</text>
     </view>
     
@@ -66,9 +69,11 @@
       <view class="role-cards">
         <view class="role-card landlord-card" bindtap="selectLandlord">
           <view class="role-card-header">
-            <text class="role-card-emoji">🤠</text>
-            <view class="role-card-badge-wrapper">
-              <text class="role-card-badge">⭐ 推荐</text>
+            <view class="emoji-badge-row">
+              <text class="role-card-emoji">🤠</text>
+              <view class="role-card-badge-wrapper">
+                <text class="role-card-badge">⭐ 推荐</text>
+              </view>
             </view>
           </view>
           <view class="role-card-body">
