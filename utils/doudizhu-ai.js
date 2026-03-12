@@ -231,22 +231,229 @@ class DouDiZhuAI {
   }
 
   /**
-   * 尝试管牌
+   * 尝试管牌 - 根据难度使用不同策略
    */
   tryToBeat(hand, lastHand, aggressiveRate = 0.5) {
-    const beatingCards = DouDiZhuUtils.findBeatingCards(hand, lastHand)
+    if (!lastHand) return null
     
-    if (!beatingCards || beatingCards.length === 0) {
-      return null // 要不起
+    // 地狱难度：智能管牌，会计算是否值得管
+    if (this.difficulty === AIDifficulty.HELL) {
+      return this.hellBeatStrategy(hand, lastHand)
     }
     
-    // 根据难度决定是否出牌
+    // 普通难度：基本管牌
+    if (this.difficulty === AIDifficulty.NORMAL) {
+      return this.normalBeatStrategy(hand, lastHand, aggressiveRate)
+    }
+    
+    // 简单难度：随机管牌
+    return this.easyBeatStrategy(hand, lastHand, aggressiveRate)
+  }
+  
+  /**
+   * 简单难度管牌策略 - 50% 概率管，随机出牌
+   */
+  easyBeatStrategy(hand, lastHand, aggressiveRate) {
+    // 50% 概率直接不要
+    if (Math.random() < 0.5) {
+      return null
+    }
+    
+    const beatingCards = DouDiZhuUtils.findBeatingCards(hand, lastHand)
+    if (!beatingCards || beatingCards.length === 0) {
+      return null
+    }
+    
+    // 随机选一组能管上的牌
+    const randomIndex = Math.floor(Math.random() * beatingCards.length)
+    return beatingCards[randomIndex]
+  }
+  
+  /**
+   * 普通难度管牌策略 - 会管牌，优先用小牌管
+   */
+  normalBeatStrategy(hand, lastHand, aggressiveRate) {
+    const beatingCards = DouDiZhuUtils.findBeatingCards(hand, lastHand)
+    if (!beatingCards || beatingCards.length === 0) {
+      return null
+    }
+    
+    // 70% 概率管牌
     if (Math.random() > aggressiveRate) {
-      return null // 即使能管也选择不要
+      return null
     }
     
     // 选择最小的能管上的牌
     return this.selectSmallestBeatingCards(beatingCards, hand)
+  }
+  
+  /**
+   * 地狱难度管牌策略 - 智能管牌，精确计算
+   */
+  hellBeatStrategy(hand, lastHand) {
+    const beatingCards = DouDiZhuUtils.findBeatingCards(hand, lastHand)
+    if (!beatingCards || beatingCards.length === 0) {
+      return null // 真的要不起
+    }
+    
+    // 分析手牌和对手牌型
+    const myHandAnalysis = DouDiZhuUtils.analyzeHand(hand)
+    const opponentHand = lastHand
+    
+    // 策略 1: 如果对手出的是小牌型，且我有更小的牌能管，优先管
+    if (this.isSmallHand(lastHand) && this.hasSmallerBeatingCards(beatingCards)) {
+      return this.selectSmallestBeatingCards(beatingCards, hand)
+    }
+    
+    // 策略 2: 如果对手出的是大牌型，评估是否值得管
+    if (this.isBigHand(lastHand)) {
+      // 如果是关键牌型（如三带、飞机等），优先管
+      if (this.isKeyHandType(lastHand.type)) {
+        return this.selectOptimalBeatingCards(beatingCards, hand)
+      }
+      // 否则保留实力
+      if (Math.random() < 0.3) {
+        return this.selectOptimalBeatingCards(beatingCards, hand)
+      }
+      return null
+    }
+    
+    // 策略 3: 正常情况，选择最优牌管
+    return this.selectOptimalBeatingCards(beatingCards, hand)
+  }
+  
+  /**
+   * 判断是否是小牌型
+   */
+  isSmallHand(lastHand) {
+    const smallTypes = ['single', 'pair']
+    return smallTypes.includes(lastHand.type) && lastHand.value < 10
+  }
+  
+  /**
+   * 判断是否是大牌型
+   */
+  isBigHand(lastHand) {
+    const bigTypes = ['bomb', 'rocket', 'airplane', 'fourWithTwo']
+    return bigTypes.includes(lastHand.type) || lastHand.value >= 12
+  }
+  
+  /**
+   * 判断是否是关键牌型
+   */
+  isKeyHandType(type) {
+    const keyTypes = ['tripleWithOne', 'tripleWithPair', 'airplane', 'airplaneWithOne', 'airplaneWithPair']
+    return keyTypes.includes(type)
+  }
+  
+  /**
+   * 是否有更小的牌能管
+   */
+  hasSmallerBeatingCards(beatingCards) {
+    // 选择最小的管牌
+    const smallest = this.selectSmallestBeatingCards(beatingCards, [])
+    return smallest && smallest.length > 0
+  }
+  
+  /**
+   * 选择最小的能管上的牌
+   */
+  selectSmallestBeatingCards(beatingCards, hand) {
+    if (!beatingCards || beatingCards.length === 0) return null
+    
+    // 选择牌数最少的
+    let smallestCards = beatingCards[0]
+    let smallestValue = this.calculateHandValue(beatingCards[0])
+    
+    for (const cards of beatingCards) {
+      const value = this.calculateHandValue(cards)
+      if (value < smallestValue) {
+        smallestValue = value
+        smallestCards = cards
+      }
+    }
+    
+    return smallestCards
+  }
+  
+  /**
+   * 选择最优的能管上的牌（地狱难度）
+   */
+  selectOptimalBeatingCards(beatingCards, hand) {
+    if (!beatingCards || beatingCards.length === 0) return null
+    
+    // 优先保留炸弹和好牌
+    let bestCards = beatingCards[0]
+    let bestScore = -Infinity
+    
+    for (const cards of beatingCards) {
+      const score = this.calculateBeatScore(cards, hand)
+      if (score > bestScore) {
+        bestScore = score
+        bestCards = cards
+      }
+    }
+    
+    return bestCards
+  }
+  
+  /**
+   * 计算管牌得分
+   */
+  calculateBeatScore(cards, hand) {
+    let score = 0
+    
+    // 牌数越少得分越高
+    score += (10 - cards.length) * 10
+    
+    // 不拆散好牌得分高
+    const handAnalysis = DouDiZhuUtils.analyzeHand(hand)
+    const cardsAnalysis = DouDiZhuUtils.analyzeHand(cards)
+    
+    // 如果管牌后仍保持好牌型，得分高
+    if (cardsAnalysis.type !== 'single') {
+      score += 50
+    }
+    
+    // 不拆炸弹得分高
+    if (this.willBreakBomb(cards, hand)) {
+      score -= 100
+    }
+    
+    return score
+  }
+  
+  /**
+   * 计算牌型值
+   */
+  calculateHandValue(cards) {
+    if (!cards || cards.length === 0) return Infinity
+    
+    let value = 0
+    for (const card of cards) {
+      value += DouDiZhuUtils.getCardValue(card)
+    }
+    return value / cards.length
+  }
+  
+  /**
+   * 是否会拆散炸弹
+   */
+  willBreakBomb(cardsToPlay, hand) {
+    // 简单判断：如果手中有 4 张相同的牌，出牌会拆散，则返回 true
+    const handValues = hand.map(c => c.value)
+    const playValues = cardsToPlay.map(c => c.value)
+    
+    const valueCounts = {}
+    handValues.forEach(v => valueCounts[v] = (valueCounts[v] || 0) + 1)
+    
+    for (const value of playValues) {
+      if (valueCounts[value] === 4) {
+        return true
+      }
+    }
+    
+    return false
   }
 
   /**
