@@ -150,7 +150,7 @@ class DouDiZhuAI {
   }
 
   /**
-   * 出最优牌型（地狱难度）
+   * 出最优牌型（地狱难度）- 优先出组合牌型
    */
   playOptimalHand(hand) {
     // 完整分析手牌
@@ -170,8 +170,64 @@ class DouDiZhuAI {
       return this.playWithoutBomb(hand)
     }
     
-    // 正常出牌
-    return this.playSmallestHand(hand)
+    // 地狱难度：优先出组合牌型（不拆牌）
+    // 1. 优先出顺子（5 个或以上连续单牌）
+    if (handAnalysis.sequences && handAnalysis.sequences.length > 0) {
+      const smallestSequence = handAnalysis.sequences[0]
+      return smallestSequence
+    }
+    
+    // 2. 优先出连对（3 个或以上连续对子）
+    if (handAnalysis.pairSequences && handAnalysis.pairSequences.length > 0) {
+      const smallestPairSeq = handAnalysis.pairSequences[0]
+      return smallestPairSeq
+    }
+    
+    // 3. 优先出飞机（2 个或以上连续三张）
+    if (handAnalysis.airplanes && handAnalysis.airplanes.length > 0) {
+      const smallestAirplane = handAnalysis.airplanes[0]
+      return smallestAirplane
+    }
+    
+    // 4. 优先出三带一
+    if (handAnalysis.triplesWithOne && handAnalysis.triplesWithOne.length > 0) {
+      const smallestTripleWithOne = handAnalysis.triplesWithOne.cards
+      return smallestTripleWithOne
+    }
+    
+    // 5. 优先出三带二
+    if (handAnalysis.triplesWithPair && handAnalysis.triplesWithPair.length > 0) {
+      const smallestTripleWithPair = handAnalysis.triplesWithPair.cards
+      return smallestTripleWithPair
+    }
+    
+    // 6. 优先出四带二
+    if (handAnalysis.fourWithTwo && handAnalysis.fourWithTwo.length > 0) {
+      const smallestFourWithTwo = handAnalysis.fourWithTwo.cards
+      return smallestFourWithTwo
+    }
+    
+    // 7. 有炸弹先保留
+    if (handAnalysis.bombs && handAnalysis.bombs.length > 0) {
+      // 炸弹留到最后，先出其他牌
+      return this.playWithoutBomb(hand)
+    }
+    
+    // 8. 最后才出单张或对子
+    if (handAnalysis.triples && handAnalysis.triples.length > 0) {
+      return handAnalysis.triples[0]
+    }
+    
+    if (handAnalysis.pairs && handAnalysis.pairs.length > 0) {
+      return handAnalysis.pairs[0]
+    }
+    
+    if (handAnalysis.singles && handAnalysis.singles.length > 0) {
+      return [handAnalysis.singles[0]]
+    }
+    
+    // 默认出最小牌
+    return [hand[0]]
   }
 
   /**
