@@ -136,6 +136,12 @@
   align-items: center;
   justify-content: center;
   gap: 10rpx;
+  pointer-events: none; /* 让点击穿透到父元素 */
+}
+
+.lock-overlay .lock-icon,
+.lock-overlay .unlock-condition {
+  pointer-events: none; /* 让点击穿透 */
 }
 
 .lock-icon {

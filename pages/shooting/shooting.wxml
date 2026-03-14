@@ -34,7 +34,7 @@
         <view class="mode-desc">{{mode.desc}}</view>
         <view class="mode-reward">{{mode.reward}}</view>
         
-        <view class="lock-overlay" wx:if="{{mode.locked}}">
+        <view class="lock-overlay" wx:if="{{mode.locked}}" catchtap="onSelectMode" data-mode-id="{{mode.id}}">
           <text class="lock-icon">🔒</text>
           <text class="unlock-condition">{{mode.unlockCondition}}</text>
         </view>
