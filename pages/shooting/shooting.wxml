@@ -1,0 +1,79 @@
+<!--pages/shooting/shooting.wxml-->
+<view class="container">
+  <!-- 顶部信息栏 -->
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <view class="title">射击对战</view>
+    <view class="currency-bar">
+      <view class="currency-item">
+        <text class="currency-icon">💎</text>
+        <text class="currency-value">{{stats.points}}</text>
+      </view>
+      <view class="currency-item" bindtap="goToInventory">
+        <text class="currency-icon">🪙</text>
+        <text class="currency-value">{{stats.gold}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 模式选择 -->
+  <view class="modes-section">
+    <view class="section-title">选择模式</view>
+    <view class="modes-grid">
+      <view 
+        class="mode-card {{mode.locked ? 'locked' : ''}}" 
+        wx:for="{{modes}}" 
+        wx:key="id"
+        data-mode="{{mode}}"
+        bindtap="onSelectMode">
+        
+        <view class="mode-icon">{{mode.icon}}</view>
+        <view class="mode-name">{{mode.name}}</view>
+        <view class="mode-desc">{{mode.desc}}</view>
+        <view class="mode-reward">{{mode.reward}}</view>
+        
+        <view class="lock-overlay" wx:if="{{mode.locked}}">
+          <text class="lock-icon">🔒</text>
+          <text class="unlock-condition">{{mode.unlockCondition}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-actions">
+    <view class="action-btn inventory" bindtap="goToInventory">
+      <text class="action-icon">🎒</text>
+      <text class="action-text">仓库</text>
+    </view>
+    <view class="action-btn shop" bindtap="goToShop">
+      <text class="action-icon">🏪</text>
+      <text class="action-text">商城</text>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-section">
+    <view class="section-title">我的战绩</view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{stats.totalGames}}</text>
+        <text class="stat-label">总场次</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.totalWins}}</text>
+        <text class="stat-label">胜利次数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.lootPassed}}</text>
+        <text class="stat-label">摸金通关</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.mechaFragments}}</text>
+        <text class="stat-label">机甲碎片</text>
+      </view>
+    </view>
+  </view>
+</view>

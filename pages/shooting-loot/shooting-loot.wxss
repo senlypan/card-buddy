@@ -1,0 +1,291 @@
+/* pages/shooting-loot/shooting-loot.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+  padding: 20rpx;
+}
+
+/* 游戏头部 */
+.game-header {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.floor-info {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+.timer {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+.timer.warning {
+  color: #ff4444;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 玩家状态 */
+.player-status {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.status-label {
+  font-size: 24rpx;
+  color: #fff;
+  width: 100rpx;
+}
+
+.bar-bg {
+  flex: 1;
+  height: 30rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15rpx;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 15rpx;
+  transition: width 0.3s;
+}
+
+.hp-bar .bar-fill {
+  background: linear-gradient(90deg, #ff4444 0%, #ff6b6b 100%);
+}
+
+.armor-bar .bar-fill {
+  background: linear-gradient(90deg, #4444ff 0%, #6b6bff 100%);
+}
+
+.status-value {
+  font-size: 24rpx;
+  color: #fff;
+  width: 120rpx;
+  text-align: right;
+}
+
+.weapon-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 15rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10rpx;
+}
+
+.weapon-name {
+  font-size: 26rpx;
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.ammo-count {
+  font-size: 26rpx;
+  color: #fff;
+}
+
+/* 地图容器 */
+.map-container {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  overflow-x: auto;
+}
+
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 80rpx);
+  gap: 4rpx;
+}
+
+.cell {
+  width: 80rpx;
+  height: 80rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cell-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cell.wall {
+  background: rgba(100, 100, 100, 0.5);
+}
+
+.cell.player {
+  background: rgba(76, 175, 80, 0.3);
+}
+
+.wall-icon {
+  font-size: 40rpx;
+}
+
+.entity {
+  font-size: 40rpx;
+  position: absolute;
+}
+
+.player-entity {
+  animation: playerGlow 2s infinite;
+}
+
+@keyframes playerGlow {
+  0%, 100% { filter: drop-shadow(0 0 10rpx #4caf50); }
+  50% { filter: drop-shadow(0 0 20rpx #4caf50); }
+}
+
+.enemy-entity {
+  animation: enemyPulse 1s infinite;
+}
+
+@keyframes enemyPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.exit-entity {
+  animation: exitBlink 1s infinite;
+}
+
+@keyframes exitBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 控制按钮 */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.control-row {
+  display: flex;
+  gap: 10rpx;
+}
+
+.control-btn {
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+/* 快捷栏 */
+.quick-bar {
+  display: flex;
+  gap: 10rpx;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  overflow-x: auto;
+}
+
+.quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rpx;
+  padding: 10rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10rpx;
+  min-width: 100rpx;
+}
+
+.quick-icon {
+  font-size: 40rpx;
+}
+
+.quick-name {
+  font-size: 20rpx;
+  color: #fff;
+}
+
+/* 战斗日志 */
+.battle-log {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  max-height: 300rpx;
+  overflow-y: auto;
+}
+
+.log-title {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+}
+
+.log-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.log-item {
+  display: flex;
+  gap: 10rpx;
+  padding: 10rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10rpx;
+}
+
+.log-time {
+  font-size: 20rpx;
+  color: #888;
+  min-width: 100rpx;
+}
+
+.log-message {
+  font-size: 24rpx;
+  color: #fff;
+  flex: 1;
+}

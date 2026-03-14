@@ -41,6 +41,14 @@ Page({
     })
   },
 
+  playShooting() {
+    // 播放点击反馈
+    wx.vibrateShort({ type: 'light' })
+    wx.navigateTo({
+      url: '/pages/shooting/shooting'
+    })
+  },
+
   comingSoon() {
     // 播放点击反馈
     wx.vibrateShort({ type: 'light' })

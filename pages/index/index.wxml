@@ -72,6 +72,22 @@
       <view class="card-glow"></view>
     </view>
 
+    <!-- 射击对战卡片 -->
+    <view class="game-card shooting-card" bindtap="playShooting">
+      <view class="card-bg"></view>
+      <view class="card-content">
+        <view class="game-emoji">🔫</view>
+        <view class="game-info">
+          <text class="game-name">射击对战</text>
+          <text class="game-desc">摸金/机甲/BOSS 战</text>
+        </view>
+        <view class="play-badge new-badge">
+          <text>NEW</text>
+        </view>
+      </view>
+      <view class="card-glow"></view>
+    </view>
+
     <!-- 更多游戏卡片 -->
     <view class="game-card coming-card" bindtap="comingSoon">
       <view class="card-bg"></view>

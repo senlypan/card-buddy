@@ -1,0 +1,217 @@
+/* pages/shooting/shooting.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  padding: 20rpx;
+}
+
+/* 顶部信息栏 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  font-size: 48rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+.title {
+  font-size: 36rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+.currency-bar {
+  display: flex;
+  gap: 20rpx;
+}
+
+.currency-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10rpx 20rpx;
+  border-radius: 30rpx;
+}
+
+.currency-icon {
+  font-size: 32rpx;
+}
+
+.currency-value {
+  font-size: 28rpx;
+  color: #ffd700;
+  font-weight: bold;
+}
+
+/* 模式选择 */
+.modes-section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  padding-left: 10rpx;
+  border-left: 6rpx solid #ffd700;
+}
+
+.modes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.mode-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24rpx;
+  padding: 30rpx 20rpx;
+  position: relative;
+  overflow: hidden;
+  min-height: 280rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mode-card.locked {
+  background: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
+  opacity: 0.8;
+}
+
+.mode-icon {
+  font-size: 80rpx;
+  margin-bottom: 10rpx;
+}
+
+.mode-name {
+  font-size: 32rpx;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.mode-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  margin-bottom: 10rpx;
+}
+
+.mode-reward {
+  font-size: 22rpx;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.2);
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+}
+
+.lock-icon {
+  font-size: 60rpx;
+}
+
+.unlock-condition {
+  font-size: 22rpx;
+  color: #fff;
+  text-align: center;
+  padding: 0 20rpx;
+}
+
+/* 快捷入口 */
+.quick-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.action-btn.inventory {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.action-btn.shop {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.action-icon {
+  font-size: 40rpx;
+}
+
+.action-text {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* 统计信息 */
+.stats-section {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 30rpx 20rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+}

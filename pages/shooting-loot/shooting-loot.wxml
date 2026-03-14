@@ -1,0 +1,105 @@
+<!--pages/shooting-loot/shooting-loot.wxml-->
+<view class="container">
+  <!-- 游戏状态显示 -->
+  <view class="game-header" wx:if="{{gameState === 'playing'}}">
+    <view class="info-row">
+      <view class="floor-info">📍 {{floor}}/{{maxFloors}} 楼</view>
+      <view class="timer {{timer < 60 ? 'warning' : ''}}">⏱️ {{timer}}s</view>
+    </view>
+    
+    <!-- 玩家状态 -->
+    <view class="player-status">
+      <view class="status-bar hp-bar">
+        <text class="status-label">❤️ 生命</text>
+        <view class="bar-bg">
+          <view class="bar-fill" style="width: {{player.hp / player.maxHp * 100}}%"></view>
+        </view>
+        <text class="status-value">{{player.hp}}/{{player.maxHp}}</text>
+      </view>
+      
+      <view class="status-bar armor-bar" wx:if="{{player.armor > 0}}">
+        <text class="status-label">🛡️ 护甲</text>
+        <view class="bar-bg">
+          <view class="bar-fill" style="width: {{player.armor / player.maxArmor * 100}}%"></view>
+        </view>
+        <text class="status-value">{{player.armor}}/{{player.maxArmor}}</text>
+      </view>
+      
+      <view class="weapon-info" wx:if="{{player.weapon}}">
+        <text class="weapon-name">{{player.weapon.name}}</text>
+        <text class="ammo-count">🔫 {{player.ammo}}/{{player.weapon.magazine}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 游戏地图 -->
+  <view class="map-container" wx:if="{{gameState === 'playing'}}">
+    <view class="map-grid">
+      <view 
+        class="cell {{cell.type}} {{cell.x === player.position.x && cell.y === player.position.y ? 'player' : ''}}"
+        wx:for="{{map}}"
+        wx:for-item="row"
+        wx:for-index="rowIndex"
+        wx:key="*this">
+        
+        <view 
+          class="cell-inner {{row[colIndex].type}}"
+          wx:for="{{row}}"
+          wx:for-item="cell"
+          wx:for-index="colIndex"
+          wx:key="*this"
+          data-x="{{rowIndex}}"
+          data-y="{{colIndex}}"
+          bindtap="onMove"
+          data-direction="{{colIndex > player.position.y ? 'right' : (colIndex < player.position.y ? 'left' : (rowIndex > player.position.x ? 'down' : 'up'))}}">
+          
+          <!-- 玩家位置 -->
+          <text class="entity player-entity" wx:if="{{rowIndex === player.position.x && colIndex === player.position.y}}">👤</text>
+          
+          <!-- 敌人 -->
+          <text class="entity enemy-entity" wx:elif="{{enemies.length > 0 && enemies.findIndex(e => e.position.x === rowIndex && e.position.y === colIndex) !== -1}}">👾</text>
+          
+          <!-- 物品 -->
+          <text class="entity item-entity" wx:elif="{{items.length > 0 && items.findIndex(i => i.position.x === rowIndex && i.position.y === colIndex) !== -1}}">📦</text>
+          
+          <!-- 撤离点 -->
+          <text class="entity exit-entity" wx:elif="{{exitPoint.x === rowIndex && exitPoint.y === colIndex}}">🚁</text>
+          
+          <!-- 墙壁 -->
+          <text wx:if="{{cell.type === 'wall'}}" class="wall-icon">🧱</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 控制按钮 -->
+  <view class="controls" wx:if="{{gameState === 'playing'}}">
+    <view class="control-row">
+      <view class="control-btn" bindtap="onMove" data-direction="up">⬆️</view>
+    </view>
+    <view class="control-row">
+      <view class="control-btn" bindtap="onMove" data-direction="left">⬅️</view>
+      <view class="control-btn" bindtap="onMove" data-direction="down">⬇️</view>
+      <view class="control-btn" bindtap="onMove" data-direction="right">➡️</view>
+    </view>
+  </view>
+
+  <!-- 背包快捷栏 -->
+  <view class="quick-bar" wx:if="{{gameState === 'playing'}}">
+    <view class="quick-item" wx:for="{{player.loot}}" wx:key="index" wx:for-index="idx">
+      <text class="quick-icon">{{item.type === 'weapon' ? '🔫' : (item.type === 'med' ? '💊' : '📦')}}</text>
+      <text class="quick-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 战斗日志 -->
+  <view class="battle-log" wx:if="{{gameState === 'playing'}}">
+    <view class="log-title">📜 战斗日志</view>
+    <view class="log-content">
+      <view class="log-item" wx:for="{{battleLog}}" wx:key="index">
+        <text class="log-time">{{item.time}}</text>
+        <text class="log-message">{{item.message}}</text>
+      </view>
+    </view>
+  </view>
+</view>
