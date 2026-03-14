@@ -26,7 +26,7 @@
         class="mode-card {{mode.locked ? 'locked' : ''}}" 
         wx:for="{{modes}}" 
         wx:key="id"
-        data-mode="{{mode}}"
+        data-mode-id="{{mode.id}}"
         bindtap="onSelectMode">
         
         <view class="mode-icon">{{mode.icon}}</view>

@@ -99,7 +99,12 @@ Page({
 
   // 选择模式
   onSelectMode: function(e) {
-    const { mode } = e.currentTarget.dataset;
+    const modeId = e.currentTarget.dataset.modeId;
+    const mode = this.data.modes.find(m => m.id === modeId);
+    
+    if (!mode) {
+      return;
+    }
     
     if (mode.locked) {
       wx.showToast({
@@ -119,8 +124,8 @@ Page({
       'battleroyal': '/pages/shooting-battleroyal/shooting-battleroyal'
     };
 
-    if (pages[mode.id]) {
-      wx.navigateTo({ url: pages[mode.id] });
+    if (pages[modeId]) {
+      wx.navigateTo({ url: pages[modeId] });
     }
   },
 
