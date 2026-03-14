@@ -73,11 +73,12 @@ Page({
       totalWins: 0,
       lootPassed: 0,
       points: 0,
-      gold: 1000, // 初始金币
+      gold: 1000,
       mechaFragments: 0,
       inventory: []
     };
     this.setData({ userInfo, stats: userInfo });
+    console.log('射击游戏数据加载:', this.data);
   },
 
   // 检查模式解锁状态

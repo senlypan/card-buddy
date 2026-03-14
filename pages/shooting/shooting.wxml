@@ -26,6 +26,7 @@
         class="mode-card {{mode.locked ? 'locked' : ''}}" 
         wx:for="{{modes}}" 
         wx:key="id"
+        wx:for-item="mode"
         data-mode-id="{{mode.id}}"
         bindtap="onSelectMode">
         
