@@ -60,11 +60,9 @@ Page({
 
   onLoad: function() {
     this.loadUserInfo();
-    this.checkUnlocks();
   },
 
   onShow: function() {
-    this.loadUserInfo();
     this.checkUnlocks();
   },
 
@@ -84,13 +82,14 @@ Page({
 
   // 检查模式解锁状态
   checkUnlocks: function() {
+    const stats = this.data.stats || { lootPassed: 0, totalWins: 0 };
     const modes = this.data.modes.map(mode => {
       if (mode.id === 'boss') {
-        mode.locked = this.data.stats.lootPassed < 3;
+        mode.locked = stats.lootPassed < 3;
       } else if (mode.id === 'mecha') {
         mode.locked = !wx.getStorageSync('mecha_key');
       } else if (mode.id === 'battleroyal') {
-        mode.locked = this.data.stats.totalWins < 5;
+        mode.locked = stats.totalWins < 5;
       }
       return mode;
     });
