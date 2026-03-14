@@ -1,10 +1,10 @@
-<!--pages/shooting-loot/shooting-loot.wxml - 完整版-->
+<!--pages/shooting-loot/shooting-loot.wxml - 小学生友好版-->
 <view class="container">
   <!-- 游戏状态显示 -->
   <view class="game-header" wx:if="{{gameState === 'playing'}}">
     <view class="info-row">
       <view class="floor-info">📍 {{floor}}/{{maxFloors}} 楼</view>
-      <view class="timer {{timer < 60 ? 'warning' : ''}}">⏱️ {{timer}}s</view>
+      <view class="timer {{timer < 60 ? 'warning' : ''}}">⏱️ {{timer}}秒</view>
     </view>
     
     <!-- 玩家状态 -->
@@ -18,7 +18,7 @@
       </view>
       
       <view class="status-bar armor-bar" wx:if="{{player.armor > 0}}">
-        <text class="status-label">🛡️ 护甲</text>
+        <text class="status-label">🛡️ 护盾</text>
         <view class="bar-bg">
           <view class="bar-fill" style="width: {{player.armor / player.maxArmor * 100}}%"></view>
         </view>
@@ -33,6 +33,7 @@
       <view class="gold-info">
         <text class="gold-icon">🪙</text>
         <text class="gold-value">{{player.gold}}</text>
+        <text class="gold-label">金币</text>
       </view>
     </view>
   </view>
@@ -59,16 +60,16 @@
           data-direction="{{colIndex > player.position.y ? 'right' : (colIndex < player.position.y ? 'left' : (rowIndex > player.position.x ? 'down' : 'up'))}}">
           
           <!-- 玩家位置 -->
-          <text class="entity player-entity" wx:if="{{cell.isPlayer}}">👤</text>
+          <text class="entity player-entity" wx:if="{{cell.isPlayer}}">👦</text>
           
-          <!-- 敌人 -->
-          <text class="entity enemy-entity" wx:elif="{{cell.hasEnemy}}">👾</text>
+          <!-- 守卫机器人（代替敌人） -->
+          <text class="entity enemy-entity" wx:elif="{{cell.hasEnemy}}">🤖</text>
           
-          <!-- 物资箱 -->
-          <text class="entity box-entity" wx:elif="{{cell.hasLootBox}}">📦</text>
+          <!-- 宝箱 -->
+          <text class="entity box-entity" wx:elif="{{cell.hasLootBox}}">🎁</text>
           
           <!-- 物品 -->
-          <text class="entity item-entity" wx:elif="{{cell.hasItem}}">💎</text>
+          <text class="entity item-entity" wx:elif="{{cell.hasItem}}">✨</text>
           
           <!-- 撤离点 -->
           <text class="entity exit-entity" wx:elif="{{cell.isExit}}">🚁</text>
@@ -78,10 +79,20 @@
         </view>
       </view>
     </view>
+    
+    <!-- 地图图例 -->
+    <view class="map-legend">
+      <view class="legend-item"><text>👦 你</text></view>
+      <view class="legend-item"><text>🤖 守卫</text></view>
+      <view class="legend-item"><text>🎁 宝箱</text></view>
+      <view class="legend-item"><text>✨ 宝物</text></view>
+      <view class="legend-item"><text>🚁 撤离</text></view>
+    </view>
   </view>
 
   <!-- 控制按钮 -->
   <view class="controls" wx:if="{{gameState === 'playing'}}">
+    <view class="control-title">🎮 移动控制</view>
     <view class="control-row">
       <view class="control-btn" bindtap="onMove" data-direction="up">⬆️</view>
     </view>
@@ -92,9 +103,9 @@
     </view>
   </view>
 
-  <!-- 药品快捷栏 -->
+  <!-- 药品栏 -->
   <view class="meds-bar" wx:if="{{gameState === 'playing' && meds.length > 0}}">
-    <view class="bar-title">💊 药品</view>
+    <view class="bar-title">💊 药品（点击使用）</view>
     <view class="meds-grid">
       <view 
         class="med-item" 
@@ -105,29 +116,28 @@
         data-index="{{idx}}">
         <text class="med-icon">{{item.heal >= 100 ? '🏥' : (item.heal >= 50 ? '💉' : '🩹')}}</text>
         <text class="med-name">{{item.name}}</text>
-        <text class="med-heal">+{{item.heal}}</text>
+        <text class="med-heal">+{{item.heal}}❤️</text>
       </view>
     </view>
   </view>
 
   <!-- 物资栏 -->
   <view class="loot-bar" wx:if="{{gameState === 'playing' && loot.length > 0}}">
-    <view class="bar-title">🎒 物资 ({{loot.length}}件)</view>
+    <view class="bar-title">🎒 收集的宝物（{{loot.length}}件）</view>
     <view class="loot-grid">
       <view class="loot-item" wx:for="{{loot}}" wx:key="index" wx:for-index="idx">
-        <text class="loot-icon">{{item.type === 'weapon' ? '🔫' : (item.type === 'armor' ? '🦺' : '💰')}}</text>
+        <text class="loot-icon">{{item.type === 'weapon' ? '🔫' : (item.type === 'armor' ? '🦺' : '💎')}}</text>
         <text class="loot-name">{{item.name}}</text>
         <text class="loot-quality" style="color: {{qualityColors[item.quality.toLowerCase()]}}">{{item.quality}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 战斗日志 -->
+  <!-- 行动记录 -->
   <view class="battle-log" wx:if="{{gameState === 'playing'}}">
     <view class="log-title">📜 行动记录</view>
     <view class="log-content">
-      <view class="log-item" wx:for="{{battleLog}}" wx:key="index">
-        <text class="log-time">{{item.time}}</text>
+      <view class="log-item {{item.message.indexOf('哇') > -1 || item.message.indexOf('太棒') > -1 ? 'highlight' : ''}}" wx:for="{{battleLog}}" wx:key="index">
         <text class="log-message">{{item.message}}</text>
       </view>
     </view>

@@ -1,4 +1,4 @@
-// pages/shooting-loot/shooting-loot.js - 摸金模式（完整版）
+// pages/shooting-loot/shooting-loot.js - 摸金模式（小学生友好版）
 const shootingItems = require('../../utils/shooting-items.js');
 const shootingMap = require('../../utils/shooting-map.js');
 const shootingAI = require('../../utils/shooting-ai.js');
@@ -6,7 +6,7 @@ const shootingAI = require('../../utils/shooting-ai.js');
 Page({
   data: {
     // 游戏状态
-    gameState: 'prepare', // prepare, playing, success, failed
+    gameState: 'prepare',
     floor: 1,
     maxFloors: 3,
     
@@ -22,7 +22,7 @@ Page({
       meds: [],
       gold: 0,
       loot: [],
-      position: { x: 0, y: 0 }
+      position: { x: 4, y: 4 }
     },
     
     // 地图
@@ -30,13 +30,13 @@ Page({
     displayMap: [],
     mapSize: 8,
     
-    // 敌人
+    // 敌人（改为守卫机器人，避免暴力）
     enemies: [],
     boss: null,
     
     // 可交互对象
     items: [],
-    lootBoxes: [], // 可搜索的物资箱
+    lootBoxes: [],
     
     // 撤离点
     exitPoint: null,
@@ -45,9 +45,9 @@ Page({
     battleLog: [],
     
     // 倒计时
-    timer: 300, // 5 分钟
+    timer: 300,
     
-    // 品质颜色
+    // 品质颜色（鲜艳明亮）
     qualityColors: {
       green: '#52c41a',
       blue: '#1890ff',
@@ -56,8 +56,17 @@ Page({
       gold: '#ffd700'
     },
 
-    // 游戏提示
-    gameTip: '探索建筑，收集物资，成功撤离！'
+    // 小学生友好提示
+    gameTip: '✨ 收集宝物，躲避守卫，成功撤离！',
+    
+    // 鼓励语
+    encouragements: [
+      '太棒了！🎉',
+      '干得漂亮！⭐',
+      '继续加油！💪',
+      '真厉害！👍',
+      '你是最棒的！🏆'
+    ]
   },
 
   onLoad: function() {
@@ -72,12 +81,10 @@ Page({
 
   // 初始化游戏
   initGame: function() {
-    // 加载玩家装备
     const inventory = wx.getStorageSync('shooting_inventory') || [];
     const equippedArmor = inventory.find(item => item.equipped && item.type === 'armor');
     const equippedWeapon = inventory.find(item => item.equipped && item.type === 'weapon');
     
-    // 获取用户金币
     const userInfo = wx.getStorageSync('shooting_userInfo') || {};
     const userGold = userInfo.gold || 1000;
     
@@ -95,7 +102,6 @@ Page({
       position: { x: 4, y: 4 }
     };
 
-    // 生成地图
     const map = shootingMap.generateMap(8, this.data.floor);
     const enemies = shootingAI.generateEnemies(this.data.floor, map);
     const items = shootingItems.generateLoot(map);
@@ -112,16 +118,17 @@ Page({
       gameState: 'playing'
     });
 
-    // 初始化地图显示
     this.updateMapDisplay();
-    
-    // 启动倒计时
     this.startTimer();
     
-    // 添加初始日志
-    this.addLog('=== 摸金行动开始 ===');
-    this.addLog('目标：收集物资，成功撤离');
-    this.addLog(`剩余时间：${this.data.timer}秒`);
+    // 小学生友好的欢迎提示
+    this.addLog('🌟 摸金大冒险开始啦！');
+    this.addLog('🎯 目标：收集宝物，成功撤离');
+    this.addLog('💡 提示：走到📦箱子上自动搜索');
+    this.addLog(`⏰ 剩余时间：${this.data.timer}秒`);
+    
+    // 播放轻快提示音（如果支持）
+    this.playSound('start');
   },
 
   // 生成物资箱
@@ -131,8 +138,8 @@ Page({
     
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < map[i].length; j++) {
-        if (map[i][j].type === 'empty' && Math.random() < 0.1) {
-          const isRare = Math.random() < 0.2; // 20% 概率是稀有箱子
+        if (map[i][j].type === 'empty' && Math.random() < 0.15) {
+          const isRare = Math.random() < 0.25;
           boxes.push({
             id: 'box_' + i + '_' + j,
             position: { x: i, y: j },
@@ -166,8 +173,17 @@ Page({
       const newTimer = this.data.timer - 1;
       this.setData({ timer: newTimer });
       
+      // 时间提醒（小学生友好）
+      if (newTimer === 120) {
+        this.addLog('⏰ 还剩 2 分钟，加油！');
+      } else if (newTimer === 60) {
+        this.addLog('⚠️ 只剩 1 分钟了，快点撤离！');
+      } else if (newTimer === 30) {
+        this.addLog('🚨 最后 30 秒！快跑！');
+      }
+      
       if (newTimer <= 0) {
-        this.endGame('failed', '时间到！未能成功撤离');
+        this.endGame('failed', '时间到啦！下次要更快一点哦～');
       }
     }, 1000);
     
@@ -196,15 +212,15 @@ Page({
     
     const targetCell = map[newX][newY];
     if (targetCell.type === 'wall') {
-      this.addLog('前方是墙壁，无法通过');
+      this.addLog('🧱 前面是墙，过不去呢～');
       wx.vibrateShort({ type: 'light' });
       return;
     }
     
-    // 检查是否有敌人
+    // 检查是否有敌人（改为"守卫机器人"）
     const enemy = enemies.find(e => e.position.x === newX && e.position.y === newY);
     if (enemy) {
-      this.addLog(`发现敌人：${enemy.type}！`);
+      this.addLog(`🤖 守卫机器人挡住了去路！`);
       wx.vibrateShort({ type: 'medium' });
       return;
     }
@@ -233,7 +249,7 @@ Page({
     this.setData({ player });
   },
 
-  // 检查拾取
+  // 检查拾取（小学生友好提示）
   checkPickup: function(x, y) {
     const { items, player } = this.data;
     const itemIndex = items.findIndex(item => item.position.x === x && item.position.y === y);
@@ -241,43 +257,29 @@ Page({
     if (itemIndex !== -1) {
       const item = items[itemIndex];
       
-      // 自动分类
       if (item.type === 'med') {
         player.meds.push(item);
-        this.addLog(`拾取药品：${item.name}`);
+        this.addLog(`💊 捡到${item.name}，可以回血哦！`);
       } else if (item.type === 'grenade') {
         player.grenades.push(item);
-        this.addLog(`拾取投掷物：${item.name}`);
+        this.addLog(`💣 捡到${item.name}！`);
       } else if (item.type === 'weapon') {
         player.loot.push(item);
-        this.addLog(`拾取武器：${item.name}（${item.quality}）`);
+        this.addLog(`🔫 发现${item.name}（${this.getQualityEmoji(item.quality)}）`);
       } else if (item.type === 'armor') {
         player.loot.push(item);
-        this.addLog(`拾取护甲：${item.name}（${item.quality}）`);
+        this.addLog(`🦺 找到${item.name}（${this.getQualityEmoji(item.quality)}）`);
       } else if (item.type === 'loot') {
         player.loot.push(item);
         player.gold += item.value;
-        this.addLog(`拾取宝物：${item.name}（价值${item.value}金币）`);
+        this.addLog(`💎 哇！${item.name}！价值${item.value}金币！`);
+        this.showEncouragement();
       }
       
       items.splice(itemIndex, 1);
       this.setData({ items, player });
       wx.vibrateShort({ type: 'light' });
-    }
-  },
-
-  // 检查物资箱
-  checkLootBox: function(x, y) {
-    const { lootBoxes } = this.data;
-    const boxIndex = lootBoxes.findIndex(box => 
-      box.position.x === x && 
-      box.position.y === y && 
-      !box.searched
-    );
-    
-    if (boxIndex !== -1) {
-      const box = lootBoxes[boxIndex];
-      this.searchLootBox(boxIndex);
+      this.playSound('pickup');
     }
   },
 
@@ -286,7 +288,6 @@ Page({
     const { lootBoxes, player } = this.data;
     const box = lootBoxes[boxIndex];
     
-    // 生成战利品
     const qualityRoll = Math.random();
     let quality = 'GREEN';
     
@@ -300,12 +301,10 @@ Page({
       else quality = 'BLUE';
     }
     
-    // 随机生成物品
     const types = ['med', 'grenade', 'weapon', 'armor', 'loot'];
     const type = types[Math.floor(Math.random() * types.length)];
     const item = shootingItems.getRandomItemByType(type, this.data.floor);
     
-    // 添加到玩家背包
     if (item.type === 'med') {
       player.meds.push(item);
     } else if (item.type === 'grenade') {
@@ -319,60 +318,68 @@ Page({
     
     box.searched = true;
     
-    this.addLog(`搜索物资箱：获得${item.name}（${item.quality}）`);
+    this.addLog(`🎁 打开宝箱：${item.name}（${this.getQualityEmoji(item.quality)}）`);
     wx.vibrateShort({ type: 'medium' });
+    this.playSound('box');
+    
+    // 开出好东西时给予鼓励
+    if (quality === 'PURPLE' || quality === 'ORANGE' || quality === 'GOLD') {
+      this.showEncouragement();
+      this.addLog('🌟 哇！超级厉害的宝物！');
+    }
     
     this.setData({ lootBoxes, player });
   },
 
-  // 敌人回合
+  // 敌人回合（改为"守卫机器人巡逻"）
   enemyTurn: function() {
     const { player, enemies } = this.data;
     
     enemies.forEach(enemy => {
-      // 简单 AI：向玩家移动
+      // 简化 AI：慢慢向玩家移动
       const dx = player.position.x - enemy.position.x;
       const dy = player.position.y - enemy.position.y;
       
-      let newX = enemy.position.x;
-      let newY = enemy.position.y;
-      
-      if (Math.abs(dx) > Math.abs(dy)) {
-        newX += dx > 0 ? 1 : -1;
-      } else {
-        newY += dy > 0 ? 1 : -1;
-      }
-      
-      enemy.position = { x: newX, y: newY };
-      
-      // 检查是否攻击玩家
-      if (newX === player.position.x && newY === player.position.y) {
-        this.playerHit(enemy.damage, enemy.type);
+      // 50% 概率移动（降低难度）
+      if (Math.random() < 0.5) {
+        let newX = enemy.position.x;
+        let newY = enemy.position.y;
+        
+        if (Math.abs(dx) > Math.abs(dy)) {
+          newX += dx > 0 ? 1 : -1;
+        } else {
+          newY += dy > 0 ? 1 : -1;
+        }
+        
+        enemy.position = { x: newX, y: newY };
+        
+        // 检查是否碰到玩家
+        if (newX === player.position.x && newY === player.position.y) {
+          this.playerHit(Math.floor(enemy.damage * 0.6), enemy.type); // 降低伤害
+        }
       }
     });
     
     this.setData({ enemies });
   },
 
-  // 玩家被击中
+  // 玩家被击中（温和提示）
   playerHit: function(damage, enemyType) {
     const { player } = this.data;
     
-    // 先扣护甲
     if (player.armor > 0) {
       const armorDamage = Math.min(player.armor, damage);
       player.armor -= armorDamage;
       damage -= armorDamage;
     }
     
-    // 再扣血
     player.hp -= damage;
     
-    this.addLog(`被${enemyType}击中！损失${damage}点生命`);
-    wx.vibrateShort({ type: 'heavy' });
+    this.addLog(`⚠️ 被守卫机器人碰到！掉了${damage}点血`);
+    wx.vibrateShort({ type: 'medium' });
     
     if (player.hp <= 0) {
-      this.endGame('failed', '你被击败了');
+      this.endGame('failed', '哎呀！被抓住了～下次要更小心哦！');
     }
     
     this.setData({ player });
@@ -392,8 +399,14 @@ Page({
     player.hp = Math.min(player.hp + healAmount, maxHpCap);
     meds.splice(index, 1);
     
-    this.addLog(`使用${med.name}，恢复${healAmount}点生命`);
+    this.addLog(`💊 使用${med.name}，恢复了${healAmount}点生命！`);
     wx.vibrateShort({ type: 'light' });
+    this.playSound('heal');
+    
+    // 鼓励
+    if (player.hp > 80) {
+      this.addLog('✨ 状态恢复啦！继续加油！');
+    }
     
     this.setData({ player, meds });
   },
@@ -435,14 +448,14 @@ Page({
     const { player } = this.data;
     
     wx.showModal({
-      title: '🚁 撤离点',
-      content: `本次获得金币：${player.gold}\n携带物资：${player.loot.length}件\n确定要撤离吗？`,
-      confirmText: '撤离',
-      cancelText: '继续',
+      title: '🚁 撤离直升机',
+      content: `太棒啦！收集了这么多宝物！\n\n💰 金币：${player.gold}\n🎒 物资：${player.loot.length}件\n\n要撤离吗？`,
+      confirmText: '撤离✈️',
+      cancelText: '再逛逛',
       confirmColor: '#52c41a',
       success: (res) => {
         if (res.confirm) {
-          this.endGame('success', '成功撤离');
+          this.endGame('success', '成功撤离！你真厉害！');
         }
       }
     });
@@ -463,8 +476,8 @@ Page({
       this.saveLoot();
       
       wx.showModal({
-        title: '🎉 成功撤离',
-        content: `${reason}\n获得金币：${this.data.player.gold}\n物资：${this.data.player.loot.length}件`,
+        title: '🎉 大成功！',
+        content: `${reason}\n\n🏆 获得金币：${this.data.player.gold}\n📦 物资：${this.data.player.loot.length}件\n\n你真是个寻宝小能手！`,
         showCancel: false,
         confirmColor: '#52c41a',
         success: () => {
@@ -473,10 +486,10 @@ Page({
       });
     } else {
       wx.showModal({
-        title: '💀 任务失败',
-        content: reason,
+        title: '💪 继续加油！',
+        content: `${reason}\n\n别灰心，多练习几次就会更厉害！\n要不要再来一次？`,
         showCancel: false,
-        confirmColor: '#ff4444',
+        confirmColor: '#1890ff',
         success: () => {
           wx.navigateBack({ delta: 1 });
         }
@@ -500,7 +513,7 @@ Page({
     wx.setStorageSync('shooting_userInfo', userInfo);
   },
 
-  // 添加战斗日志
+  // 添加战斗日志（小学生友好）
   addLog: function(message) {
     const battleLog = this.data.battleLog;
     battleLog.unshift({
@@ -513,5 +526,35 @@ Page({
     }
     
     this.setData({ battleLog });
+  },
+
+  // 显示鼓励
+  showEncouragement: function() {
+    const encouragements = this.data.encouragements;
+    const randomMsg = encouragements[Math.floor(Math.random() * encouragements.length)];
+    this.addLog(`${randomMsg}`);
+  },
+
+  // 获取品质 Emoji
+  getQualityEmoji: function(quality) {
+    const emojis = {
+      'GREEN': '🟢',
+      'BLUE': '🔵',
+      'PURPLE': '🟣',
+      'ORANGE': '🟠',
+      'GOLD': '🟡'
+    };
+    return emojis[quality] || '⚪';
+  },
+
+  // 播放音效（预留接口）
+  playSound: function(type) {
+    // 后续可以添加音效
+    // const sounds = {
+    //   'start': 'sounds/start.mp3',
+    //   'pickup': 'sounds/pickup.mp3',
+    //   'box': 'sounds/box.mp3',
+    //   'heal': 'sounds/heal.mp3'
+    // };
   }
 });
