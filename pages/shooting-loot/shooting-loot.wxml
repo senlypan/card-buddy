@@ -1,4 +1,4 @@
-<!--pages/shooting-loot/shooting-loot.wxml-->
+<!--pages/shooting-loot/shooting-loot.wxml - 完整版-->
 <view class="container">
   <!-- 游戏状态显示 -->
   <view class="game-header" wx:if="{{gameState === 'playing'}}">
@@ -28,6 +28,11 @@
       <view class="weapon-info" wx:if="{{player.weapon}}">
         <text class="weapon-name">{{player.weapon.name}}</text>
         <text class="ammo-count">🔫 {{player.ammo}}/{{player.weapon.magazine}}</text>
+      </view>
+      
+      <view class="gold-info">
+        <text class="gold-icon">🪙</text>
+        <text class="gold-value">{{player.gold}}</text>
       </view>
     </view>
   </view>
@@ -59,8 +64,11 @@
           <!-- 敌人 -->
           <text class="entity enemy-entity" wx:elif="{{cell.hasEnemy}}">👾</text>
           
+          <!-- 物资箱 -->
+          <text class="entity box-entity" wx:elif="{{cell.hasLootBox}}">📦</text>
+          
           <!-- 物品 -->
-          <text class="entity item-entity" wx:elif="{{cell.hasItem}}">📦</text>
+          <text class="entity item-entity" wx:elif="{{cell.hasItem}}">💎</text>
           
           <!-- 撤离点 -->
           <text class="entity exit-entity" wx:elif="{{cell.isExit}}">🚁</text>
@@ -84,22 +92,50 @@
     </view>
   </view>
 
-  <!-- 背包快捷栏 -->
-  <view class="quick-bar" wx:if="{{gameState === 'playing'}}">
-    <view class="quick-item" wx:for="{{player.loot}}" wx:key="index" wx:for-index="idx">
-      <text class="quick-icon">{{item.type === 'weapon' ? '🔫' : (item.type === 'med' ? '💊' : '📦')}}</text>
-      <text class="quick-name">{{item.name}}</text>
+  <!-- 药品快捷栏 -->
+  <view class="meds-bar" wx:if="{{gameState === 'playing' && meds.length > 0}}">
+    <view class="bar-title">💊 药品</view>
+    <view class="meds-grid">
+      <view 
+        class="med-item" 
+        wx:for="{{meds}}" 
+        wx:key="index" 
+        wx:for-index="idx"
+        bindtap="useMed"
+        data-index="{{idx}}">
+        <text class="med-icon">{{item.heal >= 100 ? '🏥' : (item.heal >= 50 ? '💉' : '🩹')}}</text>
+        <text class="med-name">{{item.name}}</text>
+        <text class="med-heal">+{{item.heal}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 物资栏 -->
+  <view class="loot-bar" wx:if="{{gameState === 'playing' && loot.length > 0}}">
+    <view class="bar-title">🎒 物资 ({{loot.length}}件)</view>
+    <view class="loot-grid">
+      <view class="loot-item" wx:for="{{loot}}" wx:key="index" wx:for-index="idx">
+        <text class="loot-icon">{{item.type === 'weapon' ? '🔫' : (item.type === 'armor' ? '🦺' : '💰')}}</text>
+        <text class="loot-name">{{item.name}}</text>
+        <text class="loot-quality" style="color: {{qualityColors[item.quality.toLowerCase()]}}">{{item.quality}}</text>
+      </view>
     </view>
   </view>
 
   <!-- 战斗日志 -->
   <view class="battle-log" wx:if="{{gameState === 'playing'}}">
-    <view class="log-title">📜 战斗日志</view>
+    <view class="log-title">📜 行动记录</view>
     <view class="log-content">
       <view class="log-item" wx:for="{{battleLog}}" wx:key="index">
         <text class="log-time">{{item.time}}</text>
         <text class="log-message">{{item.message}}</text>
       </view>
     </view>
+  </view>
+
+  <!-- 游戏提示 -->
+  <view class="game-tip" wx:if="{{gameState === 'playing'}}">
+    <text class="tip-icon">💡</text>
+    <text class="tip-text">{{gameTip}}</text>
   </view>
 </view>

@@ -1,4 +1,4 @@
-/* pages/shooting-loot/shooting-loot.wxss */
+/* pages/shooting-loot/shooting-loot.wxss - 完整版 */
 .container {
   min-height: 100vh;
   background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
@@ -16,6 +16,7 @@
 .info-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20rpx;
 }
 
@@ -29,10 +30,14 @@
   font-size: 28rpx;
   color: #fff;
   font-weight: bold;
+  padding: 8rpx 16rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
 }
 
 .timer.warning {
   color: #ff4444;
+  background: rgba(255, 68, 68, 0.2);
   animation: pulse 1s infinite;
 }
 
@@ -108,6 +113,27 @@
   color: #fff;
 }
 
+.gold-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 15rpx;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.1) 100%);
+  border-radius: 10rpx;
+  border: 1rpx solid rgba(255, 215, 0, 0.3);
+}
+
+.gold-icon {
+  font-size: 32rpx;
+}
+
+.gold-value {
+  font-size: 32rpx;
+  color: #ffd700;
+  font-weight: bold;
+}
+
 /* 地图容器 */
 .map-container {
   background: rgba(0, 0, 0, 0.3);
@@ -134,6 +160,10 @@
   position: relative;
 }
 
+.cell.wall {
+  background: rgba(100, 100, 100, 0.5);
+}
+
 .cell-inner {
   width: 100%;
   height: 100%;
@@ -143,14 +173,6 @@
   position: relative;
 }
 
-.cell.wall {
-  background: rgba(100, 100, 100, 0.5);
-}
-
-.cell.player {
-  background: rgba(76, 175, 80, 0.3);
-}
-
 .wall-icon {
   font-size: 40rpx;
 }
@@ -158,10 +180,17 @@
 .entity {
   font-size: 40rpx;
   position: absolute;
+  animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5rpx); }
 }
 
 .player-entity {
   animation: playerGlow 2s infinite;
+  filter: drop-shadow(0 0 10rpx #4caf50);
 }
 
 @keyframes playerGlow {
@@ -175,7 +204,26 @@
 
 @keyframes enemyPulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  50% { transform: scale(1.15); }
+}
+
+.box-entity {
+  animation: boxShake 3s infinite;
+}
+
+@keyframes boxShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+.item-entity {
+  animation: itemSparkle 2s infinite;
+}
+
+@keyframes itemSparkle {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
 }
 
 .exit-entity {
@@ -217,35 +265,94 @@
   transform: scale(0.95);
 }
 
-/* 快捷栏 */
-.quick-bar {
-  display: flex;
-  gap: 10rpx;
-  padding: 20rpx;
+/* 药品栏 */
+.meds-bar {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20rpx;
+  padding: 20rpx;
   margin-bottom: 20rpx;
+}
+
+.bar-title {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+}
+
+.meds-grid {
+  display: flex;
+  gap: 10rpx;
   overflow-x: auto;
 }
 
-.quick-item {
+.med-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 5rpx;
-  padding: 10rpx;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10rpx;
-  min-width: 100rpx;
+  padding: 15rpx;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1rpx solid rgba(76, 175, 80, 0.4);
+  border-radius: 15rpx;
+  min-width: 120rpx;
 }
 
-.quick-icon {
+.med-icon {
   font-size: 40rpx;
 }
 
-.quick-name {
-  font-size: 20rpx;
+.med-name {
+  font-size: 22rpx;
   color: #fff;
+}
+
+.med-heal {
+  font-size: 20rpx;
+  color: #52c41a;
+  font-weight: bold;
+}
+
+/* 物资栏 */
+.loot-bar {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.loot-grid {
+  display: flex;
+  gap: 10rpx;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.loot-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rpx;
+  padding: 15rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15rpx;
+  min-width: 120rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.loot-icon {
+  font-size: 40rpx;
+}
+
+.loot-name {
+  font-size: 22rpx;
+  color: #fff;
+  text-align: center;
+}
+
+.loot-quality {
+  font-size: 18rpx;
+  font-weight: bold;
 }
 
 /* 战斗日志 */
@@ -255,6 +362,7 @@
   padding: 20rpx;
   max-height: 300rpx;
   overflow-y: auto;
+  margin-bottom: 20rpx;
 }
 
 .log-title {
@@ -262,6 +370,8 @@
   color: #fff;
   font-weight: bold;
   margin-bottom: 15rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10rpx;
 }
 
 .log-content {
@@ -287,5 +397,26 @@
 .log-message {
   font-size: 24rpx;
   color: #fff;
+  flex: 1;
+}
+
+/* 游戏提示 */
+.game-tip {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 15rpx;
+  background: rgba(24, 144, 255, 0.15);
+  border: 1rpx solid rgba(24, 144, 255, 0.3);
+  border-radius: 15rpx;
+}
+
+.tip-icon {
+  font-size: 32rpx;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: #1890ff;
   flex: 1;
 }
