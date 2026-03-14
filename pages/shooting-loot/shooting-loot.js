@@ -101,6 +101,9 @@ Page({
       gameState: 'playing'
     });
 
+    // 初始化地图显示
+    this.updateMapDisplay();
+
     // 启动倒计时
     this.startTimer();
   },
@@ -179,7 +182,41 @@ Page({
     // 敌人回合
     this.enemyTurn();
     
-    this.setData({ player, map });
+    // 更新地图显示
+    this.updateMapDisplay();
+    
+    this.setData({ player });
+  },
+
+  // 更新地图显示（预计算每个位置的内容）
+  updateMapDisplay: function() {
+    const { map, enemies, items, exitPoint, player } = this.data;
+    const size = map.length;
+    
+    // 创建显示地图
+    const displayMap = map.map((row, i) => {
+      return row.map((cell, j) => {
+        const newCell = { ...cell };
+        
+        // 检查是否有敌人
+        const hasEnemy = enemies.some(e => e.position.x === i && e.position.y === j);
+        // 检查是否有物品
+        const hasItem = items.some(item => item.position.x === i && item.position.y === j);
+        // 检查是否是玩家
+        const isPlayer = player.position.x === i && player.position.y === j;
+        // 检查是否是撤离点
+        const isExit = exitPoint.x === i && exitPoint.y === j;
+        
+        newCell.hasEnemy = hasEnemy;
+        newCell.hasItem = hasItem;
+        newCell.isPlayer = isPlayer;
+        newCell.isExit = isExit;
+        
+        return newCell;
+      });
+    });
+    
+    this.setData({ displayMap });
   },
 
   // 检查拾取

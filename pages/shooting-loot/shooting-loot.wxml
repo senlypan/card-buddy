@@ -36,14 +36,14 @@
   <view class="map-container" wx:if="{{gameState === 'playing'}}">
     <view class="map-grid">
       <view 
-        class="cell {{cell.type}} {{cell.x === player.position.x && cell.y === player.position.y ? 'player' : ''}}"
-        wx:for="{{map}}"
+        class="cell {{displayMap[rowIndex][colIndex].type}}"
+        wx:for="{{displayMap}}"
         wx:for-item="row"
         wx:for-index="rowIndex"
         wx:key="*this">
         
         <view 
-          class="cell-inner {{row[colIndex].type}}"
+          class="cell-inner"
           wx:for="{{row}}"
           wx:for-item="cell"
           wx:for-index="colIndex"
@@ -54,18 +54,18 @@
           data-direction="{{colIndex > player.position.y ? 'right' : (colIndex < player.position.y ? 'left' : (rowIndex > player.position.x ? 'down' : 'up'))}}">
           
           <!-- 玩家位置 -->
-          <text class="entity player-entity" wx:if="{{rowIndex === player.position.x && colIndex === player.position.y}}">👤</text>
+          <text class="entity player-entity" wx:if="{{cell.isPlayer}}">👤</text>
           
           <!-- 敌人 -->
-          <text class="entity enemy-entity" wx:elif="{{enemies.length > 0 && enemies.findIndex(e => e.position.x === rowIndex && e.position.y === colIndex) !== -1}}">👾</text>
+          <text class="entity enemy-entity" wx:elif="{{cell.hasEnemy}}">👾</text>
           
           <!-- 物品 -->
-          <text class="entity item-entity" wx:elif="{{items.length > 0 && items.findIndex(i => i.position.x === rowIndex && i.position.y === colIndex) !== -1}}">📦</text>
+          <text class="entity item-entity" wx:elif="{{cell.hasItem}}">📦</text>
           
           <!-- 撤离点 -->
-          <text class="entity exit-entity" wx:elif="{{exitPoint.x === rowIndex && exitPoint.y === colIndex}}">🚁</text>
+          <text class="entity exit-entity" wx:elif="{{cell.isExit}}">🚁</text>
           
-          <!-- 墙壁 -->
+          <!-- 墙壁图标 -->
           <text wx:if="{{cell.type === 'wall'}}" class="wall-icon">🧱</text>
         </view>
       </view>
